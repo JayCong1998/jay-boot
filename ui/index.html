@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Java Micro-SaaS Starter UI 原型</title>
+    <link rel="stylesheet" href="assets/global.css" />
+  </head>
+  <body data-page="home">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="index.html">原型总览 <span class="nav-pill">NEW</span></a></li>
+          <li><a class="nav-link" data-page="auth-register" href="pages/auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="pages/auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="pages/dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="pages/tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="pages/rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="pages/billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="pages/apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="pages/ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="pages/usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>原型总览</strong></div>
+          <div class="top-actions">
+            <button class="button secondary js-prototype-action" data-message="已切换到产品视图（原型）">产品视图</button>
+            <button class="button primary js-prototype-action" data-message="原型导出清单已生成（示意）">导出评审清单</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="home" href="index.html">总览</a>
+          <a class="mobile-link" data-page="dashboard" href="pages/dashboard.html">控制台</a>
+          <a class="mobile-link" data-page="billing" href="pages/billing.html">订阅</a>
+          <a class="mobile-link" data-page="ai-gateway" href="pages/ai-gateway.html">AI</a>
+          <a class="mobile-link" data-page="usage" href="pages/usage.html">运营</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <section class="hero">
+            <article class="card">
+              <p class="chip success">MVP 范围对齐 PRD + 技术文档</p>
+              <h2 class="section-title">Micro-SaaS 脚手架 UI 原型</h2>
+              <p class="section-subtitle">
+                当前原型覆盖 Auth、Tenant、RBAC、Billing、API Key、AI Gateway、运营与通知等核心模块。
+                页面结构按可开发落地方式设计，方便后续直接映射 Vue3 + Ant Design Vue 页面路由与组件。
+              </p>
+              <div class="split">
+                <button class="button primary js-prototype-action" data-message="已模拟生成 UX 评审模式">进入评审模式</button>
+                <a class="button secondary" href="pages/dashboard.html">查看控制台页</a>
+              </div>
+            </article>
+            <article class="hero-preview">
+              <div class="mini-shell" aria-hidden="true">
+                <div class="mini-nav"></div>
+                <div class="mini-main">
+                  <div class="chip">KPI</div>
+                  <div class="chip">事件流</div>
+                  <div class="chip">订阅态</div>
+                  <div class="chip">AI 成本</div>
+                  <div class="chip">任务状态</div>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">原型页面数</span>
+                <strong class="kpi-value">9</strong>
+                <span class="kpi-trend">含入口 + 8 业务页</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">模块覆盖率</span>
+                <strong class="kpi-value">100%</strong>
+                <span class="kpi-trend">MVP 六大模块 + 运维能力</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">设计风格</span>
+                <strong class="kpi-value">Tech Business</strong>
+                <span class="kpi-trend">可读性优先</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">适配断点</span>
+                <strong class="kpi-value">4</strong>
+                <span class="kpi-trend">375 / 768 / 1024 / 1440</span>
+              </div>
+            </article>
+          </section>
+
+          <section class="card">
+            <h3 class="section-title">页面入口</h3>
+            <p class="section-subtitle">按照“用户从注册到付费再到调用 AI”的主流程组织。</p>
+            <div class="card-grid">
+              <article class="card soft span-4">
+                <h4>Auth 注册</h4>
+                <p class="section-subtitle">邮箱注册、Workspace 初始化、账号激活。</p>
+                <a class="button secondary" href="pages/auth-register.html">打开页面</a>
+              </article>
+              <article class="card soft span-4">
+                <h4>Auth 登录</h4>
+                <p class="section-subtitle">登录态、风控、Session 信息与设备管理。</p>
+                <a class="button secondary" href="pages/auth-login.html">打开页面</a>
+              </article>
+              <article class="card soft span-4">
+                <h4>控制台</h4>
+                <p class="section-subtitle">KPI、任务状态、模块健康度、关键告警。</p>
+                <a class="button secondary" href="pages/dashboard.html">打开页面</a>
+              </article>
+              <article class="card soft span-4">
+                <h4>Tenant</h4>
+                <p class="section-subtitle">Workspace 基础信息、成员与隔离策略。</p>
+                <a class="button secondary" href="pages/tenant.html">打开页面</a>
+              </article>
+              <article class="card soft span-4">
+                <h4>RBAC</h4>
+                <p class="section-subtitle">角色矩阵、API 权限映射、授权审计轨迹。</p>
+                <a class="button secondary" href="pages/rbac.html">打开页面</a>
+              </article>
+              <article class="card soft span-4">
+                <h4>Billing</h4>
+                <p class="section-subtitle">套餐、订阅状态机、支付回调与发票记录。</p>
+                <a class="button secondary" href="pages/billing.html">打开页面</a>
+              </article>
+              <article class="card soft span-4">
+                <h4>API Key</h4>
+                <p class="section-subtitle">Key 生命周期、限流策略、密钥轮换。</p>
+                <a class="button secondary" href="pages/apikey.html">打开页面</a>
+              </article>
+              <article class="card soft span-4">
+                <h4>AI Gateway</h4>
+                <p class="section-subtitle">Provider 管理、统一接口、成本监控。</p>
+                <a class="button secondary" href="pages/ai-gateway.html">打开页面</a>
+              </article>
+              <article class="card soft span-4">
+                <h4>用量与运营</h4>
+                <p class="section-subtitle">任务队列、通知渠道、运营报表与告警。</p>
+                <a class="button secondary" href="pages/usage.html">打开页面</a>
+              </article>
+            </div>
+          </section>
+
+          <section class="card">
+            <h3 class="section-title">模块覆盖矩阵</h3>
+            <div class="table-wrap">
+              <table aria-label="模块覆盖矩阵">
+                <thead>
+                  <tr>
+                    <th>PRD 模块</th>
+                    <th>原型页面</th>
+                    <th>主流程覆盖</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Auth</td>
+                    <td><code>auth-register.html</code> / <code>auth-login.html</code></td>
+                    <td>注册、登录、会话</td>
+                    <td><span class="chip success">已覆盖</span></td>
+                  </tr>
+                  <tr>
+                    <td>Tenant</td>
+                    <td><code>tenant.html</code></td>
+                    <td>Workspace 与成员</td>
+                    <td><span class="chip success">已覆盖</span></td>
+                  </tr>
+                  <tr>
+                    <td>RBAC</td>
+                    <td><code>rbac.html</code></td>
+                    <td>角色、权限、API 映射</td>
+                    <td><span class="chip success">已覆盖</span></td>
+                  </tr>
+                  <tr>
+                    <td>Billing</td>
+                    <td><code>billing.html</code></td>
+                    <td>套餐、订阅、支付回调</td>
+                    <td><span class="chip success">已覆盖</span></td>
+                  </tr>
+                  <tr>
+                    <td>API Key + 用量</td>
+                    <td><code>apikey.html</code> / <code>usage.html</code></td>
+                    <td>创建、禁用、限流、统计</td>
+                    <td><span class="chip success">已覆盖</span></td>
+                  </tr>
+                  <tr>
+                    <td>AI Gateway</td>
+                    <td><code>ai-gateway.html</code></td>
+                    <td>统一接口、成本监控</td>
+                    <td><span class="chip success">已覆盖</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="assets/shell.js"></script>
+  </body>
+</html>

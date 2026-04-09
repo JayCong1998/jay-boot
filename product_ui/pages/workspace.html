@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>创作工作台 - JayBoot Creator</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="workspace">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <header class="site-header">
+      <div class="shell topbar">
+        <a class="brand" href="home.html">
+          <span class="brand-logo">JC</span>
+          <span class="brand-text"><strong>JayBoot Creator</strong><span>AI 文本创作助手</span></span>
+        </a>
+        <nav class="top-nav" aria-label="站点导航">
+          <a data-page="home" href="home.html">首页</a>
+          <a data-page="features" href="features.html">功能</a>
+          <a data-page="pricing" href="pricing.html">定价</a>
+          <a data-page="workspace" href="workspace.html">工作台</a>
+          <a data-page="history" href="history.html">历史</a>
+          <a data-page="subscription" href="subscription.html">订阅</a>
+          <a data-page="help" href="help.html">帮助</a>
+        </nav>
+        <div class="top-actions">
+          <a class="button ghost" href="history.html">历史记录</a>
+          <a class="button primary" href="result-delivery.html">查看交付</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="shell">
+        <section class="hero">
+          <span class="eyebrow">从输入到成稿的核心引擎</span>
+          <h2 data-crumb>创作工作台</h2>
+          <p>输入主题后可并行生成多版本文案，结合目标平台与语气偏好，让发布内容更快进入可转化状态。</p>
+          <div class="hero-actions">
+            <button class="button primary js-prototype-action" data-message="已模拟：生成 3 个版本">生成文案</button>
+            <button class="button js-prototype-action" data-message="已模拟：保存为模板">保存模板</button>
+          </div>
+          <div class="trust-strip">
+            <span class="trust-badge">多版本并行生成</span>
+            <span class="trust-badge">支持品牌语气约束</span>
+            <span class="trust-badge">支持一键导出交付</span>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="grid">
+            <article class="card span-5">
+              <h3>输入参数</h3>
+              <div class="form-grid">
+                <div><label class="label" for="ws-topic">主题</label><input id="ws-topic" class="input" value="个人IP定位方法" /></div>
+                <div><label class="label" for="ws-platform">平台</label><select id="ws-platform" class="select"><option>小红书</option><option>公众号</option><option>短视频</option></select></div>
+                <div><label class="label" for="ws-goal">目标</label><select id="ws-goal" class="select"><option>吸引关注</option><option>引导咨询</option><option>推动成交</option></select></div>
+                <div><label class="label" for="ws-material">补充素材</label><textarea id="ws-material" class="textarea">过往内容数据、目标用户画像、品牌关键词。</textarea></div>
+                <button class="button primary js-prototype-action" data-message="已模拟：生成完成">生成内容</button>
+              </div>
+            </article>
+            <article class="card span-7">
+              <h3>结果预览</h3>
+              <ul class="feature-points">
+                <li>版本 A：专业洞察，适合知识型账号</li>
+                <li>版本 B：故事化结构，更强代入感</li>
+                <li>版本 C：转化导向，适合私域承接</li>
+              </ul>
+              <div class="hero-actions">
+                <button class="button js-prototype-action" data-message="已模拟：复制结果">复制结果</button>
+                <button class="button js-prototype-action" data-message="已模拟：保存到历史">保存历史</button>
+                <a class="button primary" href="result-delivery.html">进入交付</a>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <article class="final-cta">
+            <h3>当生成频率提升后，建议升级套餐获取更高额度与批量能力</h3>
+            <p class="section-subtitle">避免高峰期额度不足，确保内容产出连续稳定。</p>
+            <div class="hero-actions">
+              <a class="button primary" href="pricing.html">查看升级方案</a>
+              <a class="button" href="subscription.html">管理订阅</a>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer"><div class="footer-inner"><span>© 2026 JayBoot Creator</span><span>品牌质感官网原型</span></div></footer>
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

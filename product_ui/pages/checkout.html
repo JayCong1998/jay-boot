@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>支付页 - JayBoot Creator</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="checkout">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <header class="site-header">
+      <div class="shell topbar">
+        <a class="brand" href="home.html">
+          <span class="brand-logo">JC</span>
+          <span class="brand-text"><strong>JayBoot Creator</strong><span>AI 文本创作助手</span></span>
+        </a>
+        <nav class="top-nav" aria-label="站点导航">
+          <a data-page="home" href="home.html">首页</a>
+          <a data-page="features" href="features.html">功能</a>
+          <a data-page="pricing" href="pricing.html">定价</a>
+          <a data-page="workspace" href="workspace.html">工作台</a>
+          <a data-page="history" href="history.html">历史</a>
+          <a data-page="subscription" href="subscription.html">订阅</a>
+          <a data-page="help" href="help.html">帮助</a>
+        </nav>
+        <div class="top-actions">
+          <a class="button ghost" href="pricing.html">返回定价</a>
+          <a class="button primary" href="payment-success.html">模拟支付成功</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="shell">
+        <section class="hero">
+          <span class="eyebrow">安全支付与快速开通</span>
+          <h2 data-crumb>支付页</h2>
+          <p>支付流程保持最短路径：确认套餐、选择支付、完成扣款。重点减少犹豫点并强化信任信息。</p>
+          <div class="hero-actions">
+            <button class="button js-prototype-action" data-message="已模拟：应用新用户优惠">应用优惠券</button>
+            <button class="button primary js-prototype-action" data-message="已模拟：确认支付">确认支付</button>
+          </div>
+          <div class="trust-strip">
+            <span class="trust-badge">SSL 安全支付</span>
+            <span class="trust-badge">支持企业发票</span>
+            <span class="trust-badge">7 天首购保障</span>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="grid">
+            <article class="card span-7">
+              <h3>订单总览</h3>
+              <div class="table-wrap">
+                <table>
+                  <tbody>
+                    <tr><th>套餐</th><td>Pro 创作版（月付）</td></tr>
+                    <tr><th>单价</th><td>¥129 / 月</td></tr>
+                    <tr><th>优惠券</th><td>-¥20（新用户首月）</td></tr>
+                    <tr><th>税费</th><td>¥0</td></tr>
+                    <tr><th>应付金额</th><td><strong>¥109</strong></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="hero-actions">
+                <button class="button js-prototype-action" data-message="已模拟：切换年付方案">切换为年付更省</button>
+              </div>
+            </article>
+
+            <article class="card soft span-5">
+              <h3>支付方式</h3>
+              <div class="form-grid">
+                <label><input type="radio" name="pay" checked /> 微信支付</label>
+                <label><input type="radio" name="pay" /> 支付宝</label>
+                <label><input type="radio" name="pay" /> 银联信用卡</label>
+              </div>
+              <div class="hero-actions">
+                <button class="button primary js-prototype-action" data-message="已模拟：生成支付二维码">生成支付二维码</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="grid">
+            <article class="card span-7">
+              <h3>发票信息（可选）</h3>
+              <div class="form-grid">
+                <div>
+                  <label class="label" for="invoice-title">抬头</label>
+                  <input id="invoice-title" class="input" placeholder="请输入公司名称" />
+                </div>
+                <div>
+                  <label class="label" for="invoice-tax">税号</label>
+                  <input id="invoice-tax" class="input" placeholder="请输入统一社会信用代码" />
+                </div>
+              </div>
+            </article>
+            <article class="card span-5">
+              <h3>支付 FAQ</h3>
+              <ul class="feature-points">
+                <li>支付后 1 分钟内自动开通权限</li>
+                <li>支持对公转账（企业版）</li>
+                <li>支付失败不会重复扣款</li>
+              </ul>
+              <div class="hero-actions">
+                <a class="button" href="help.html">支付遇到问题？</a>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer"><div class="footer-inner"><span>© 2026 JayBoot Creator</span><span>品牌质感官网原型</span></div></footer>
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

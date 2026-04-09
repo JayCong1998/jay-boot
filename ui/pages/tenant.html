@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workspace 租户 - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="tenant">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>Workspace 租户</strong></div>
+          <div class="top-actions">
+            <button class="button secondary js-prototype-action" data-message="已模拟切换 Workspace">切换 Workspace</button>
+            <button class="button primary js-prototype-action" data-message="租户配置已提交（原型）">保存配置</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="tenant" href="tenant.html">租户</a>
+          <a class="mobile-link" data-page="rbac" href="rbac.html">权限</a>
+          <a class="mobile-link" data-page="billing" href="billing.html">订阅</a>
+          <a class="mobile-link" data-page="usage" href="usage.html">运营</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">Tenant 隔离与 Workspace 管理</h2>
+          <p class="section-subtitle">该页面对应伪多租户核心能力，强调 tenant_id 边界、成员管理和跨租户审计。</p>
+
+          <section class="card-grid">
+            <article class="card span-8">
+              <h3>Workspace 基础设置</h3>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="workspace-name">Workspace 名称</label>
+                  <input id="workspace-name" type="text" value="Starter Space" />
+                </div>
+                <div class="field">
+                  <label for="workspace-plan">当前套餐</label>
+                  <select id="workspace-plan">
+                    <option>Pro 月付</option>
+                    <option>Free</option>
+                    <option>Team 年付</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="workspace-region">数据区域</label>
+                  <select id="workspace-region">
+                    <option>中国-上海</option>
+                    <option>中国-深圳</option>
+                    <option>新加坡</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="workspace-owner">Owner</label>
+                  <input id="workspace-owner" type="text" value="founder@demo.io" />
+                </div>
+                <div class="field full">
+                  <label for="workspace-rule">隔离策略说明</label>
+                  <textarea id="workspace-rule">所有业务请求默认注入 tenant_id；跨租户操作需 super_admin 显式授权并记录审计。</textarea>
+                </div>
+              </div>
+            </article>
+
+            <article class="card span-4 soft">
+              <h3>租户健康</h3>
+              <ul class="list">
+                <li><strong>租户ID</strong> <code>tenant_10001</code></li>
+                <li><strong>成员数</strong> 12 / 20</li>
+                <li><strong>存储配额</strong> 63%</li>
+                <li><strong>隔离审计</strong> <span class="chip success">通过</span></li>
+              </ul>
+            </article>
+          </section>
+
+          <section class="card">
+            <h3 class="section-title">成员与角色</h3>
+            <div class="table-wrap">
+              <table aria-label="租户成员表">
+                <thead>
+                  <tr>
+                    <th>成员</th>
+                    <th>邮箱</th>
+                    <th>租户角色</th>
+                    <th>最近活跃</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Founder</td>
+                    <td>founder@demo.io</td>
+                    <td>tenant_owner</td>
+                    <td>2 分钟前</td>
+                    <td><span class="chip success">活跃</span></td>
+                  </tr>
+                  <tr>
+                    <td>Ops</td>
+                    <td>ops@demo.io</td>
+                    <td>tenant_admin</td>
+                    <td>21 分钟前</td>
+                    <td><span class="chip">活跃</span></td>
+                  </tr>
+                  <tr>
+                    <td>Finance</td>
+                    <td>finance@demo.io</td>
+                    <td>billing_manager</td>
+                    <td>1 天前</td>
+                    <td><span class="chip warn">待确认</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

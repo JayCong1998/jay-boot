@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>登录与会话 - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="auth-login">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>登录与会话</strong></div>
+          <div class="top-actions">
+            <a class="button secondary" href="auth-register.html">去注册页</a>
+            <button class="button primary js-prototype-action" data-message="已模拟签发 Access + Refresh Token">登录并签发令牌</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="auth-register" href="auth-register.html">注册</a>
+          <a class="mobile-link" data-page="auth-login" href="auth-login.html">登录</a>
+          <a class="mobile-link" data-page="dashboard" href="dashboard.html">控制台</a>
+          <a class="mobile-link" data-page="tenant" href="tenant.html">租户</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">登录与会话安全</h2>
+          <p class="section-subtitle">登录页面强调会话状态、设备管理与风险拦截，便于映射 Sa-Token 相关能力。</p>
+
+          <section class="card-grid">
+            <article class="card span-6">
+              <h3>登录表单原型</h3>
+              <div class="form-grid">
+                <div class="field full">
+                  <label for="login-email">邮箱</label>
+                  <input id="login-email" type="email" value="founder@demo.io" />
+                </div>
+                <div class="field full">
+                  <label for="login-password">密码</label>
+                  <input id="login-password" type="password" value="********" />
+                </div>
+                <div class="field">
+                  <label for="login-remember">会话策略</label>
+                  <select id="login-remember">
+                    <option>7天保持登录</option>
+                    <option>仅本次会话</option>
+                    <option>高安全模式（2小时）</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="login-code">一次性验证码</label>
+                  <input id="login-code" type="text" value="" placeholder="风险触发时必填" />
+                </div>
+              </div>
+              <div class="split" style="margin-top: 14px">
+                <span class="chip">支持 Refresh Token 轮换</span>
+                <button class="button success js-prototype-action" data-message="登录成功，已跳转 Dashboard">确认登录</button>
+              </div>
+            </article>
+
+            <article class="card span-6 soft">
+              <h3>当前会话概览</h3>
+              <ul class="list">
+                <li><strong>当前设备</strong> Windows · Chrome · 上海</li>
+                <li><strong>会话到期</strong> 2026-04-15 18:30（可续签）</li>
+                <li><strong>权限上下文</strong> tenant_owner · Starter Space</li>
+                <li><strong>风险评分</strong> <span class="chip success">低风险</span></li>
+              </ul>
+              <div style="margin-top: 12px">
+                <button class="button ghost js-prototype-action" data-message="已模拟踢下线其它设备">踢下线其他设备</button>
+              </div>
+            </article>
+          </section>
+
+          <section class="card">
+            <h3 class="section-title">设备与登录日志</h3>
+            <div class="table-wrap">
+              <table aria-label="登录日志">
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>设备</th>
+                    <th>IP</th>
+                    <th>结果</th>
+                    <th>处理</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>2026-04-08 10:21</td>
+                    <td>Chrome 135 / Windows</td>
+                    <td>122.23.*.*</td>
+                    <td><span class="chip success">成功</span></td>
+                    <td><button class="button ghost js-prototype-action" data-message="会话保持中">保持会话</button></td>
+                  </tr>
+                  <tr>
+                    <td>2026-04-07 22:09</td>
+                    <td>Safari / macOS</td>
+                    <td>58.213.*.*</td>
+                    <td><span class="chip warn">异地验证</span></td>
+                    <td><button class="button ghost js-prototype-action" data-message="已触发二次校验">查看详情</button></td>
+                  </tr>
+                  <tr>
+                    <td>2026-04-07 17:30</td>
+                    <td>Unknown Device</td>
+                    <td>23.91.*.*</td>
+                    <td><span class="chip error">失败</span></td>
+                    <td><button class="button ghost js-prototype-action" data-message="已加入风险黑名单">加入黑名单</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

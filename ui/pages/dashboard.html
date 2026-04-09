@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>控制台总览 - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="dashboard">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>控制台总览</strong></div>
+          <div class="top-actions">
+            <button class="button secondary js-prototype-action" data-message="已刷新仪表盘数据">刷新数据</button>
+            <a class="button primary" href="billing.html">去订阅中心</a>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="dashboard" href="dashboard.html">控制台</a>
+          <a class="mobile-link" data-page="tenant" href="tenant.html">租户</a>
+          <a class="mobile-link" data-page="billing" href="billing.html">订阅</a>
+          <a class="mobile-link" data-page="usage" href="usage.html">运营</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">SaaS 运营控制台</h2>
+          <p class="section-subtitle">提供面向租户 owner 的统一总览：订阅态、用量、AI 成本、异步任务与安全状态。</p>
+
+          <section class="card-grid">
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">本月 API 请求</span>
+                <strong class="kpi-value">312,880</strong>
+                <span class="kpi-trend">+12.8% 较上月</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">AI Token 消耗</span>
+                <strong class="kpi-value">42.6M</strong>
+                <span class="kpi-trend warn">成本上升 7.2%</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">活跃 API Key</span>
+                <strong class="kpi-value">19</strong>
+                <span class="kpi-trend">其中 3 个高频调用</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">失败任务数</span>
+                <strong class="kpi-value">2</strong>
+                <span class="kpi-trend danger">需处理死信重试</span>
+              </div>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-8">
+              <h3>模块健康度</h3>
+              <ul class="bars">
+                <li><span>Auth</span><div class="bar"><span style="width: 96%"></span></div><span>96%</span></li>
+                <li><span>Billing</span><div class="bar"><span style="width: 91%"></span></div><span>91%</span></li>
+                <li><span>API Key</span><div class="bar"><span style="width: 93%"></span></div><span>93%</span></li>
+                <li><span>AI Gateway</span><div class="bar"><span style="width: 88%"></span></div><span>88%</span></li>
+                <li><span>Jobs/Notify</span><div class="bar"><span style="width: 84%"></span></div><span>84%</span></li>
+              </ul>
+            </article>
+            <article class="card span-4 soft">
+              <h3>今日告警</h3>
+              <ul class="list">
+                <li><span class="chip warn">Billing</span> Stripe webhook 延迟 2 分钟。</li>
+                <li><span class="chip error">Jobs</span> 报表任务重试超过阈值。</li>
+                <li><span class="chip">AI</span> GPT-4o 价格策略已更新待确认。</li>
+              </ul>
+              <div style="margin-top: 12px">
+                <button class="button ghost js-prototype-action" data-message="已模拟创建告警工单">创建处理工单</button>
+              </div>
+            </article>
+          </section>
+
+          <section class="card">
+            <h3 class="section-title">关键事件流</h3>
+            <div class="table-wrap">
+              <table aria-label="关键事件流">
+                <thead>
+                  <tr>
+                    <th>时间</th>
+                    <th>模块</th>
+                    <th>事件</th>
+                    <th>追踪ID</th>
+                    <th>状态</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>10:32</td>
+                    <td>Billing</td>
+                    <td>订阅升级到 Pro 月付</td>
+                    <td><code>evt_bi_250408_0012</code></td>
+                    <td><span class="chip success">完成</span></td>
+                  </tr>
+                  <tr>
+                    <td>10:41</td>
+                    <td>AI Gateway</td>
+                    <td>/ai/chat 响应超时自动重试</td>
+                    <td><code>evt_ai_250408_0419</code></td>
+                    <td><span class="chip warn">重试中</span></td>
+                  </tr>
+                  <tr>
+                    <td>11:03</td>
+                    <td>Jobs</td>
+                    <td>日报任务推送站内通知</td>
+                    <td><code>evt_job_250408_0558</code></td>
+                    <td><span class="chip success">完成</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

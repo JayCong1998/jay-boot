@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>用量与运营 - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="usage">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>用量与运营</strong></div>
+          <div class="top-actions">
+            <button class="button secondary js-prototype-action" data-message="已模拟生成日报">生成日报</button>
+            <button class="button primary js-prototype-action" data-message="已触发全量告警同步">同步告警</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="usage" href="usage.html">运营</a>
+          <a class="mobile-link" data-page="dashboard" href="dashboard.html">控制台</a>
+          <a class="mobile-link" data-page="billing" href="billing.html">订阅</a>
+          <a class="mobile-link" data-page="ai-gateway" href="ai-gateway.html">AI</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">用量、任务与通知中心</h2>
+          <p class="section-subtitle">覆盖技术文档中的异步任务系统与通知系统，支持运营可观测与告警联动。</p>
+
+          <section class="card-grid">
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">今日请求数</span>
+                <strong class="kpi-value">18,920</strong>
+                <span class="kpi-trend">峰值 1,240 / 分钟</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">任务成功率</span>
+                <strong class="kpi-value">98.1%</strong>
+                <span class="kpi-trend">死信 3 条</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">通知到达率</span>
+                <strong class="kpi-value">99.3%</strong>
+                <span class="kpi-trend">邮件 + Webhook</span>
+              </div>
+            </article>
+            <article class="card span-3">
+              <div class="kpi">
+                <span class="kpi-label">本日成本</span>
+                <strong class="kpi-value">¥372</strong>
+                <span class="kpi-trend warn">接近预算阈值</span>
+              </div>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-8">
+              <h3>异步任务队列</h3>
+              <div class="table-wrap">
+                <table aria-label="异步任务队列">
+                  <thead>
+                    <tr>
+                      <th>任务ID</th>
+                      <th>类型</th>
+                      <th>状态</th>
+                      <th>重试次数</th>
+                      <th>next_retry_at</th>
+                      <th>处理</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>job_2408_001</code></td>
+                      <td>EMAIL_SEND</td>
+                      <td><span class="chip success">SUCCESS</span></td>
+                      <td>0</td>
+                      <td>-</td>
+                      <td><button class="button ghost js-prototype-action" data-message="已查看任务明细">明细</button></td>
+                    </tr>
+                    <tr>
+                      <td><code>job_2408_014</code></td>
+                      <td>REPORT_GENERATE</td>
+                      <td><span class="chip warn">RETRYING</span></td>
+                      <td>2</td>
+                      <td>2026-04-08 12:10</td>
+                      <td><button class="button ghost js-prototype-action" data-message="已触发立即重试">立即重试</button></td>
+                    </tr>
+                    <tr>
+                      <td><code>job_2408_021</code></td>
+                      <td>AI_LONG_TASK</td>
+                      <td><span class="chip error">FAILED</span></td>
+                      <td>3</td>
+                      <td>-</td>
+                      <td><button class="button ghost js-prototype-action" data-message="已发送失败告警">告警</button></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card span-4 soft">
+              <h3>通知通道</h3>
+              <ul class="list">
+                <li><strong>站内通知</strong> <span class="chip success">正常</span></li>
+                <li><strong>邮件通道</strong> <span class="chip success">正常</span></li>
+                <li><strong>Webhook</strong> <span class="chip warn">2 次超时</span></li>
+              </ul>
+              <div style="margin-top: 12px">
+                <button class="button ghost js-prototype-action" data-message="已模拟发送全渠道测试通知">发送测试通知</button>
+              </div>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-6">
+              <h3>运营报表面板</h3>
+              <ul class="bars">
+                <li><span>新增租户</span><div class="bar"><span style="width: 44%"></span></div><span>44</span></li>
+                <li><span>付费转化</span><div class="bar"><span style="width: 31%"></span></div><span>31%</span></li>
+                <li><span>续费率</span><div class="bar"><span style="width: 82%"></span></div><span>82%</span></li>
+              </ul>
+            </article>
+            <article class="card span-6">
+              <h3>告警治理建议</h3>
+              <ul class="list">
+                <li>Webhook 失败达到 3 次自动切换备份地址。</li>
+                <li>任务失败超过阈值后自动创建工单并抄送 owner。</li>
+                <li>成本预测超过预算 80% 时触发套餐升级提醒。</li>
+              </ul>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

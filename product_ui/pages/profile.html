@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人中心 - JayBoot Creator</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="profile">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <header class="site-header">
+      <div class="shell topbar">
+        <a class="brand" href="home.html">
+          <span class="brand-logo">JC</span>
+          <span class="brand-text"><strong>JayBoot Creator</strong><span>AI 文本创作助手</span></span>
+        </a>
+        <nav class="top-nav" aria-label="站点导航">
+          <a data-page="home" href="home.html">首页</a>
+          <a data-page="features" href="features.html">功能</a>
+          <a data-page="pricing" href="pricing.html">定价</a>
+          <a data-page="workspace" href="workspace.html">工作台</a>
+          <a data-page="history" href="history.html">历史</a>
+          <a data-page="subscription" href="subscription.html">订阅</a>
+          <a data-page="help" href="help.html">帮助</a>
+        </nav>
+        <div class="top-actions">
+          <a class="button ghost" href="auth-login.html">退出登录</a>
+          <a class="button primary" href="help.html">联系客服</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="shell">
+        <section class="hero">
+          <span class="eyebrow">账号与安全配置中心</span>
+          <h2 data-crumb>个人中心</h2>
+          <p>维护账号资料、密码安全和通知偏好，确保你的创作数据可靠、团队协作稳定。</p>
+          <div class="hero-actions">
+            <button class="button js-prototype-action" data-message="已模拟：发送邮箱验证">发送邮箱验证</button>
+            <button class="button primary js-prototype-action" data-message="已模拟：保存个人设置">保存设置</button>
+          </div>
+          <div class="trust-strip">
+            <span class="trust-badge">登录设备可管理</span>
+            <span class="trust-badge">支持双重验证</span>
+            <span class="trust-badge">安全操作可追踪</span>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="grid">
+            <article class="card span-7">
+              <h3>基础资料</h3>
+              <div class="form-grid">
+                <div><label class="label" for="pf-name">昵称</label><input id="pf-name" class="input" value="Susan Young" /></div>
+                <div><label class="label" for="pf-email">邮箱</label><input id="pf-email" class="input" value="susan@example.com" /></div>
+                <div><label class="label" for="pf-company">团队名称</label><input id="pf-company" class="input" value="Young Studio" /></div>
+              </div>
+            </article>
+            <article class="card soft span-5">
+              <h3>安全中心</h3>
+              <ul class="feature-points">
+                <li>登录设备：2 台</li>
+                <li>最近登录：2026-04-09 09:43</li>
+                <li>双重验证：未开启</li>
+              </ul>
+              <div class="hero-actions">
+                <button class="button js-prototype-action" data-message="已模拟：发送重置密码链接">重置密码</button>
+                <button class="button primary js-prototype-action" data-message="已模拟：开启双重验证">开启双重验证</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <article class="final-cta">
+            <h3>建议开启双重验证，保护你的创作资产与客户内容</h3>
+            <p class="section-subtitle">安全稳定是长期商业化运营的基本盘。</p>
+            <div class="hero-actions">
+              <button class="button primary js-prototype-action" data-message="已模拟：开启安全增强">立即增强安全</button>
+              <a class="button" href="subscription.html">查看订阅权益</a>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer"><div class="footer-inner"><span>© 2026 JayBoot Creator</span><span>品牌质感官网原型</span></div></footer>
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

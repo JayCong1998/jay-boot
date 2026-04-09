@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>订阅计费 - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="billing">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>订阅计费</strong></div>
+          <div class="top-actions">
+            <button class="button secondary js-prototype-action" data-message="已模拟跳转支付渠道">升级套餐</button>
+            <button class="button primary js-prototype-action" data-message="Webhook 对账任务已触发">立即对账</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="billing" href="billing.html">订阅</a>
+          <a class="mobile-link" data-page="apikey" href="apikey.html">API Key</a>
+          <a class="mobile-link" data-page="ai-gateway" href="ai-gateway.html">AI</a>
+          <a class="mobile-link" data-page="usage" href="usage.html">运营</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">Billing 订阅中心</h2>
+          <p class="section-subtitle">展示套餐差异、订阅状态机与支付事件追踪，对齐 PRD 中可收费目标。</p>
+
+          <section class="card-grid">
+            <article class="card span-4 soft">
+              <h3>Free</h3>
+              <p class="kpi-value">¥0</p>
+              <ul class="list">
+                <li>每月 10 万 API 调用</li>
+                <li>基础 AI 接口</li>
+                <li>社区支持</li>
+              </ul>
+              <button class="button secondary js-prototype-action" data-message="当前已是 Free 方案">当前方案</button>
+            </article>
+            <article class="card span-4">
+              <h3>Pro</h3>
+              <p class="kpi-value">¥299 / 月</p>
+              <ul class="list">
+                <li>每月 200 万 API 调用</li>
+                <li>高级 AI 模型路由</li>
+                <li>Webhook 通知</li>
+              </ul>
+              <button class="button success js-prototype-action" data-message="已模拟进入 Pro 支付流程">升级到 Pro</button>
+            </article>
+            <article class="card span-4 soft">
+              <h3>Team</h3>
+              <p class="kpi-value">¥899 / 月</p>
+              <ul class="list">
+                <li>多成员协作与审计</li>
+                <li>专属限流策略</li>
+                <li>SLA 与优先支持</li>
+              </ul>
+              <button class="button secondary js-prototype-action" data-message="已模拟申请销售联系">联系销售</button>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-6">
+              <h3>订阅状态机</h3>
+              <ul class="timeline">
+                <li><strong>trialing</strong><span>新注册用户默认试用 14 天</span></li>
+                <li><strong>active</strong><span>支付完成后生效，按账期续费</span></li>
+                <li><strong>past_due</strong><span>扣费失败，进入宽限期并限制写操作</span></li>
+                <li><strong>canceled</strong><span>主动取消或宽限期到期后终止</span></li>
+              </ul>
+            </article>
+            <article class="card span-6">
+              <h3>支付回调健康</h3>
+              <ul class="bars">
+                <li><span>微信支付</span><div class="bar"><span style="width: 94%"></span></div><span>94%</span></li>
+                <li><span>支付宝</span><div class="bar"><span style="width: 97%"></span></div><span>97%</span></li>
+                <li><span>Stripe</span><div class="bar"><span style="width: 92%"></span></div><span>92%</span></li>
+              </ul>
+              <p class="section-subtitle">幂等键：provider + out_trade_no + trade_status</p>
+            </article>
+          </section>
+
+          <section class="card">
+            <h3 class="section-title">订单与发票记录</h3>
+            <div class="table-wrap">
+              <table aria-label="订单与发票">
+                <thead>
+                  <tr>
+                    <th>订单号</th>
+                    <th>账期</th>
+                    <th>金额</th>
+                    <th>支付渠道</th>
+                    <th>状态</th>
+                    <th>发票</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>ord_20260408001</code></td>
+                    <td>2026-04</td>
+                    <td>¥299</td>
+                    <td>Stripe</td>
+                    <td><span class="chip success">已支付</span></td>
+                    <td><button class="button ghost js-prototype-action" data-message="已模拟下载发票 PDF">下载</button></td>
+                  </tr>
+                  <tr>
+                    <td><code>ord_20260308020</code></td>
+                    <td>2026-03</td>
+                    <td>¥299</td>
+                    <td>支付宝</td>
+                    <td><span class="chip success">已支付</span></td>
+                    <td><button class="button ghost js-prototype-action" data-message="发票已通过邮件发送">邮件发送</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

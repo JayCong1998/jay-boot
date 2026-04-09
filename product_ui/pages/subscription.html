@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>订阅中心 - JayBoot Creator</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="subscription">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <header class="site-header">
+      <div class="shell topbar">
+        <a class="brand" href="home.html">
+          <span class="brand-logo">JC</span>
+          <span class="brand-text"><strong>JayBoot Creator</strong><span>AI 文本创作助手</span></span>
+        </a>
+        <nav class="top-nav" aria-label="站点导航">
+          <a data-page="home" href="home.html">首页</a>
+          <a data-page="features" href="features.html">功能</a>
+          <a data-page="pricing" href="pricing.html">定价</a>
+          <a data-page="workspace" href="workspace.html">工作台</a>
+          <a data-page="history" href="history.html">历史</a>
+          <a data-page="subscription" href="subscription.html">订阅</a>
+          <a data-page="help" href="help.html">帮助</a>
+        </nav>
+        <div class="top-actions">
+          <a class="button ghost" href="pricing.html">更换套餐</a>
+          <a class="button primary" href="checkout.html">立即续费</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="shell">
+        <section class="hero">
+          <span class="eyebrow">订阅状态一目了然</span>
+          <h2 data-crumb>订阅中心</h2>
+          <p>在一个页面内完成订阅管理、额度监控和账单下载，确保业务持续运行并减少因额度不足导致的中断。</p>
+          <div class="hero-actions">
+            <button class="button js-prototype-action" data-message="已模拟：切换自动续费">切换自动续费</button>
+            <button class="button primary js-prototype-action" data-message="已模拟：升级团队版">升级团队版</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="grid">
+            <article class="card span-4">
+              <p class="kpi-label">当前套餐</p>
+              <strong class="kpi-value">Pro</strong>
+              <p class="kpi-hint">下次扣费：2026-05-09</p>
+            </article>
+            <article class="card span-4">
+              <p class="kpi-label">本月额度使用</p>
+              <strong class="kpi-value">724 / 1200</strong>
+              <p class="kpi-hint">预计可支撑 12 天</p>
+            </article>
+            <article class="card soft span-4">
+              <p class="kpi-label">自动续费状态</p>
+              <strong class="kpi-value">已开启</strong>
+              <p class="kpi-hint warn">建议保持开启避免中断</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="grid">
+            <article class="card span-6">
+              <h3>当前权益</h3>
+              <ul class="feature-points">
+                <li>每月 1200 次生成额度</li>
+                <li>高级模板与批量导出</li>
+                <li>优先模型队列与客服支持</li>
+              </ul>
+              <div class="hero-actions">
+                <button class="button js-prototype-action" data-message="已模拟：购买加油包">购买加油包</button>
+              </div>
+            </article>
+            <article class="card span-6">
+              <h3>升级建议</h3>
+              <p class="section-subtitle">近 14 天平均使用率 82%，若进入营销旺季建议升级至团队版以避免额度瓶颈。</p>
+              <div class="hero-actions">
+                <a class="button primary" href="checkout.html">升级并结算</a>
+                <button class="button js-prototype-action" data-message="已模拟：联系顾问评估">联系顾问</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <article class="card">
+            <h3>账单记录</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>账单周期</th><th>套餐</th><th>金额</th><th>状态</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>2026-04</td><td>Pro 创作版</td><td>¥109</td><td><span class="chip success">已支付</span></td><td><button class="button js-prototype-action" data-message="已模拟：下载账单">下载</button></td></tr>
+                  <tr><td>2026-03</td><td>Starter 入门版</td><td>¥49</td><td><span class="chip success">已支付</span></td><td><button class="button js-prototype-action" data-message="已模拟：下载账单">下载</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer"><div class="footer-inner"><span>© 2026 JayBoot Creator</span><span>品牌质感官网原型</span></div></footer>
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

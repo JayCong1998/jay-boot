@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>订阅定价 - JayBoot Creator</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="pricing">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <header class="site-header">
+      <div class="shell topbar">
+        <a class="brand" href="home.html">
+          <span class="brand-logo">JC</span>
+          <span class="brand-text"><strong>JayBoot Creator</strong><span>AI 文本创作助手</span></span>
+        </a>
+        <nav class="top-nav" aria-label="站点导航">
+          <a data-page="home" href="home.html">首页</a>
+          <a data-page="features" href="features.html">功能</a>
+          <a data-page="pricing" href="pricing.html">定价</a>
+          <a data-page="workspace" href="workspace.html">工作台</a>
+          <a data-page="history" href="history.html">历史</a>
+          <a data-page="subscription" href="subscription.html">订阅</a>
+          <a data-page="help" href="help.html">帮助</a>
+        </nav>
+        <div class="top-actions">
+          <a class="button ghost" href="auth-login.html">登录</a>
+          <a class="button primary" href="checkout.html">立即开通</a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <div class="shell">
+        <section class="hero">
+          <span class="eyebrow">定价透明，按增长阶段选择</span>
+          <h2 data-crumb>订阅定价</h2>
+          <p>通过清晰权益和年付折扣提升购买决策速度，默认推荐中间档，兼顾价格接受度和使用深度。</p>
+          <div class="hero-actions">
+            <button class="button js-prototype-action" data-message="已模拟：咨询套餐建议">咨询推荐方案</button>
+            <a class="button primary" href="checkout.html">进入支付页</a>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="cycle-switch" role="group" aria-label="价格周期切换">
+            <button class="button active" data-cycle="monthly">月付</button>
+            <button class="button" data-cycle="yearly">年付（省 20%）</button>
+          </div>
+
+          <div class="price-grid">
+            <article class="price-card">
+              <span class="chip">Starter</span>
+              <h3>入门版</h3>
+              <p class="price-value" data-price-monthly="¥49 / 月" data-price-yearly="¥39 / 月（年付）">¥49 / 月</p>
+              <ul class="feature-points">
+                <li>每月 200 次生成</li>
+                <li>基础模板与历史记录</li>
+                <li>适合个人轻度创作</li>
+              </ul>
+              <div class="hero-actions">
+                <a class="button" href="checkout.html">选择套餐</a>
+              </div>
+            </article>
+
+            <article class="price-card popular">
+              <span class="chip success">Most Popular</span>
+              <h3>Pro 创作版</h3>
+              <p class="price-value" data-price-monthly="¥129 / 月" data-price-yearly="¥99 / 月（年付）">¥129 / 月</p>
+              <ul class="feature-points">
+                <li>每月 1200 次生成</li>
+                <li>高级模板与导出交付</li>
+                <li>优先模型队列与客服支持</li>
+              </ul>
+              <div class="hero-actions">
+                <a class="button primary" href="checkout.html">立即升级</a>
+              </div>
+            </article>
+
+            <article class="price-card">
+              <span class="chip">Creator+</span>
+              <h3>团队版</h3>
+              <p class="price-value" data-price-monthly="¥269 / 月" data-price-yearly="¥219 / 月（年付）">¥269 / 月</p>
+              <ul class="feature-points">
+                <li>每月 4000 次生成</li>
+                <li>多人协作与团队权限</li>
+                <li>专属顾问与策略支持</li>
+              </ul>
+              <div class="hero-actions">
+                <button class="button js-prototype-action" data-message="已模拟：联系销售顾问">联系销售</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">核心权益对比</h2>
+          <article class="card">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>权益项</th><th>Starter</th><th>Pro</th><th>团队版</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>月度生成额度</td><td>200</td><td>1200</td><td>4000</td></tr>
+                  <tr><td>高级模板</td><td>×</td><td>✓</td><td>✓</td></tr>
+                  <tr><td>批量导出</td><td>×</td><td>✓</td><td>✓</td></tr>
+                  <tr><td>多人协作</td><td>×</td><td>×</td><td>✓</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="section">
+          <h2 class="section-title">定价 FAQ</h2>
+          <div class="faq-list">
+            <article class="faq-item"><strong>可以随时升级或降级吗？</strong><span class="section-subtitle">支持按账单周期切换，差价自动折算。</span></article>
+            <article class="faq-item"><strong>是否支持企业发票？</strong><span class="section-subtitle">支持开具电子发票，支付页可填写抬头与税号。</span></article>
+            <article class="faq-item"><strong>有退款政策吗？</strong><span class="section-subtitle">首购 7 天内可申请一次退款（Mock 原型展示）。</span></article>
+          </div>
+        </section>
+
+        <section class="section">
+          <article class="final-cta">
+            <h3>从今天开始，让内容产出稳定转化为收入</h3>
+            <p class="section-subtitle">选择 Pro 创作版即可覆盖多数增长场景，后续可按业务规模平滑升级。</p>
+            <div class="hero-actions">
+              <a class="button primary" href="checkout.html">立即开通</a>
+              <button class="button js-prototype-action" data-message="已模拟：预约演示">预约演示</button>
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer"><div class="footer-inner"><span>© 2026 JayBoot Creator</span><span>品牌质感官网原型</span></div></footer>
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

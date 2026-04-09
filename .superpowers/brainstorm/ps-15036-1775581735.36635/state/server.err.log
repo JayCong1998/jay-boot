@@ -1,0 +1,16 @@
+node:fs:1931
+  binding.unlink(getValidatedPath(path));
+          ^
+
+Error: EPERM: operation not permitted, unlink 'D:\develop\CodeProject\jay-boot\.superpowers\brainstorm\ps-15036-1775581735.36635\state\events'
+    at Object.unlinkSync (node:fs:1931:11)
+    at Timeout._onTimeout (C:\Users\SusanYoung\.codex\superpowers\skills\brainstorming\scripts\server.cjs:290:43)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7) {
+  errno: -4048,
+  code: 'EPERM',
+  syscall: 'unlink',
+  path: 'D:\\develop\\CodeProject\\jay-boot\\.superpowers\\brainstorm\\ps-15036-1775581735.36635\\state\\events'
+}
+
+Node.js v24.14.0

@@ -1,0 +1,33 @@
+﻿server:
+  port: 8080
+
+spring:
+  application:
+    name: jay-boot
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/jay_boot_saas?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=true
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+
+sa-token:
+  token-name: satoken
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: true
+  is-share: true
+  token-style: uuid
+  is-log: true

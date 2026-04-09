@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>角色权限 - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="rbac">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>角色权限</strong></div>
+          <div class="top-actions">
+            <button class="button secondary js-prototype-action" data-message="已模拟新建角色">新建角色</button>
+            <button class="button primary js-prototype-action" data-message="角色权限变更已提交">保存权限策略</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="rbac" href="rbac.html">RBAC</a>
+          <a class="mobile-link" data-page="tenant" href="tenant.html">租户</a>
+          <a class="mobile-link" data-page="apikey" href="apikey.html">API Key</a>
+          <a class="mobile-link" data-page="usage" href="usage.html">运营</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">RBAC 权限编排</h2>
+          <p class="section-subtitle">按 User-Role-Permission-API 结构进行配置，支持菜单权限与 API 权限统一管理。</p>
+
+          <section class="card-grid">
+            <article class="card span-4 soft">
+              <h3>角色模板</h3>
+              <ul class="list">
+                <li><strong>tenant_owner</strong> 全量权限 + 账单管理</li>
+                <li><strong>tenant_admin</strong> 用户、Key、告警管理</li>
+                <li><strong>developer</strong> API Key 与 AI 调用配置</li>
+                <li><strong>finance_manager</strong> 订阅、订单、发票只读</li>
+              </ul>
+            </article>
+            <article class="card span-8">
+              <h3>API 权限矩阵</h3>
+              <div class="table-wrap">
+                <table aria-label="API权限矩阵">
+                  <thead>
+                    <tr>
+                      <th>权限码</th>
+                      <th>owner</th>
+                      <th>admin</th>
+                      <th>developer</th>
+                      <th>finance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>billing.subscription.update</code></td>
+                      <td><span class="chip success">允许</span></td>
+                      <td><span class="chip warn">审批后</span></td>
+                      <td><span class="chip error">禁止</span></td>
+                      <td><span class="chip warn">审批后</span></td>
+                    </tr>
+                    <tr>
+                      <td><code>apikey.create</code></td>
+                      <td><span class="chip success">允许</span></td>
+                      <td><span class="chip success">允许</span></td>
+                      <td><span class="chip success">允许</span></td>
+                      <td><span class="chip error">禁止</span></td>
+                    </tr>
+                    <tr>
+                      <td><code>ai.provider.config</code></td>
+                      <td><span class="chip success">允许</span></td>
+                      <td><span class="chip warn">审批后</span></td>
+                      <td><span class="chip success">允许</span></td>
+                      <td><span class="chip error">禁止</span></td>
+                    </tr>
+                    <tr>
+                      <td><code>tenant.member.invite</code></td>
+                      <td><span class="chip success">允许</span></td>
+                      <td><span class="chip success">允许</span></td>
+                      <td><span class="chip warn">审批后</span></td>
+                      <td><span class="chip error">禁止</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-6">
+              <h3>策略说明</h3>
+              <ul class="list">
+                <li>所有 API 鉴权统一走 Sa-Token + 权限码校验。</li>
+                <li>角色变更写入审计日志，并保留变更前快照。</li>
+                <li>跨租户管理权限仅开放给平台 super_admin。</li>
+              </ul>
+            </article>
+            <article class="card span-6">
+              <h3>最近权限变更</h3>
+              <ul class="timeline">
+                <li>
+                  <strong>09:14 新增角色 billing_manager</strong>
+                  <span>创建者 founder@demo.io</span>
+                </li>
+                <li>
+                  <strong>10:02 修改 ai.provider.config</strong>
+                  <span>developer 从审批后调整为允许</span>
+                </li>
+                <li>
+                  <strong>10:28 删除过期测试角色</strong>
+                  <span>审计 ID: acl_0428_09</span>
+                </li>
+              </ul>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

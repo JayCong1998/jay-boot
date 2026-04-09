@@ -1,0 +1,83 @@
+# AI编程助手行为规范与编码规则
+
+# AI行为规范
+
+- 始终用中文进行回答
+- 使用superpowers编写执行计划与方案都必须是中文的
+
+
+# 项目概览
+
+本项目为 前后端同仓全栈应用，包含：
+
+```plain text
+jayboot
+├── jay-boot-backend  # 后端服务
+├── jay-boot-frontend # 前端服务
+├── database       # DB脚本
+├── design         # 设计文档
+└── scripts        # 自动化脚本
+```
+
+# 代码质量要求
+
+- **可测试性**：编写可测试的代码，组件应保持单一职责，没有我的允许不能创建测试用例
+- **DRY 原则**：避免重复代码，提取共用逻辑到单独的函数或类
+- **代码简洁**：保持代码简洁明了，遵循 KISS 原则（保持简单直接），每个方法行数不超过300行
+- **命名规范**：使用描述性的变量、函数和类名，反映其用途和含义
+- **注释文档**：为复杂逻辑添加注释，编写清晰的文档说明功能和用法
+- **风格一致**：遵循项目或语言的官方风格指南和代码约定
+- **利用生态**：优先使用成熟的库和工具，避免不必要的自定义实现
+- **架构设计**：考虑代码的可维护性、可扩展性和性能需求
+- **版本控制**：编写有意义的提交信息，保持逻辑相关的更改在同一提交中
+- **异常处理**：正确处理边缘情况和错误，提供有用的错误信息 
+
+# 前端开发规范
+开发前端代码时必须加载@rules/frontend/develop.md文件并遵守其中的规范
+
+# 后端开发规范
+开发后端代码时必须加载@rules/backend/java.md文件并遵守其中的规范
+
+# 禁止行为（非常重要）
+
+AI 绝对禁止：
+
+- 修改部署脚本
+- 重构整个项目结构
+
+# AI 输出代码要求
+
+生成代码必须：
+
+- 可直接运行
+
+- 不留 TODO
+
+- 不写伪代码
+
+- 不省略 import
+
+# 构建与编码操作规范（Maven）
+
+- 后端代码改动后，默认执行一次编译验证（不跑测试）：
+  - `D:\develop\apache-maven-3.9.0\bin\mvn.cmd --% -Dmaven.repo.local=D:\develop\maven_repo -DskipTests compile`
+- 若终端已正确加载 PATH，可使用 `mvn`；若当前会话未刷新 PATH，必须使用 Maven 绝对路径执行。
+- 若用户要求执行测试，再补充执行：
+  - `D:\develop\apache-maven-3.9.0\bin\mvn.cmd --% -Dmaven.repo.local=D:\develop\maven_repo test`
+- 构建失败时，必须在回复中明确：
+  - 失败命令
+  - 首个关键报错
+  - 涉及文件路径
+
+# 文件编码规范（必须遵守）
+
+- Java/SQL/YAML/Markdown 文件统一使用 `UTF-8（无 BOM）`。
+- 禁止写入 `UTF-8 BOM`，避免 `javac` 报错：`非法字符: '\ufeff'`。
+- 修改文件后若出现编码异常，优先先修复编码再继续功能开发。
+
+
+## 数据库地址
+
+url: jdbc:mysql://127.0.0.1:3306/jay_boot_saas?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=true
+username: root
+password: root

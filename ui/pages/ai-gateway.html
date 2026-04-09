@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Gateway - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="ai-gateway">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>AI Gateway</strong></div>
+          <div class="top-actions">
+            <button class="button secondary js-prototype-action" data-message="已模拟切换默认 Provider">切换 Provider</button>
+            <button class="button primary js-prototype-action" data-message="已模拟发起 /ai/chat 试调用">接口试调用</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="ai-gateway" href="ai-gateway.html">AI</a>
+          <a class="mobile-link" data-page="apikey" href="apikey.html">API Key</a>
+          <a class="mobile-link" data-page="billing" href="billing.html">订阅</a>
+          <a class="mobile-link" data-page="usage" href="usage.html">运营</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">AI Gateway 中台</h2>
+          <p class="section-subtitle">统一接入 OpenAI / Anthropic / 本地模型，汇总 token、成本和失败重试策略。</p>
+
+          <section class="card-grid">
+            <article class="card span-4 soft">
+              <h3>Provider 状态</h3>
+              <ul class="list">
+                <li><strong>OpenAI</strong> <span class="chip success">在线</span></li>
+                <li><strong>Anthropic</strong> <span class="chip success">在线</span></li>
+                <li><strong>Local LLM</strong> <span class="chip warn">容量预警</span></li>
+              </ul>
+            </article>
+            <article class="card span-8">
+              <h3>统一接口策略</h3>
+              <div class="table-wrap">
+                <table aria-label="AI接口策略">
+                  <thead>
+                    <tr>
+                      <th>接口</th>
+                      <th>默认模型</th>
+                      <th>超时策略</th>
+                      <th>计费单位</th>
+                      <th>状态</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><code>POST /ai/chat</code></td>
+                      <td>gpt-4.1-mini</td>
+                      <td>8s + 2 次重试</td>
+                      <td>token</td>
+                      <td><span class="chip success">可用</span></td>
+                    </tr>
+                    <tr>
+                      <td><code>POST /ai/embedding</code></td>
+                      <td>text-embedding-3-large</td>
+                      <td>5s + 1 次重试</td>
+                      <td>request</td>
+                      <td><span class="chip success">可用</span></td>
+                    </tr>
+                    <tr>
+                      <td><code>POST /ai/image</code></td>
+                      <td>gpt-image-1</td>
+                      <td>15s + 降级本地模型</td>
+                      <td>request</td>
+                      <td><span class="chip warn">高负载</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-6">
+              <h3>本周 AI 成本趋势</h3>
+              <ul class="bars">
+                <li><span>Mon</span><div class="bar"><span style="width: 48%"></span></div><span>¥128</span></li>
+                <li><span>Tue</span><div class="bar"><span style="width: 56%"></span></div><span>¥149</span></li>
+                <li><span>Wed</span><div class="bar"><span style="width: 63%"></span></div><span>¥168</span></li>
+                <li><span>Thu</span><div class="bar"><span style="width: 71%"></span></div><span>¥188</span></li>
+                <li><span>Fri</span><div class="bar"><span style="width: 66%"></span></div><span>¥175</span></li>
+              </ul>
+            </article>
+            <article class="card span-6">
+              <h3>失败降级路径</h3>
+              <ul class="timeline">
+                <li><strong>主模型失败</strong><span>首次失败后立即重试一次</span></li>
+                <li><strong>备用模型切换</strong><span>切换到次优 provider 并打标记</span></li>
+                <li><strong>超阈值熔断</strong><span>进入保护态并返回友好错误码</span></li>
+                <li><strong>异步告警</strong><span>通知到站内信 + Webhook</span></li>
+              </ul>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

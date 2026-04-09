@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>注册引导 - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="auth-register">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>注册引导</strong></div>
+          <div class="top-actions">
+            <a class="button secondary" href="auth-login.html">去登录页</a>
+            <button class="button primary js-prototype-action" data-message="已模拟发送激活邮件">发送激活邮件</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="auth-register" href="auth-register.html">注册</a>
+          <a class="mobile-link" data-page="auth-login" href="auth-login.html">登录</a>
+          <a class="mobile-link" data-page="dashboard" href="dashboard.html">控制台</a>
+          <a class="mobile-link" data-page="billing" href="billing.html">订阅</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">注册与 Workspace 初始化</h2>
+          <p class="section-subtitle">用于新租户首次进入平台，提交邮箱后自动创建默认 workspace，并写入租户上下文。</p>
+
+          <section class="card-grid">
+            <article class="card span-8">
+              <h3>注册表单原型</h3>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="register-email">邮箱地址</label>
+                  <input id="register-email" type="email" value="founder@demo.io" />
+                </div>
+                <div class="field">
+                  <label for="register-password">密码</label>
+                  <input id="register-password" type="password" value="********" />
+                </div>
+                <div class="field">
+                  <label for="register-name">姓名</label>
+                  <input id="register-name" type="text" value="产品负责人" />
+                </div>
+                <div class="field">
+                  <label for="register-workspace">Workspace 名称</label>
+                  <input id="register-workspace" type="text" value="Starter Space" />
+                </div>
+                <div class="field full">
+                  <label for="register-intent">产品方向</label>
+                  <select id="register-intent">
+                    <option>AI API SaaS</option>
+                    <option>工具型 SaaS</option>
+                    <option>B2B 运营后台</option>
+                  </select>
+                </div>
+              </div>
+              <div class="split" style="margin-top: 14px">
+                <span class="chip">含邮箱校验 + 风险评分 + 试用策略</span>
+                <button class="button success js-prototype-action" data-message="注册成功，已创建默认 Workspace">创建账号并进入控制台</button>
+              </div>
+            </article>
+
+            <article class="card span-4 soft">
+              <h3>Onboarding 进度</h3>
+              <ul class="timeline">
+                <li>
+                  <strong>Step 1 账号注册</strong>
+                  <span>创建用户并初始化 Sa-Token 会话</span>
+                </li>
+                <li>
+                  <strong>Step 2 租户初始化</strong>
+                  <span>自动创建 tenant 与 owner 权限</span>
+                </li>
+                <li>
+                  <strong>Step 3 试用激活</strong>
+                  <span>默认开通 Free 试用套餐</span>
+                </li>
+                <li>
+                  <strong>Step 4 首次配置</strong>
+                  <span>引导创建 API Key 与首个 Provider</span>
+                </li>
+              </ul>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-6">
+              <h3>注册侧提示</h3>
+              <ul class="list">
+                <li>密码策略：最小 8 位，必须包含数字与大写字母。</li>
+                <li>邮箱注册后 24 小时内需完成激活，超时需重新发送。</li>
+                <li>注册时自动绑定默认角色 <code>tenant_owner</code>。</li>
+              </ul>
+            </article>
+            <article class="card span-6">
+              <h3>异常态原型</h3>
+              <ul class="list">
+                <li><span class="chip error">邮箱已存在</span> 引导转登录页并支持重置密码。</li>
+                <li><span class="chip warn">风控命中</span> 触发图形验证码与邮件二次验证。</li>
+                <li><span class="chip">租户创建失败</span> 自动重试并给出 request_id。</li>
+              </ul>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>

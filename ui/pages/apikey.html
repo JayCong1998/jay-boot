@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Key 管理 - Micro-SaaS UI 原型</title>
+    <link rel="stylesheet" href="../assets/global.css" />
+  </head>
+  <body data-page="apikey">
+    <a class="skip-link" href="#main-content">跳转到主内容</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="原型导航">
+        <div class="brand">
+          <span class="brand-badge">SaaS</span>
+          <div>
+            <h1>Java Micro-SaaS Starter</h1>
+            <p>UI Prototype v1</p>
+          </div>
+        </div>
+        <div class="nav-title">页面地图</div>
+        <ul class="nav-list">
+          <li><a class="nav-link" data-page="home" href="../index.html">原型总览</a></li>
+          <li><a class="nav-link" data-page="auth-register" href="auth-register.html">注册引导</a></li>
+          <li><a class="nav-link" data-page="auth-login" href="auth-login.html">登录与会话</a></li>
+          <li><a class="nav-link" data-page="dashboard" href="dashboard.html">控制台总览</a></li>
+          <li><a class="nav-link" data-page="tenant" href="tenant.html">Workspace 租户</a></li>
+          <li><a class="nav-link" data-page="rbac" href="rbac.html">角色权限</a></li>
+          <li><a class="nav-link" data-page="billing" href="billing.html">订阅计费</a></li>
+          <li><a class="nav-link" data-page="apikey" href="apikey.html">API Key 管理</a></li>
+          <li><a class="nav-link" data-page="ai-gateway" href="ai-gateway.html">AI Gateway</a></li>
+          <li><a class="nav-link" data-page="usage" href="usage.html">用量与运营</a></li>
+        </ul>
+      </aside>
+
+      <div class="page">
+        <header class="topbar">
+          <div class="crumb">原型 / <strong data-crumb>API Key 管理</strong></div>
+          <div class="top-actions">
+            <button class="button secondary js-prototype-action" data-message="已模拟创建 API Key">创建 Key</button>
+            <button class="button primary js-prototype-action" data-message="已模拟轮换密钥">轮换密钥</button>
+          </div>
+        </header>
+
+        <nav class="mobile-tabs" aria-label="移动端导航">
+          <a class="mobile-link" data-page="apikey" href="apikey.html">API Key</a>
+          <a class="mobile-link" data-page="ai-gateway" href="ai-gateway.html">AI</a>
+          <a class="mobile-link" data-page="billing" href="billing.html">订阅</a>
+          <a class="mobile-link" data-page="usage" href="usage.html">运营</a>
+        </nav>
+
+        <main id="main-content" class="main-content" tabindex="-1">
+          <h2 class="section-title">API Key 生命周期管理</h2>
+          <p class="section-subtitle">支持创建、禁用、限流策略绑定，密钥仅首显一次，数据库保存 hash 值。</p>
+
+          <section class="card-grid">
+            <article class="card span-8">
+              <h3>Key 列表</h3>
+              <div class="table-wrap">
+                <table aria-label="API Key 列表">
+                  <thead>
+                    <tr>
+                      <th>名称</th>
+                      <th>Key 前缀</th>
+                      <th>权限范围</th>
+                      <th>限流策略</th>
+                      <th>最近使用</th>
+                      <th>状态</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>server-prod</td>
+                      <td><code>sk_live_a2f9...</code></td>
+                      <td>/ai/*</td>
+                      <td>120 QPS / burst 240</td>
+                      <td>刚刚</td>
+                      <td><span class="chip success">启用</span></td>
+                    </tr>
+                    <tr>
+                      <td>integration-ci</td>
+                      <td><code>sk_ci_b82d...</code></td>
+                      <td>/ai/chat</td>
+                      <td>30 QPS / burst 60</td>
+                      <td>35 分钟前</td>
+                      <td><span class="chip">启用</span></td>
+                    </tr>
+                    <tr>
+                      <td>legacy-script</td>
+                      <td><code>sk_old_1ad8...</code></td>
+                      <td>/ai/embedding</td>
+                      <td>10 QPS / burst 20</td>
+                      <td>2 天前</td>
+                      <td><span class="chip warn">待禁用</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </article>
+            <article class="card span-4 soft">
+              <h3>新建 Key</h3>
+              <div class="form-grid">
+                <div class="field full">
+                  <label for="key-name">Key 名称</label>
+                  <input id="key-name" type="text" value="public-gateway" />
+                </div>
+                <div class="field full">
+                  <label for="key-scope">权限范围</label>
+                  <select id="key-scope">
+                    <option>/ai/chat</option>
+                    <option>/ai/*</option>
+                    <option>/ai/image</option>
+                  </select>
+                </div>
+                <div class="field full">
+                  <label for="key-limit">限流方案</label>
+                  <select id="key-limit">
+                    <option>标准 60 QPS</option>
+                    <option>高配 120 QPS</option>
+                    <option>低配 20 QPS</option>
+                  </select>
+                </div>
+              </div>
+              <div class="split" style="margin-top: 12px">
+                <span class="chip">创建后仅展示一次明文</span>
+                <button class="button success js-prototype-action" data-message="新 Key 已生成（示意）">生成</button>
+              </div>
+            </article>
+          </section>
+
+          <section class="card-grid">
+            <article class="card span-6">
+              <h3>配额提醒</h3>
+              <ul class="bars">
+                <li><span>本日请求</span><div class="bar"><span style="width: 66%"></span></div><span>66%</span></li>
+                <li><span>本月 Token</span><div class="bar"><span style="width: 74%"></span></div><span>74%</span></li>
+                <li><span>成本预算</span><div class="bar"><span style="width: 59%"></span></div><span>59%</span></li>
+              </ul>
+            </article>
+            <article class="card span-6">
+              <h3>安全建议</h3>
+              <ul class="list">
+                <li>Key 泄露时一键禁用并触发轮换流程。</li>
+                <li>按环境拆分 Key：prod、staging、dev。</li>
+                <li>高风险请求开启 IP 白名单与签名校验。</li>
+              </ul>
+            </article>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="toast" role="status" aria-live="polite"></div>
+    <script src="../assets/shell.js"></script>
+  </body>
+</html>
