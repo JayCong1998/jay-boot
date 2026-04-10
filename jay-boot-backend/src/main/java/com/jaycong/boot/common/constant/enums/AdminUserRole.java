@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 public enum AdminUserRole {
+    SUPER_ADMIN("super_admin"),
     ADMIN("admin"),
     USER("user");
 

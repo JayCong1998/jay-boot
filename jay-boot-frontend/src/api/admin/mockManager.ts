@@ -55,10 +55,9 @@ type RbacChangeType = 'create' | 'update' | 'delete'
 
 interface RbacPermissionMatrixRow {
   permissionCode: string
-  owner: RbacPermissionDecision
+  super_admin: RbacPermissionDecision
   admin: RbacPermissionDecision
-  developer: RbacPermissionDecision
-  finance: RbacPermissionDecision
+  user: RbacPermissionDecision
 }
 
 interface RbacRecentChangeItem {
@@ -189,9 +188,9 @@ const mockApiRegistry = new Map<string, MockHandler>()
 let initialized = false
 
 let rbacMatrix: RbacPermissionMatrixRow[] = [
-  { permissionCode: 'billing.subscription.update', owner: 'allow', admin: 'approval', developer: 'deny', finance: 'approval' },
-  { permissionCode: 'apikey.create', owner: 'allow', admin: 'allow', developer: 'allow', finance: 'deny' },
-  { permissionCode: 'member.invite', owner: 'allow', admin: 'allow', developer: 'approval', finance: 'deny' },
+  { permissionCode: 'billing.subscription.update', super_admin: 'allow', admin: 'approval', user: 'deny' },
+  { permissionCode: 'apikey.create', super_admin: 'allow', admin: 'allow', user: 'deny' },
+  { permissionCode: 'member.invite', super_admin: 'allow', admin: 'allow', user: 'deny' },
 ]
 let rbacChanges: RbacRecentChangeItem[] = [
   { id: 'change_1', time: '10:00', title: 'matrix initialized', detail: 'default matrix loaded', type: 'create' },
@@ -497,10 +496,9 @@ const initDashboardApis = () => {
 
 const initRbacApis = () => {
   const roleTemplates = [
-    { id: 'role_1', code: 'owner', description: 'all permissions' },
+    { id: 'role_1', code: 'super_admin', description: 'super admin permissions' },
     { id: 'role_2', code: 'admin', description: 'admin permissions' },
-    { id: 'role_3', code: 'developer', description: 'developer permissions' },
-    { id: 'role_4', code: 'finance', description: 'finance permissions' },
+    { id: 'role_3', code: 'user', description: 'user permissions' },
   ]
   const policyNotes = [
     { id: 'note_1', content: 'all changes are audited' },

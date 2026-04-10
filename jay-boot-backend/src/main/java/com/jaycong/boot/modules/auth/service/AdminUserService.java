@@ -26,6 +26,7 @@ import org.springframework.util.StringUtils;
 @Service
 public class AdminUserService {
 
+    private static final String ROLE_SUPER_ADMIN = "super_admin";
     private static final String ROLE_ADMIN = "admin";
     private static final String STATUS_ACTIVE = "ACTIVE";
 
@@ -90,7 +91,7 @@ public class AdminUserService {
 
         String nextRole = request.role().value();
         String nextStatus = request.status().name();
-        ensureActiveAdminNotExhausted(entity, nextRole, nextStatus);
+        ensureActiveManagementNotExhausted(entity, nextRole, nextStatus);
 
         entity.setUsername(username);
         entity.setEmail(email);
@@ -106,10 +107,10 @@ public class AdminUserService {
         String nextStatus = request.status().name();
 
         if (operatorId.equals(id) && AdminUserStatus.INACTIVE.name().equals(nextStatus)) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "不允许禁用当前登录账号");
+            throw new BusinessException(ErrorCode.FORBIDDEN, "Current account cannot be disabled");
         }
 
-        ensureActiveAdminNotExhausted(entity, entity.getRole(), nextStatus);
+        ensureActiveManagementNotExhausted(entity, entity.getRole(), nextStatus);
 
         entity.setStatus(nextStatus);
         userMapper.updateById(entity);
@@ -125,12 +126,12 @@ public class AdminUserService {
 
     private Long ensureAdminOperator() {
         if (!StpUtil.isLogin()) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户未登录");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "User not logged in");
         }
         Long loginId = StpUtil.getLoginIdAsLong();
         UserEntity operator = requireUser(loginId);
-        if (!ROLE_ADMIN.equalsIgnoreCase(operator.getRole())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "仅管理员可执行该操作");
+        if (!isManagementRole(operator.getRole())) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "Only super admin or admin can perform this action");
         }
         return loginId;
     }
@@ -138,7 +139,7 @@ public class AdminUserService {
     private UserEntity requireUser(Long id) {
         UserEntity user = userMapper.selectById(id);
         if (user == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "用户不存在");
+            throw new BusinessException(ErrorCode.NOT_FOUND, "User not found");
         }
         return user;
     }
@@ -149,7 +150,7 @@ public class AdminUserService {
                 .ne(excludeId != null, UserEntity::getId, excludeId)
                 .last("limit 1"));
         if (exists != null) {
-            throw new BusinessException(ErrorCode.CONFLICT, "用户名已存在");
+            throw new BusinessException(ErrorCode.CONFLICT, "Username already exists");
         }
     }
 
@@ -159,27 +160,35 @@ public class AdminUserService {
                 .ne(excludeId != null, UserEntity::getId, excludeId)
                 .last("limit 1"));
         if (exists != null) {
-            throw new BusinessException(ErrorCode.CONFLICT, "邮箱已存在");
+            throw new BusinessException(ErrorCode.CONFLICT, "Email already exists");
         }
     }
 
-    private void ensureActiveAdminNotExhausted(UserEntity current, String nextRole, String nextStatus) {
-        boolean currentActiveAdmin = isActiveAdmin(current.getRole(), current.getStatus());
-        boolean nextActiveAdmin = isActiveAdmin(nextRole, nextStatus);
-        if (!currentActiveAdmin || nextActiveAdmin) {
+    private void ensureActiveManagementNotExhausted(UserEntity current, String nextRole, String nextStatus) {
+        boolean currentActiveManagement = isActiveManagementRole(current.getRole(), current.getStatus());
+        boolean nextActiveManagement = isActiveManagementRole(nextRole, nextStatus);
+        if (!currentActiveManagement || nextActiveManagement) {
             return;
         }
 
-        long activeAdminCount = userMapper.selectCount(new LambdaQueryWrapper<UserEntity>()
-                .eq(UserEntity::getRole, ROLE_ADMIN)
+        long activeManagementCount = userMapper.selectCount(new LambdaQueryWrapper<UserEntity>()
+                .in(UserEntity::getRole, ROLE_SUPER_ADMIN, ROLE_ADMIN)
                 .eq(UserEntity::getStatus, STATUS_ACTIVE));
-        if (activeAdminCount <= 1) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "至少保留一个启用中的管理员");
+        if (activeManagementCount <= 1) {
+            throw new BusinessException(ErrorCode.FORBIDDEN, "At least one active manager must remain");
         }
     }
 
-    private boolean isActiveAdmin(String role, String status) {
-        return ROLE_ADMIN.equalsIgnoreCase(role) && STATUS_ACTIVE.equalsIgnoreCase(status);
+    private boolean isActiveManagementRole(String role, String status) {
+        return isManagementRole(role) && STATUS_ACTIVE.equalsIgnoreCase(status);
+    }
+
+    private boolean isManagementRole(String role) {
+        if (!StringUtils.hasText(role)) {
+            return false;
+        }
+        String normalizedRole = role.trim().toLowerCase(Locale.ROOT);
+        return ROLE_SUPER_ADMIN.equals(normalizedRole) || ROLE_ADMIN.equals(normalizedRole);
     }
 
     private String normalizeEmail(String email) {

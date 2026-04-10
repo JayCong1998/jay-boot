@@ -30,7 +30,7 @@ import org.springframework.util.StringUtils;
 public class AuthService {
 
     private static final String USER_STATUS_ACTIVE = "ACTIVE";
-    private static final String USER_ROLE_ADMIN = "admin";
+    private static final String USER_ROLE_SUPER_ADMIN = "super_admin";
     private static final String USER_ROLE_USER = "user";
     private static final int AUTO_USERNAME_MAX_LENGTH = 24;
     private static final int AUTO_USERNAME_MAX_RETRY = 50;
@@ -59,7 +59,7 @@ public class AuthService {
         user.setUsername(resolveUniqueAutoUsername(extractEmailPrefix(normalizedEmail)));
         user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(request.password()));
-        user.setRole(USER_ROLE_ADMIN);
+        user.setRole(USER_ROLE_SUPER_ADMIN);
         user.setStatus(USER_STATUS_ACTIVE);
 
         userMapper.insert(user);

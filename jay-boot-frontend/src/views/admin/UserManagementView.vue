@@ -71,8 +71,8 @@
         >
           <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'role'">
-              <a-tag :color="record.role === 'admin' ? 'processing' : 'default'">
-                {{ record.role === 'admin' ? '管理员' : '普通用户' }}
+              <a-tag :color="resolveRoleMeta(record.role).color">
+                {{ resolveRoleMeta(record.role).label }}
               </a-tag>
             </template>
             <template v-else-if="column.key === 'status'">
@@ -201,10 +201,19 @@ const tableColumns = [
   { title: '操作', key: 'actions', width: 220 },
 ]
 
+const ROLE_META: Record<AdminUserRole, { label: string; color: string }> = {
+  super_admin: { label: '超管', color: 'red' },
+  admin: { label: '管理员', color: 'processing' },
+  user: { label: '用户', color: 'default' },
+}
+
+const resolveRoleMeta = (role: AdminUserRole) => ROLE_META[role]
+
 const roleFilterOptions: Array<{ label: string; value: '' | AdminUserRole }> = [
   { label: '全部角色', value: '' },
+  { label: '超管', value: 'super_admin' },
   { label: '管理员', value: 'admin' },
-  { label: '普通用户', value: 'user' },
+  { label: '用户', value: 'user' },
 ]
 
 const statusFilterOptions: Array<{ label: string; value: '' | AdminUserStatus }> = [
@@ -214,8 +223,9 @@ const statusFilterOptions: Array<{ label: string; value: '' | AdminUserStatus }>
 ]
 
 const roleFormOptions: Array<{ label: string; value: AdminUserRole }> = [
+  { label: '超管', value: 'super_admin' },
   { label: '管理员', value: 'admin' },
-  { label: '普通用户', value: 'user' },
+  { label: '用户', value: 'user' },
 ]
 
 const statusFormOptions: Array<{ label: string; value: AdminUserStatus }> = [

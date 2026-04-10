@@ -1,6 +1,6 @@
 import { requestAdminAuthRealApi } from './realApi'
 
-export type AdminUserRole = 'admin' | 'user'
+export type AdminUserRole = 'super_admin' | 'admin' | 'user'
 export type AdminUserStatus = 'ACTIVE' | 'INACTIVE'
 
 export interface AdminUserItem {
