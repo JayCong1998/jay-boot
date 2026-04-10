@@ -6,7 +6,7 @@
       <p class="hero-desc">{{ description }}</p>
 
       <div class="tag-list" v-if="hints.length > 0">
-        <a-tag v-for="hint in hints" :key="hint" color="blue">{{ hint }}</a-tag>
+        <a-tag v-for="hint in hints" :key="hint" color="magenta">{{ hint }}</a-tag>
       </div>
 
       <div class="hero-actions">
@@ -57,31 +57,31 @@ const prototypeFile = computed(() => `product_ui/pages/${props.prototypePage}.ht
 
 .hero-card {
   border-radius: 16px;
-  border: 1px solid #d6e2f0;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid var(--user-border);
+  box-shadow: 0 12px 30px rgba(var(--user-shadow-rgb), 0.12);
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  border: 1px solid #d6e2f0;
+  border: 1px solid var(--user-border);
   border-radius: 999px;
   padding: 4px 10px;
   font-size: 12px;
-  color: #1e3a8a;
-  background: #f1f6fd;
+  color: var(--user-accent-deep);
+  background: var(--user-surface-soft);
 }
 
 .hero-title {
   margin: 12px 0 0;
   font-size: clamp(28px, 4vw, 36px);
   line-height: 1.2;
-  color: #0f172a;
+  color: var(--user-text-main);
 }
 
 .hero-desc {
   margin: 10px 0 0;
-  color: #475569;
+  color: var(--user-text-sub);
   line-height: 1.75;
 }
 
@@ -100,6 +100,6 @@ const prototypeFile = computed(() => `product_ui/pages/${props.prototypePage}.ht
 
 .mapping-card {
   border-radius: 14px;
-  border: 1px solid #d6e2f0;
+  border: 1px solid var(--user-border);
 }
 </style>

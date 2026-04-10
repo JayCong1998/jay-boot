@@ -65,7 +65,7 @@ sequenceDiagram
 
 | 参数名 | 类型 | 必填 | 说明 | 示例值 |
 | --- | --- | --- | --- | --- |
-| error | number | 是 | 错误码，0 为成功 | 0 |
+| code | number | 是 | 状态码，200 为成功 | 200 |
 | body | object | 是 | 业务数据主体 | - |
 | body.hero | object | 是 | 首屏文案与按钮文案 | - |
 | body.trustBadges | string[] | 是 | 信任背书标签 | `["4.2 万创作者正在使用"]` |
@@ -124,7 +124,7 @@ sequenceDiagram
 
 | 参数名 | 类型 | 必填 | 说明 | 示例值 |
 | --- | --- | --- | --- | --- |
-| error | number | 是 | 错误码，0 为成功 | 0 |
+| code | number | 是 | 状态码，200 为成功 | 200 |
 | body | object[] | 是 | 案例列表 | - |
 | body[].id | string | 是 | 案例 ID | case_1 |
 | body[].title | string | 是 | 案例标题 | 教育训练营：7 天起号专题 |

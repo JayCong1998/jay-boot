@@ -15,7 +15,7 @@
 
     <article class="auth-card-wrap">
       <a-card class="auth-card" :bordered="false">
-        <template #title>账号登录</template>
+        <template #title>邮箱登录</template>
 
         <a-alert
           class="auth-card__mode"
@@ -26,11 +26,11 @@
         />
 
         <a-form layout="vertical" :model="formState" :rules="rules" @finish="onFinish">
-          <a-form-item label="账号" name="account">
+          <a-form-item label="邮箱" name="email">
             <a-input
-              v-model:value="formState.account"
-              placeholder="请输入用户名或邮箱"
-              autocomplete="username"
+              v-model:value="formState.email"
+              placeholder="请输入邮箱"
+              autocomplete="email"
               allow-clear
             />
           </a-form-item>
@@ -69,17 +69,21 @@ const route = useRoute()
 const userAuthStore = useUserAuthStore()
 
 const formState = reactive({
-  account: '',
+  email: '',
   password: '',
 })
 
 const submitting = ref(false)
 
 const rules = {
-  account: [{ required: true, message: '请输入用户名或邮箱', trigger: 'blur' }],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: 'blur' },
+  ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码长度不能少于 6 位', trigger: 'blur' },
+    { max: 10, message: '密码长度不能超过 10 位', trigger: 'blur' },
   ],
 }
 
@@ -97,7 +101,7 @@ const onFinish = async () => {
   submitting.value = true
   try {
     await userAuthStore.login({
-      account: formState.account.trim(),
+      email: formState.email.trim(),
       password: formState.password,
     })
     message.success('登录成功')
@@ -123,20 +127,20 @@ onMounted(async () => {
 
 <style scoped>
 .auth-view {
-  --auth-bg: #f4f8fd;
-  --auth-panel: #ffffff;
-  --auth-panel-soft: #f1f6fd;
-  --auth-border: #d6e2f0;
-  --auth-text-main: #0f172a;
-  --auth-text-sub: #334155;
+  --auth-bg: var(--user-bg-base);
+  --auth-panel: var(--user-surface);
+  --auth-panel-soft: var(--user-surface-soft);
+  --auth-border: var(--user-border);
+  --auth-text-main: var(--user-text-main);
+  --auth-text-sub: var(--user-text-sub);
   min-height: calc(100vh - 180px);
   display: grid;
   grid-template-columns: minmax(320px, 1fr) minmax(320px, 460px);
   gap: 18px;
   padding: 8px;
   background:
-    radial-gradient(circle at 8% 10%, rgba(30, 58, 138, 0.12), transparent 38%),
-    radial-gradient(circle at 92% 90%, rgba(202, 138, 4, 0.14), transparent 35%),
+    radial-gradient(circle at 8% 10%, var(--user-gradient-a), transparent 38%),
+    radial-gradient(circle at 92% 90%, var(--user-gradient-b), transparent 35%),
     var(--auth-bg);
   border: 1px solid var(--auth-border);
   border-radius: 20px;
@@ -159,7 +163,7 @@ onMounted(async () => {
   border-radius: 999px;
   padding: 6px 10px;
   background: var(--auth-panel-soft);
-  color: #1d4ed8;
+  color: var(--user-accent-deep);
   font-size: 12px;
 }
 
@@ -203,7 +207,7 @@ onMounted(async () => {
 .auth-card__footer {
   margin-top: 10px;
   text-align: center;
-  color: #475569;
+  color: var(--user-text-minor);
 }
 
 .auth-card :deep(.ant-form-item:last-child) {

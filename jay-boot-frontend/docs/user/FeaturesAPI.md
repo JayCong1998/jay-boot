@@ -19,7 +19,7 @@
 
 ```json
 {
-  "error": 0,
+  "code": 200,
   "body": {
     "hero": {
       "eyebrow": "按阶段选择最适合的功能方案",
@@ -46,7 +46,7 @@
 
 | 参数名 | 类型 | 必填 | 说明 | 示例值 |
 | --- | --- | --- | --- | --- |
-| error | number | 是 | 错误码，0 为成功 | 0 |
+| code | number | 是 | 状态码，200 为成功 | 200 |
 | body | object | 是 | 业务数据主体 | - |
 | body.hero | object | 是 | Hero 区域数据 | - |
 | body.planCards | object[] | 是 | 套餐概览卡列表 | - |
@@ -80,7 +80,7 @@
 
 ```json
 {
-  "error": 0,
+  "code": 200,
   "body": {
     "defaultRoleKey": "creator",
     "roles": [
@@ -100,7 +100,7 @@
 
 | 参数名 | 类型 | 必填 | 说明 | 示例值 |
 | --- | --- | --- | --- | --- |
-| error | number | 是 | 错误码，0 为成功 | 0 |
+| code | number | 是 | 状态码，200 为成功 | 200 |
 | body | object | 是 | 业务数据主体 | - |
 | body.defaultRoleKey | string | 是 | 默认激活角色 key | creator |
 | body.roles | object[] | 是 | 角色建议列表 | - |
@@ -118,7 +118,7 @@
 
 ```json
 {
-  "error": 1,
+  "code": 500,
   "body": null,
   "message": "错误描述",
   "success": false

@@ -6,51 +6,40 @@
       </template>
     </a-alert>
 
-    <a-skeleton v-if="overviewLoading && !overview" active :paragraph="{ rows: 10 }" />
+    <a-skeleton v-if="overviewLoading && !overview" active :paragraph="{ rows: 6 }" />
 
     <template v-if="overview">
       <section class="hero-card">
-        <div class="hero-meta">
+        <div class="hero-meta" v-once>
           <span class="eyebrow">{{ overview.hero.eyebrow }}</span>
-          <span class="source-tag">数据源：{{ apiSourceText }}</span>
+          <span class="source-tag">{{ apiSourceText }}</span>
         </div>
         <h1>{{ overview.hero.title }}</h1>
-        <p>{{ overview.hero.description }}</p>
+        <p class="hero-desc">{{ overview.hero.description }}</p>
 
         <div class="hero-actions">
-          <a-button type="primary" size="large" @click="goRegister">{{ overview.hero.primaryActionText }}</a-button>
-          <a-button size="large" @click="showCases">{{ overview.hero.secondaryActionText }}</a-button>
-        </div>
-
-        <div class="trust-strip">
-          <span v-for="item in overview.trustBadges" :key="item" class="trust-badge">{{ item }}</span>
+          <a-button type="primary" size="large" class="btn-main" @click="goExperience">立即体验</a-button>
+          <a-button size="large" class="btn-sub" @click="goRegister">免费注册</a-button>
         </div>
       </section>
 
-      <section class="section-block">
-        <div class="section-head">
+      <section class="section-block section-block--soft">
+        <div class="section-title">
           <h2>{{ overview.sectionTitles.features }}</h2>
-          <small>更新于：{{ updatedAtText }}</small>
+          <small>{{ updatedAtText }}</small>
         </div>
-        <div class="feature-grid">
-          <article
-            v-for="card in overview.featureCards"
-            :key="card.id"
-            class="feature-card"
-            :class="{ soft: card.soft }"
-          >
+        <div class="feature-grid" v-memo="[overview.updatedAt]">
+          <article v-for="card in conciseFeatureCards" :key="card.id" class="feature-card" :class="{ soft: card.soft }">
             <h3>{{ card.title }}</h3>
-            <ul>
-              <li v-for="point in card.points" :key="point">{{ point }}</li>
-            </ul>
+            <p>{{ card.points[0] || '快速上手，流畅创作。' }}</p>
           </article>
         </div>
       </section>
 
       <section class="section-block">
-        <h2>{{ overview.sectionTitles.socialProof }}</h2>
+        <h2 class="kpi-title">{{ overview.sectionTitles.socialProof }}</h2>
         <div class="kpi-grid">
-          <article v-for="kpi in overview.kpiCards" :key="kpi.id" class="kpi-card" :class="{ soft: kpi.soft }">
+          <article v-for="kpi in conciseKpiCards" :key="kpi.id" class="kpi-card" :class="{ soft: kpi.soft }">
             <p class="kpi-label">{{ kpi.label }}</p>
             <strong class="kpi-value">{{ kpi.value }}</strong>
             <p class="kpi-desc">{{ kpi.desc }}</p>
@@ -58,76 +47,48 @@
         </div>
       </section>
 
-      <section class="section-block">
-        <h2>{{ overview.sectionTitles.faq }}</h2>
-        <div class="faq-list">
-          <article v-for="faq in overview.faqList" :key="faq.id" class="faq-item">
-            <h3>{{ faq.question }}</h3>
-            <p>{{ faq.answer }}</p>
-          </article>
-        </div>
-      </section>
-
       <section class="final-cta">
         <h2>{{ overview.finalCta.title }}</h2>
-        <p>{{ overview.finalCta.description }}</p>
-        <div class="hero-actions">
-          <a-button type="primary" size="large" @click="goRegister">{{ overview.finalCta.primaryActionText }}</a-button>
-          <a-button size="large" @click="goPricing">{{ overview.finalCta.secondaryActionText }}</a-button>
-        </div>
+        <a-button type="primary" size="large" class="btn-main" @click="goExperience">立即体验</a-button>
       </section>
     </template>
-
-    <a-modal v-model:open="caseModalOpen" title="真实案例" :footer="null" :width="760" destroy-on-close>
-      <a-spin :spinning="caseLoading">
-        <div v-if="caseList.length > 0" class="case-grid">
-          <article v-for="item in caseList" :key="item.id" class="case-card">
-            <div class="case-card__top">
-              <h3>{{ item.title }}</h3>
-              <a-tag color="blue">{{ item.industry }}</a-tag>
-            </div>
-            <p class="case-gain">{{ item.gain }}</p>
-            <p class="case-summary">{{ item.summary }}</p>
-          </article>
-        </div>
-        <a-empty v-else description="暂无案例数据" />
-      </a-spin>
-    </a-modal>
   </section>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { message } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
-import { getHomeCasesApi, getHomeOverviewApi, type HomeCaseItem, type HomeOverviewResponse } from '../../api/user/HomeApi'
+import { getHomeOverviewApi, type HomeOverviewResponse } from '../../api/user/HomeApi'
 import { userApiConfig } from '../../config/api'
 
 const router = useRouter()
 
 const overview = ref<HomeOverviewResponse | null>(null)
-const caseList = ref<HomeCaseItem[]>([])
 const overviewLoading = ref(false)
-const caseLoading = ref(false)
-const caseModalOpen = ref(false)
 const loadError = ref('')
 
-const apiSourceText = computed(() => (userApiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
+const apiSourceText = computed(() => (userApiConfig.mode === 'mock' ? 'Mock API' : '生产 API'))
 
 const updatedAtText = computed(() => {
   if (!overview.value?.updatedAt) {
     return '--'
   }
+
   const date = new Date(overview.value.updatedAt)
   if (Number.isNaN(date.getTime())) {
     return '--'
   }
+
   return date.toLocaleString('zh-CN', { hour12: false })
 })
+
+const conciseFeatureCards = computed(() => (overview.value?.featureCards ?? []).slice(0, 3))
+const conciseKpiCards = computed(() => (overview.value?.kpiCards ?? []).slice(0, 3))
 
 const loadOverview = async () => {
   overviewLoading.value = true
   loadError.value = ''
+
   try {
     overview.value = await getHomeOverviewApi()
   } catch (error) {
@@ -137,34 +98,12 @@ const loadOverview = async () => {
   }
 }
 
-const loadCases = async () => {
-  caseLoading.value = true
-  try {
-    caseList.value = await getHomeCasesApi({ limit: 3 })
-  } catch (error) {
-    message.error(error instanceof Error ? error.message : '案例数据加载失败')
-  } finally {
-    caseLoading.value = false
-  }
-}
-
 const goRegister = () => {
   router.push('/user/auth/register')
 }
 
-const goPricing = () => {
-  router.push('/user/pricing')
-}
-
-const showCases = async () => {
-  caseModalOpen.value = true
-  if (caseList.value.length > 0 || caseLoading.value) {
-    return
-  }
-  await loadCases()
-  if (caseList.value.length > 0) {
-    message.success(`已加载 ${caseList.value.length} 个案例（${apiSourceText.value}）`)
-  }
+const goExperience = () => {
+  router.push('/user/workspace')
 }
 
 onMounted(() => {
@@ -174,26 +113,31 @@ onMounted(() => {
 
 <style scoped>
 .home-view {
-  --home-border: #d6e2f0;
-  --home-text-main: #0f172a;
-  --home-text-sub: #334155;
-  --home-text-minor: #475569;
-  --home-surface: #ffffff;
-  --home-surface-soft: #f1f6fd;
+  --home-border: var(--user-border);
+  --home-text-main: var(--user-text-main);
+  --home-text-sub: var(--user-text-sub);
+  --home-text-minor: var(--user-text-minor);
+  --home-surface: var(--user-surface);
+  --home-surface-soft: var(--user-surface-soft);
   display: grid;
-  gap: 16px;
+  gap: 14px;
   font-family: 'Plus Jakarta Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background:
+    radial-gradient(circle at 0% 0%, var(--user-gradient-a), transparent 35%),
+    radial-gradient(circle at 100% 0%, var(--user-gradient-b), transparent 30%),
+    var(--user-bg-base);
 }
 
 .hero-card {
   border: 1px solid var(--home-border);
-  border-radius: 20px;
-  padding: 28px;
+  border-radius: 22px;
+  padding: 30px 26px;
   background:
-    radial-gradient(circle at 96% 4%, rgba(202, 138, 4, 0.16), transparent 34%),
-    radial-gradient(circle at 0 100%, rgba(30, 58, 138, 0.12), transparent 32%),
+    radial-gradient(circle at 95% 8%, var(--user-gradient-hero-a), transparent 35%),
+    radial-gradient(circle at 12% 100%, var(--user-gradient-hero-b), transparent 34%),
     var(--home-surface);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--user-shadow-md);
+  animation: rise-in 360ms ease-out both;
 }
 
 .hero-meta {
@@ -208,86 +152,103 @@ onMounted(() => {
   display: inline-flex;
   border: 1px solid var(--home-border);
   border-radius: 999px;
-  padding: 6px 10px;
+  padding: 5px 10px;
   font-size: 12px;
   background: var(--home-surface-soft);
 }
 
 .eyebrow {
-  color: #1e3a8a;
+  color: var(--user-accent-deep);
 }
 
 .source-tag {
-  color: #1d4ed8;
+  color: var(--home-text-minor);
 }
 
 .hero-card h1 {
-  margin: 12px 0 0;
-  font-size: clamp(30px, 5vw, 46px);
-  line-height: 1.16;
+  margin: 14px 0 0;
+  font-size: clamp(28px, 4.6vw, 42px);
+  line-height: 1.18;
   color: var(--home-text-main);
   letter-spacing: -0.02em;
 }
 
-.hero-card p {
+.hero-desc {
   margin: 12px 0 0;
   color: var(--home-text-sub);
-  line-height: 1.8;
+  line-height: 1.65;
+  max-width: 640px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .hero-actions {
-  margin-top: 16px;
+  margin-top: 18px;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 9px;
 }
 
-.trust-strip {
-  margin-top: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+:deep(.btn-main.ant-btn-primary) {
+  border-color: var(--user-accent);
+  background: var(--user-accent);
 }
 
-.trust-badge {
-  border: 1px solid var(--home-border);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-  color: var(--home-text-sub);
-  background: var(--home-surface);
+:deep(.btn-main.ant-btn-primary:hover),
+:deep(.btn-main.ant-btn-primary:focus) {
+  border-color: var(--user-accent-hover);
+  background: var(--user-accent-hover);
+}
+
+:deep(.btn-sub.ant-btn) {
+  border-color: var(--user-border-strong);
+  color: var(--user-text-sub);
+  background: var(--user-surface);
+}
+
+:deep(.btn-sub.ant-btn:hover),
+:deep(.btn-sub.ant-btn:focus) {
+  border-color: var(--user-accent);
+  color: var(--user-accent-deep);
 }
 
 .section-block {
   border: 1px solid var(--home-border);
   border-radius: 16px;
-  padding: 18px;
+  padding: 16px;
   background: var(--home-surface);
+  animation: rise-in 420ms ease-out both;
 }
 
-.section-head {
+.section-block--soft {
+  background: linear-gradient(160deg, var(--user-bg-base), var(--user-surface-soft));
+}
+
+.section-title {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
-.section-head small {
+.section-title small {
+  font-size: 12px;
   color: var(--home-text-minor);
 }
 
 .section-block h2 {
   margin: 0;
-  font-size: 26px;
+  font-size: 22px;
   color: var(--home-text-main);
 }
 
 .feature-grid,
 .kpi-grid {
-  margin-top: 12px;
+  margin-top: 10px;
   display: grid;
-  gap: 12px;
+  gap: 10px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
@@ -295,7 +256,7 @@ onMounted(() => {
 .kpi-card {
   border: 1px solid var(--home-border);
   border-radius: 14px;
-  padding: 14px;
+  padding: 13px;
   background: var(--home-surface);
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
@@ -303,7 +264,7 @@ onMounted(() => {
 .feature-card:hover,
 .kpi-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--user-shadow-sm);
 }
 
 .feature-card.soft,
@@ -313,16 +274,18 @@ onMounted(() => {
 
 .feature-card h3 {
   margin: 0;
-  font-size: 19px;
+  font-size: 17px;
   color: var(--home-text-main);
 }
 
-.feature-card ul {
-  margin: 10px 0 0;
-  padding-left: 18px;
+.feature-card p {
+  margin: 8px 0 0;
   color: var(--home-text-sub);
-  display: grid;
-  gap: 8px;
+  line-height: 1.55;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .kpi-label {
@@ -333,97 +296,43 @@ onMounted(() => {
 
 .kpi-value {
   display: block;
-  margin-top: 8px;
-  font-size: 34px;
+  margin-top: 6px;
+  font-size: 30px;
   color: var(--home-text-main);
+  line-height: 1.25;
 }
 
 .kpi-desc {
-  margin: 6px 0 0;
+  margin: 4px 0 0;
   font-size: 12px;
   color: var(--home-text-minor);
-}
-
-.faq-list {
-  margin-top: 12px;
-  display: grid;
-  gap: 10px;
-}
-
-.faq-item {
-  border: 1px solid var(--home-border);
-  border-radius: 12px;
-  padding: 12px;
-  background: var(--home-surface);
-}
-
-.faq-item h3 {
-  margin: 0;
-  font-size: 17px;
-  color: var(--home-text-main);
-}
-
-.faq-item p {
-  margin: 6px 0 0;
-  color: var(--home-text-sub);
-  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .final-cta {
   border: 1px solid var(--home-border);
   border-radius: 20px;
-  padding: 24px;
-  background: linear-gradient(120deg, #f8fbff, #f5efe0);
-  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+  padding: 20px;
+  background: linear-gradient(130deg, var(--user-bg-soft), var(--user-bg-muted));
+  box-shadow: var(--user-shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  animation: rise-in 480ms ease-out both;
 }
 
 .final-cta h2 {
   margin: 0;
-  font-size: clamp(26px, 4vw, 34px);
+  font-size: clamp(23px, 3.2vw, 30px);
   color: var(--home-text-main);
 }
 
-.final-cta p {
-  margin: 10px 0 0;
-  color: var(--home-text-sub);
-  line-height: 1.75;
-}
-
-.case-grid {
-  display: grid;
-  gap: 10px;
-}
-
-.case-card {
-  border: 1px solid var(--home-border);
-  border-radius: 12px;
-  padding: 12px;
-  background: var(--home-surface);
-}
-
-.case-card__top {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
-  align-items: center;
-}
-
-.case-card__top h3 {
+.kpi-title {
   margin: 0;
-  color: var(--home-text-main);
-  font-size: 16px;
-}
-
-.case-gain {
-  margin: 8px 0 0;
-  color: #166534;
-  font-weight: 600;
-}
-
-.case-summary {
-  margin: 6px 0 0;
-  color: var(--home-text-sub);
-  line-height: 1.7;
 }
 
 @media (max-width: 1100px) {
@@ -440,12 +349,34 @@ onMounted(() => {
     padding: 16px;
   }
 
+  .final-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .section-block h2 {
-    font-size: 22px;
+    font-size: 20px;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-card,
+  .section-block,
+  .final-cta {
+    animation: none;
+  }
+
   .feature-card,
   .kpi-card {
     transition: none;

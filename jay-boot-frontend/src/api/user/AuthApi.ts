@@ -4,7 +4,6 @@ export interface UserAuthUser {
   id: number
   username: string
   email: string
-  tenantName: string
   createdAt: string
 }
 
@@ -14,7 +13,7 @@ export interface UserAuthSession {
 }
 
 export interface UserLoginPayload extends Record<string, unknown> {
-  account: string
+  email: string
   password: string
 }
 
@@ -22,13 +21,12 @@ export interface UserRegisterPayload extends Record<string, unknown> {
   username: string
   email: string
   password: string
-  tenantName: string
 }
 
 /**
  * 用户注册
  * 功能描述：完成用户端账号注册并返回登录态
- * 入参：用户名、邮箱、密码、工作区名称
+ * 入参：用户名、邮箱、密码
  * 返回参数：token 与用户信息
  * url地址：/api/user/auth/register
  * 请求方式：POST
@@ -39,7 +37,7 @@ export const userRegisterApi = (payload: UserRegisterPayload) =>
 /**
  * 用户登录
  * 功能描述：完成用户端账号认证并返回登录态
- * 入参：账号（用户名或邮箱）、密码
+ * 入参：邮箱、密码
  * 返回参数：token 与用户信息
  * url地址：/api/user/auth/login
  * 请求方式：POST

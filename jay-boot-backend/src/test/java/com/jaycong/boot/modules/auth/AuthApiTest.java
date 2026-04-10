@@ -12,10 +12,6 @@ import com.jaycong.boot.modules.auth.entity.LoginLogEntity;
 import com.jaycong.boot.modules.auth.entity.UserEntity;
 import com.jaycong.boot.modules.auth.mapper.LoginLogMapper;
 import com.jaycong.boot.modules.auth.mapper.UserMapper;
-import com.jaycong.boot.modules.tenant.entity.TenantEntity;
-import com.jaycong.boot.modules.tenant.entity.UserTenantEntity;
-import com.jaycong.boot.modules.tenant.mapper.TenantMapper;
-import com.jaycong.boot.modules.tenant.mapper.UserTenantMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,12 +39,6 @@ class AuthApiTest {
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private TenantMapper tenantMapper;
-
-    @Autowired
-    private UserTenantMapper userTenantMapper;
-
     @Test
     void register_shouldReturnTokenAndUser() throws Exception {
         String body = """
@@ -68,27 +58,15 @@ class AuthApiTest {
     }
 
     @Test
-    void register_shouldCreateTenantAndOwnerRelation() throws Exception {
+    void register_shouldPersistUser() throws Exception {
         register("tenant.owner@example.com", "Password123");
 
         UserEntity user = userMapper.selectOne(new LambdaQueryWrapper<UserEntity>()
                 .eq(UserEntity::getEmail, "tenant.owner@example.com")
                 .last("limit 1"));
         Assertions.assertNotNull(user);
-        Assertions.assertNotNull(user.getTenantId());
-        Assertions.assertTrue(user.getTenantId() > 0);
-
-        TenantEntity tenant = tenantMapper.selectById(user.getTenantId());
-        Assertions.assertNotNull(tenant);
-        Assertions.assertEquals(user.getId(), tenant.getOwnerUserId());
-        Assertions.assertTrue(tenant.getName().startsWith("workspace-"));
-
-        UserTenantEntity relation = userTenantMapper.selectOne(new LambdaQueryWrapper<UserTenantEntity>()
-                .eq(UserTenantEntity::getUserId, user.getId())
-                .eq(UserTenantEntity::getTenantId, user.getTenantId())
-                .last("limit 1"));
-        Assertions.assertNotNull(relation);
-        Assertions.assertEquals("OWNER", relation.getRoleInTenant());
+        Assertions.assertNotNull(user.getId());
+        Assertions.assertNotNull(user.getUsername());
     }
 
     @Test

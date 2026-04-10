@@ -15,11 +15,13 @@ public class UserEntity extends BaseEntity {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
-    private Long tenantId;
+    private String username;
 
     private String email;
 
     private String passwordHash;
+
+    private String role;
 
     private String status;
 }

@@ -81,7 +81,6 @@ interface MockUserRecord {
   username: string
   email: string
   password: string
-  tenantName: string
   createdAt: string
 }
 
@@ -89,7 +88,6 @@ interface PublicUserProfile {
   id: number
   username: string
   email: string
-  tenantName: string
   createdAt: string
 }
 
@@ -471,7 +469,6 @@ const toPublicUserProfile = (record: MockUserRecord): PublicUserProfile => ({
   id: record.id,
   username: record.username,
   email: record.email,
-  tenantName: record.tenantName,
   createdAt: record.createdAt,
 })
 
@@ -516,7 +513,6 @@ const ensureDefaultAuthUsers = () => {
     username: 'creator',
     email: 'creator@jayboot.local',
     password: 'creator123',
-    tenantName: 'JayBoot Creator',
     createdAt: now,
   }
   writeAuthUsers([defaultUser])
@@ -540,11 +536,9 @@ const parseUserIdFromToken = (token: string): number | null => {
   return id
 }
 
-const findUserByAccount = (users: MockUserRecord[], account: string) => {
-  const normalized = account.trim().toLowerCase()
-  return users.find(
-    (item) => item.username.trim().toLowerCase() === normalized || item.email.trim().toLowerCase() === normalized,
-  )
+const findUserByEmail = (users: MockUserRecord[], email: string) => {
+  const normalized = email.trim().toLowerCase()
+  return users.find((item) => item.email.trim().toLowerCase() === normalized)
 }
 
 const initializeAuthMockApis = () => {
@@ -552,9 +546,8 @@ const initializeAuthMockApis = () => {
     const username = String(payload?.username ?? '').trim()
     const email = String(payload?.email ?? '').trim().toLowerCase()
     const password = String(payload?.password ?? '')
-    const tenantName = String(payload?.tenantName ?? '').trim()
 
-    if (!username || !email || !password || !tenantName) {
+    if (!username || !email || !password) {
       return createErrorResponse('请完整填写注册信息')
     }
     if (username.length < 3 || username.length > 24) {
@@ -563,8 +556,8 @@ const initializeAuthMockApis = () => {
     if (!email.includes('@')) {
       return createErrorResponse('邮箱格式不正确')
     }
-    if (password.length < 6) {
-      return createErrorResponse('密码长度不能少于 6 位')
+    if (password.length < 6 || password.length > 10) {
+      return createErrorResponse('密码长度需在 6-10 位之间')
     }
 
     const users = readAuthUsers()
@@ -581,7 +574,6 @@ const initializeAuthMockApis = () => {
       username,
       email,
       password,
-      tenantName,
       createdAt: new Date().toISOString(),
     }
     writeAuthUsers([newUser, ...users])
@@ -596,17 +588,23 @@ const initializeAuthMockApis = () => {
   })
 
   registerMockApi('POST', '/api/user/auth/login', (payload) => {
-    const account = String(payload?.account ?? '').trim()
+    const email = String(payload?.email ?? '').trim()
     const password = String(payload?.password ?? '')
 
-    if (!account || !password) {
-      return createErrorResponse('请输入账号和密码')
+    if (!email || !password) {
+      return createErrorResponse('请输入邮箱和密码')
+    }
+    if (password.length < 6 || password.length > 10) {
+      return createErrorResponse('密码长度需在 6-10 位之间')
+    }
+    if (!email.includes('@')) {
+      return createErrorResponse('邮箱格式不正确')
     }
 
     const users = readAuthUsers()
-    const user = findUserByAccount(users, account)
+    const user = findUserByEmail(users, email)
     if (!user) {
-      return createErrorResponse('账号不存在，请先注册')
+      return createErrorResponse('邮箱不存在，请先注册')
     }
     if (user.password !== password) {
       return createErrorResponse('密码错误，请重新输入')

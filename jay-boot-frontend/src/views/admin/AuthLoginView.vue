@@ -2,17 +2,17 @@
   <section class="auth-page">
     <div class="auth-page__intro">
       <h1>欢迎使用 Jay Boot</h1>
-      <p>登录后可进入控制台，管理租户、权限、计费与 API Key。</p>
+      <p>登录后可进入控制台，管理权限、计费与 API Key。</p>
     </div>
 
     <a-card class="auth-card" :bordered="false">
       <template #title>账号登录</template>
       <a-form layout="vertical" :model="formState" :rules="rules" @finish="onFinish">
-        <a-form-item label="账号" name="account">
+        <a-form-item label="邮箱" name="email">
           <a-input
-            v-model:value="formState.account"
-            placeholder="请输入用户名或邮箱"
-            autocomplete="username"
+            v-model:value="formState.email"
+            placeholder="请输入邮箱"
+            autocomplete="email"
           />
         </a-form-item>
         <a-form-item label="密码" name="password">
@@ -30,13 +30,6 @@
         还没有账号？
         <RouterLink :to="registerLink">立即注册</RouterLink>
       </div>
-      <a-alert
-        class="auth-card__tip"
-        type="info"
-        show-icon
-        message="Mock 演示账号"
-        description="用户名：admin 或邮箱：admin@jayboot.local，密码：admin123"
-      />
     </a-card>
   </section>
 </template>
@@ -52,17 +45,21 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 const formState = reactive({
-  account: '',
+  email: '',
   password: '',
 })
 
 const submitting = ref(false)
 
 const rules = {
-  account: [{ required: true, message: '请输入用户名或邮箱', trigger: 'blur' }],
+  email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
+    { type: 'email', message: '邮箱格式不正确', trigger: 'blur' },
+  ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码长度不能少于 6 位', trigger: 'blur' },
+    { max: 10, message: '密码长度不能超过 10 位', trigger: 'blur' },
   ],
 }
 
@@ -78,7 +75,7 @@ const onFinish = async () => {
   submitting.value = true
   try {
     await authStore.login({
-      account: formState.account.trim(),
+      email: formState.email.trim(),
       password: formState.password,
     })
     message.success('登录成功')
@@ -134,10 +131,6 @@ const onFinish = async () => {
   margin-top: 8px;
   text-align: center;
   color: #475569;
-}
-
-.auth-card__tip {
-  margin-top: 16px;
 }
 
 @media (max-width: 1024px) {

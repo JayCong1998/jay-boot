@@ -15,8 +15,6 @@ public class LoginLogEntity extends BaseEntity {
     @TableId(type = IdType.ASSIGN_ID)
     private Long id;
 
-    private Long tenantId;
-
     private Long userId;
 
     private String ip;

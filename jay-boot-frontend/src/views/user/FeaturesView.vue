@@ -217,12 +217,12 @@ onMounted(() => {
 
 <style scoped>
 .features-view {
-  --feature-border: #d6e2f0;
-  --feature-main: #0f172a;
-  --feature-sub: #334155;
-  --feature-minor: #475569;
-  --feature-surface: #ffffff;
-  --feature-soft: #f1f6fd;
+  --feature-border: var(--user-border);
+  --feature-main: var(--user-text-main);
+  --feature-sub: var(--user-text-sub);
+  --feature-minor: var(--user-text-minor);
+  --feature-surface: var(--user-surface);
+  --feature-soft: var(--user-surface-soft);
   display: grid;
   gap: 16px;
   font-family: 'Plus Jakarta Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
@@ -233,10 +233,10 @@ onMounted(() => {
   border-radius: 20px;
   padding: 28px;
   background:
-    radial-gradient(circle at 96% 4%, rgba(202, 138, 4, 0.16), transparent 34%),
-    radial-gradient(circle at 0 100%, rgba(30, 58, 138, 0.12), transparent 32%),
+    radial-gradient(circle at 96% 4%, var(--user-gradient-hero-a), transparent 34%),
+    radial-gradient(circle at 0 100%, var(--user-gradient-hero-b), transparent 32%),
     var(--feature-surface);
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--user-shadow-md);
 }
 
 .hero-meta {
@@ -257,11 +257,11 @@ onMounted(() => {
 }
 
 .eyebrow {
-  color: #1e3a8a;
+  color: var(--user-accent-deep);
 }
 
 .source-tag {
-  color: #1d4ed8;
+  color: var(--user-accent);
 }
 
 .hero-card h1 {
@@ -325,14 +325,14 @@ onMounted(() => {
 }
 
 .plan-card.recommended {
-  border-color: #1d4ed8;
-  box-shadow: 0 10px 20px rgba(29, 78, 216, 0.12);
+  border-color: var(--user-accent);
+  box-shadow: 0 10px 20px rgba(var(--user-shadow-rgb), 0.14);
 }
 
 .plan-code {
   margin: 0;
   font-size: 12px;
-  color: #1d4ed8;
+  color: var(--user-accent);
   font-weight: 700;
 }
 
@@ -410,7 +410,7 @@ onMounted(() => {
 .comparison-row--head {
   font-weight: 700;
   color: var(--feature-main);
-  background: #f8fbff;
+  background: var(--user-surface-soft);
 }
 
 .feature-info {
@@ -498,8 +498,8 @@ onMounted(() => {
   border: 1px solid var(--feature-border);
   border-radius: 20px;
   padding: 24px;
-  background: linear-gradient(120deg, #f8fbff, #f5efe0);
-  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+  background: linear-gradient(130deg, var(--user-bg-soft), var(--user-bg-muted));
+  box-shadow: var(--user-shadow-lg);
 }
 
 .final-cta h2 {

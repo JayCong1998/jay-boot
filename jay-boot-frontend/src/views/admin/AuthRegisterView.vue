@@ -2,25 +2,19 @@
   <section class="auth-page">
     <div class="auth-page__intro">
       <h1>创建你的 Jay Boot 工作空间</h1>
-      <p>完成注册后会自动登录并进入控制台，你可以立即开始配置租户与权限体系。</p>
+      <p>完成注册后会自动登录并进入控制台，你可以立即开始配置权限与计费能力。</p>
     </div>
 
     <a-card class="auth-card" :bordered="false">
       <template #title>账号注册</template>
       <a-form layout="vertical" :model="formState" :rules="rules" @finish="onFinish">
-        <a-form-item label="用户名" name="username">
-          <a-input v-model:value="formState.username" placeholder="建议使用英文+数字组合" />
-        </a-form-item>
         <a-form-item label="邮箱" name="email">
           <a-input v-model:value="formState.email" placeholder="请输入常用邮箱" autocomplete="email" />
-        </a-form-item>
-        <a-form-item label="租户名称" name="tenantName">
-          <a-input v-model:value="formState.tenantName" placeholder="例如：Acme 团队" />
         </a-form-item>
         <a-form-item label="密码" name="password">
           <a-input-password
             v-model:value="formState.password"
-            placeholder="至少 6 位"
+            placeholder="请输入密码（6-10 位）"
             autocomplete="new-password"
           />
         </a-form-item>
@@ -54,9 +48,7 @@ const route = useRoute()
 const authStore = useAuthStore()
 
 const formState = reactive({
-  username: '',
   email: '',
-  tenantName: '',
   password: '',
   confirmPassword: '',
 })
@@ -64,18 +56,14 @@ const formState = reactive({
 const submitting = ref(false)
 
 const rules = {
-  username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, message: '用户名至少 3 位', trigger: 'blur' },
-  ],
   email: [
     { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '邮箱格式不正确', trigger: 'blur' },
   ],
-  tenantName: [{ required: true, message: '请输入租户名称', trigger: 'blur' }],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码长度不能少于 6 位', trigger: 'blur' },
+    { max: 10, message: '密码长度不能超过 10 位', trigger: 'blur' },
   ],
   confirmPassword: [
     {
@@ -110,9 +98,7 @@ const onFinish = async () => {
   submitting.value = true
   try {
     await authStore.register({
-      username: formState.username.trim(),
       email: formState.email.trim(),
-      tenantName: formState.tenantName.trim(),
       password: formState.password,
     })
     message.success('注册成功，已自动登录')

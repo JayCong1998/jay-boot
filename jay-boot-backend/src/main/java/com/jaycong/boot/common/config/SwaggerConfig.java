@@ -55,7 +55,7 @@ public class SwaggerConfig {
     /**
      * 根据路径自动标注需要 satoken 的接口。
      * 与 Sa-Token 全局拦截白名单保持一致：
-     * - 放行：/api/auth/**、/api/system/ping
+     * - 放行：/api/auth/**、/api/admin/auth/**、/api/user/auth/**、/api/system/ping
      * - 其余 /api/** 需要登录
      */
     @Bean
@@ -80,7 +80,9 @@ public class SwaggerConfig {
         if ("/api/system/ping".equals(path)) {
             return false;
         }
-        return !path.startsWith("/api/auth/");
+        return !path.startsWith("/api/auth/")
+                && !path.startsWith("/api/admin/auth/")
+                && !path.startsWith("/api/user/auth/");
     }
 
     private void appendSaTokenRequirement(Operation operation) {

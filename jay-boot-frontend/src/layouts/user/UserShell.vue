@@ -23,9 +23,21 @@
         </nav>
 
         <div class="top-actions">
-          <RouterLink class="action-link" to="/admin/dashboard">管理端</RouterLink>
-          <RouterLink class="action-link" to="/user/auth/login">登录</RouterLink>
-          <RouterLink class="action-link action-link--primary" to="/user/auth/register">免费试用</RouterLink>
+          <RouterLink v-if="!userAuthStore.isLoggedIn" class="action-link" to="/user/auth/login">
+            登录
+          </RouterLink>
+          <a-popover v-else placement="bottomRight" trigger="hover">
+            <template #content>
+              <div class="user-popover">
+                <strong class="user-popover__name">{{ userName }}</strong>
+                <p class="user-popover__email">{{ userEmail }}</p>
+                <button type="button" class="user-popover__logout" @click="onLogout">退出登录</button>
+              </div>
+            </template>
+            <button type="button" class="user-avatar" :aria-label="`当前用户 ${userName}`">
+              {{ avatarInitial }}
+            </button>
+          </a-popover>
         </div>
       </div>
     </header>
@@ -46,21 +58,41 @@
 </template>
 
 <script setup lang="ts">
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import { useUserAuthStore } from '../../stores/user/auth'
 
 const route = useRoute()
+const router = useRouter()
+const userAuthStore = useUserAuthStore()
 
 const navItems = [
   { path: '/user/home', label: '首页' },
-  { path: '/user/features', label: '功能' },
-  { path: '/user/pricing', label: '定价' },
+  // { path: '/user/features', label: '功能' },
+  // { path: '/user/pricing', label: '定价' },
   { path: '/user/workspace', label: '工作台' },
-  { path: '/user/history', label: '历史' },
-  { path: '/user/subscription', label: '订阅' },
-  { path: '/user/help', label: '帮助' },
+  // { path: '/user/history', label: '历史' },
+  // { path: '/user/subscription', label: '订阅' },
+  // { path: '/user/help', label: '帮助' },
 ]
 
 const isActive = (path: string) => route.path === path || route.path.startsWith(`${path}/`)
+
+const userName = computed(() => userAuthStore.user?.username || 'User')
+const userEmail = computed(() => userAuthStore.user?.email || '')
+const avatarInitial = computed(() => {
+  const first = userName.value.trim().charAt(0)
+  return (first || 'U').toUpperCase()
+})
+
+const onLogout = async () => {
+  await userAuthStore.logout()
+  await router.push('/user/home')
+}
+
+onMounted(async () => {
+  await userAuthStore.hydrate()
+})
 </script>
 
 <style scoped>
@@ -69,9 +101,9 @@ const isActive = (path: string) => route.path === path || route.path.startsWith(
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(circle at 0 0, rgba(30, 58, 138, 0.1), transparent 34%),
-    radial-gradient(circle at 100% 0, rgba(202, 138, 4, 0.1), transparent 28%),
-    #f4f8fd;
+    radial-gradient(circle at 0 0, var(--user-gradient-a), transparent 34%),
+    radial-gradient(circle at 100% 0, var(--user-gradient-b), transparent 28%),
+    var(--user-bg-base);
 }
 
 .site-header {
@@ -79,8 +111,8 @@ const isActive = (path: string) => route.path === path || route.path.startsWith(
   top: 0;
   z-index: 20;
   backdrop-filter: blur(8px);
-  background: rgba(248, 251, 255, 0.92);
-  border-bottom: 1px solid #d6e2f0;
+  background: rgba(255, 250, 252, 0.92);
+  border-bottom: 1px solid var(--user-border);
 }
 
 .shell {
@@ -115,8 +147,8 @@ const isActive = (path: string) => route.path === path || route.path.startsWith(
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  background: linear-gradient(140deg, #0f172a, #1e3a8a);
-  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.28);
+  background: linear-gradient(140deg, var(--user-accent-deep), var(--user-text-minor));
+  box-shadow: 0 10px 20px rgba(var(--user-shadow-rgb), 0.28);
 }
 
 .brand-text {
@@ -127,12 +159,12 @@ const isActive = (path: string) => route.path === path || route.path.startsWith(
 .brand-text strong {
   font-size: 15px;
   line-height: 1.2;
-  color: #0f172a;
+  color: var(--user-text-main);
 }
 
 .brand-text small {
   font-size: 12px;
-  color: #64748b;
+  color: var(--user-text-minor);
 }
 
 .top-nav {
@@ -147,15 +179,15 @@ const isActive = (path: string) => route.path === path || route.path.startsWith(
   padding: 8px 11px;
   font-size: 13px;
   text-decoration: none;
-  color: #475569;
+  color: var(--user-text-sub);
   transition: 0.2s ease;
 }
 
 .top-nav__link:hover,
 .top-nav__link[aria-current='page'] {
-  color: #0f172a;
-  border-color: #bfd2e8;
-  background: #edf3fb;
+  color: var(--user-text-main);
+  border-color: var(--user-border-strong);
+  background: var(--user-surface-soft);
 }
 
 .top-actions {
@@ -165,19 +197,84 @@ const isActive = (path: string) => route.path === path || route.path.startsWith(
 }
 
 .action-link {
-  border: 1px solid #d2dcea;
+  border: 1px solid var(--user-border-strong);
   border-radius: 10px;
   padding: 8px 12px;
   text-decoration: none;
   font-size: 13px;
-  color: #0f172a;
-  background: #fff;
+  color: var(--user-text-main);
+  background: var(--user-surface);
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
 
-.action-link--primary {
-  border-color: transparent;
-  color: #fff;
-  background: linear-gradient(135deg, #ca8a04, #e0a21a);
+.action-link:hover {
+  border-color: var(--user-accent);
+  color: var(--user-accent-deep);
+  background: var(--user-surface-soft);
+}
+
+.user-avatar {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  color: #f8fafc;
+  background: linear-gradient(135deg, var(--user-accent), var(--user-accent-hover));
+  box-shadow: 0 10px 22px rgba(var(--user-shadow-rgb), 0.26);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-avatar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(var(--user-shadow-rgb), 0.32);
+}
+
+.user-avatar:focus-visible {
+  outline: 2px solid var(--user-accent);
+  outline-offset: 2px;
+}
+
+.user-popover {
+  min-width: 180px;
+  display: grid;
+  gap: 8px;
+}
+
+.user-popover__name {
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--user-text-main);
+}
+
+.user-popover__email {
+  margin: 0;
+  font-size: 12px;
+  color: var(--user-text-sub);
+  word-break: break-all;
+}
+
+.user-popover__logout {
+  border: 1px solid var(--user-border-strong);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--user-text-main);
+  background: var(--user-surface);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.user-popover__logout:hover {
+  border-color: var(--user-accent);
+  color: var(--user-accent-deep);
+  background: var(--user-surface-soft);
 }
 
 .user-main {
@@ -191,8 +288,8 @@ const isActive = (path: string) => route.path === path || route.path.startsWith(
 }
 
 .site-footer {
-  border-top: 1px solid #d6e2f0;
-  background: #ffffff;
+  border-top: 1px solid var(--user-border);
+  background: var(--user-surface);
 }
 
 .site-footer__inner {
@@ -202,7 +299,7 @@ const isActive = (path: string) => route.path === path || route.path.startsWith(
   justify-content: space-between;
   gap: 8px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--user-text-minor);
 }
 
 @media (max-width: 980px) {

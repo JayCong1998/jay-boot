@@ -1,10 +1,11 @@
 export type UserApiMode = 'mock' | 'real'
+export type AdminAuthApiMode = 'mock' | 'real'
 
-const normalizeMode = (mode: unknown): UserApiMode => {
+const normalizeMode = <TMode extends 'mock' | 'real'>(mode: unknown, fallback: TMode): TMode => {
   if (typeof mode !== 'string') {
-    return 'mock'
+    return fallback
   }
-  return mode.trim().toLowerCase() === 'real' ? 'real' : 'mock'
+  return (mode.trim().toLowerCase() === 'real' ? 'real' : 'mock') as TMode
 }
 
 const normalizeBaseUrl = (baseUrl: unknown): string => {
@@ -23,7 +24,13 @@ const normalizeDelay = (delay: unknown): number => {
 }
 
 export const userApiConfig = {
-  mode: normalizeMode(import.meta.env.VITE_USER_API_MODE),
+  mode: normalizeMode<UserApiMode>(import.meta.env.VITE_USER_API_MODE, 'mock'),
   baseUrl: normalizeBaseUrl(import.meta.env.VITE_USER_API_BASE_URL),
   mockDelayMs: normalizeDelay(import.meta.env.VITE_USER_MOCK_DELAY_MS),
+}
+
+export const adminAuthApiConfig = {
+  mode: normalizeMode<AdminAuthApiMode>(import.meta.env.VITE_ADMIN_AUTH_API_MODE, 'real'),
+  baseUrl: normalizeBaseUrl(import.meta.env.VITE_ADMIN_AUTH_API_BASE_URL),
+  mockDelayMs: normalizeDelay(import.meta.env.VITE_ADMIN_AUTH_MOCK_DELAY_MS),
 }

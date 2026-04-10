@@ -1,0 +1,46 @@
+:root {
+  --user-bg-base: #fffafc;
+  --user-bg-soft: #fff4f7;
+  --user-bg-muted: #f4f0f2;
+  --user-surface: #ffffff;
+  --user-surface-soft: #fff3f7;
+  --user-border: #e9d8df;
+  --user-border-strong: #dfc4cf;
+
+  --user-text-main: #2a1f26;
+  --user-text-sub: #5b4a53;
+  --user-text-minor: #7f6f77;
+
+  --user-accent: #cc6e98;
+  --user-accent-hover: #be5f8b;
+  --user-accent-soft: #f7dce7;
+  --user-accent-deep: #a24f74;
+
+  --user-gradient-a: rgba(244, 187, 206, 0.18);
+  --user-gradient-b: rgba(194, 196, 201, 0.18);
+  --user-gradient-hero-a: rgba(235, 166, 193, 0.26);
+  --user-gradient-hero-b: rgba(219, 220, 224, 0.24);
+
+  --user-shadow-rgb: 127, 111, 119;
+  --user-shadow-sm: 0 10px 18px rgba(var(--user-shadow-rgb), 0.12);
+  --user-shadow-md: 0 14px 34px rgba(var(--user-shadow-rgb), 0.12);
+  --user-shadow-lg: 0 16px 30px rgba(var(--user-shadow-rgb), 0.12);
+}
+
+:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-btn-primary {
+  border-color: var(--user-accent);
+  background: var(--user-accent);
+}
+
+:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-btn-primary:hover,
+:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-btn-primary:focus {
+  border-color: var(--user-accent-hover);
+  background: var(--user-accent-hover);
+}
+
+:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-tag-magenta,
+:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-tag-blue {
+  color: var(--user-accent-deep);
+  background: var(--user-accent-soft);
+  border-color: var(--user-border-strong);
+}

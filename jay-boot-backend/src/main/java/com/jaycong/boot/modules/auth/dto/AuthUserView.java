@@ -6,8 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record AuthUserView(
         @Schema(description = "用户 ID", example = "1001")
         Long id,
-        @Schema(description = "租户 ID", example = "2001")
-        Long tenantId,
         @Schema(description = "邮箱", example = "user@example.com")
         String email,
         @Schema(description = "用户状态", example = "ACTIVE")

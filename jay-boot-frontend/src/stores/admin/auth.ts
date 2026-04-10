@@ -38,7 +38,18 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {
     isLoggedIn: (state) => Boolean(state.token),
-    displayName: (state) => state.user?.username || '未登录用户',
+    displayName: (state) => {
+      const username = state.user?.username?.trim()
+      if (username) {
+        return username
+      }
+      const email = state.user?.email?.trim()
+      if (!email) {
+        return '未登录用户'
+      }
+      const [prefix] = email.split('@')
+      return prefix || email
+    },
   },
   actions: {
     setSession(session: AuthSession) {
@@ -98,4 +109,3 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 })
-

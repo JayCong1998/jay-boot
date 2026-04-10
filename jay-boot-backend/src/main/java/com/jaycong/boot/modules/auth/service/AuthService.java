@@ -11,45 +11,42 @@ import com.jaycong.boot.modules.auth.dto.AuthUserView;
 import com.jaycong.boot.modules.auth.dto.ChangePasswordRequest;
 import com.jaycong.boot.modules.auth.dto.LoginRequest;
 import com.jaycong.boot.modules.auth.dto.RegisterRequest;
+import com.jaycong.boot.modules.auth.dto.SiteAuthSessionResponse;
+import com.jaycong.boot.modules.auth.dto.SiteAuthUserView;
+import com.jaycong.boot.modules.auth.dto.SiteLoginRequest;
+import com.jaycong.boot.modules.auth.dto.SiteRegisterRequest;
 import com.jaycong.boot.modules.auth.entity.LoginLogEntity;
 import com.jaycong.boot.modules.auth.entity.UserEntity;
 import com.jaycong.boot.modules.auth.mapper.LoginLogMapper;
 import com.jaycong.boot.modules.auth.mapper.UserMapper;
-import com.jaycong.boot.modules.tenant.service.TenantProvisioningService;
+import java.time.ZoneId;
+import java.util.Locale;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-/**
- * 认证服务，负责注册、登录、会话与密码修改等核心认证流程。
- */
 @Service
 public class AuthService {
 
     private static final String USER_STATUS_ACTIVE = "ACTIVE";
+    private static final String USER_ROLE_ADMIN = "admin";
+    private static final String USER_ROLE_USER = "user";
+    private static final int AUTO_USERNAME_MAX_LENGTH = 24;
+    private static final int AUTO_USERNAME_MAX_RETRY = 50;
 
     private final UserMapper userMapper;
     private final LoginLogMapper loginLogMapper;
     private final PasswordEncoder passwordEncoder;
-    private final TenantProvisioningService tenantProvisioningService;
 
     public AuthService(UserMapper userMapper,
                        LoginLogMapper loginLogMapper,
-                       PasswordEncoder passwordEncoder,
-                       TenantProvisioningService tenantProvisioningService) {
+                       PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
         this.loginLogMapper = loginLogMapper;
         this.passwordEncoder = passwordEncoder;
-        this.tenantProvisioningService = tenantProvisioningService;
     }
 
-    /**
-     * 注册用户并初始化默认租户。
-     *
-     * @param request 注册请求
-     * @param context 请求上下文
-     * @return 认证令牌响应
-     */
     @Transactional
     public AuthTokenResponse register(RegisterRequest request, AuthRequestContext context) {
         String normalizedEmail = normalizeEmail(request.email());
@@ -59,64 +56,96 @@ public class AuthService {
         }
 
         UserEntity user = new UserEntity();
+        user.setUsername(resolveUniqueAutoUsername(extractEmailPrefix(normalizedEmail)));
         user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setRole(USER_ROLE_ADMIN);
         user.setStatus(USER_STATUS_ACTIVE);
 
         userMapper.insert(user);
-        Long tenantId = tenantProvisioningService.provisionForUser(user.getId());
-        user.setTenantId(tenantId);
-        userMapper.updateById(user);
 
         StpUtil.login(user.getId());
-        recordLoginLog(user.getTenantId(), user.getId(), context, true, "REGISTER");
+        recordLoginLog(user.getId(), context, true, "REGISTER");
         return buildTokenResponse(user);
     }
 
-    /**
-     * 用户登录并写入登录日志。
-     *
-     * @param request 登录请求
-     * @param context 请求上下文
-     * @return 认证令牌响应
-     */
+    @Transactional
+    public SiteAuthSessionResponse registerForSite(SiteRegisterRequest request, AuthRequestContext context) {
+        String normalizedEmail = normalizeEmail(request.email());
+        String normalizedUsername = normalizeUsername(request.username());
+        if (findByEmail(normalizedEmail) != null) {
+            throw new BusinessException(ErrorCode.CONFLICT, "邮箱已被注册");
+        }
+        if (findByUsername(normalizedUsername) != null) {
+            throw new BusinessException(ErrorCode.CONFLICT, "用户名已存在");
+        }
+
+        UserEntity user = new UserEntity();
+        user.setUsername(normalizedUsername);
+        user.setEmail(normalizedEmail);
+        user.setPasswordHash(passwordEncoder.encode(request.password()));
+        user.setRole(USER_ROLE_USER);
+        user.setStatus(USER_STATUS_ACTIVE);
+        userMapper.insert(user);
+
+        StpUtil.login(user.getId());
+        recordLoginLog(user.getId(), context, true, "REGISTER");
+        return buildSiteSessionResponse(user);
+    }
+
     @Transactional(noRollbackFor = BusinessException.class)
     public AuthTokenResponse login(LoginRequest request, AuthRequestContext context) {
         String normalizedEmail = normalizeEmail(request.email());
         UserEntity user = findByEmail(normalizedEmail);
         if (user == null) {
-            recordLoginLog(0L, null, context, false, "EMAIL_NOT_FOUND");
+            recordLoginLog(null, context, false, "EMAIL_NOT_FOUND");
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "邮箱或密码错误");
         }
 
         if (!USER_STATUS_ACTIVE.equalsIgnoreCase(user.getStatus())) {
-            recordLoginLog(user.getTenantId(), user.getId(), context, false, "USER_INACTIVE");
+            recordLoginLog(user.getId(), context, false, "USER_INACTIVE");
             throw new BusinessException(ErrorCode.FORBIDDEN, "用户状态不可用");
         }
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            recordLoginLog(user.getTenantId(), user.getId(), context, false, "PASSWORD_MISMATCH");
+            recordLoginLog(user.getId(), context, false, "PASSWORD_MISMATCH");
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "邮箱或密码错误");
         }
 
         StpUtil.login(user.getId());
-        recordLoginLog(user.getTenantId(), user.getId(), context, true, "LOGIN");
+        recordLoginLog(user.getId(), context, true, "LOGIN");
         return buildTokenResponse(user);
     }
 
-    /**
-     * 当前用户退出登录。
-     */
+    @Transactional(noRollbackFor = BusinessException.class)
+    public SiteAuthSessionResponse loginForSite(SiteLoginRequest request, AuthRequestContext context) {
+        String normalizedEmail = normalizeEmail(request.email());
+        UserEntity user = findByEmail(normalizedEmail);
+        if (user == null) {
+            recordLoginLog(null, context, false, "EMAIL_NOT_FOUND");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "邮箱或密码错误");
+        }
+
+        if (!USER_STATUS_ACTIVE.equalsIgnoreCase(user.getStatus())) {
+            recordLoginLog(user.getId(), context, false, "USER_INACTIVE");
+            throw new BusinessException(ErrorCode.FORBIDDEN, "用户状态不可用");
+        }
+
+        if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+            recordLoginLog(user.getId(), context, false, "PASSWORD_MISMATCH");
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "邮箱或密码错误");
+        }
+
+        StpUtil.login(user.getId());
+        recordLoginLog(user.getId(), context, true, "LOGIN");
+        return buildSiteSessionResponse(user);
+    }
+
     public void logout() {
         ensureLogin();
         StpUtil.logout();
     }
 
-    /**
-     * 获取当前登录会话信息。
-     *
-     * @return 会话响应
-     */
     public AuthSessionResponse session() {
         Long loginId = ensureLogin();
         UserEntity user = requireUser(loginId);
@@ -128,11 +157,6 @@ public class AuthService {
         );
     }
 
-    /**
-     * 刷新当前登录用户的令牌。
-     *
-     * @return 认证令牌响应
-     */
     public AuthTokenResponse refreshToken() {
         Long loginId = ensureLogin();
         UserEntity user = requireUser(loginId);
@@ -140,11 +164,6 @@ public class AuthService {
         return buildTokenResponse(user);
     }
 
-    /**
-     * 修改当前用户密码。
-     *
-     * @param request 修改密码请求
-     */
     @Transactional
     public void changePassword(ChangePasswordRequest request) {
         Long loginId = ensureLogin();
@@ -156,8 +175,30 @@ public class AuthService {
         userMapper.updateById(user);
     }
 
+    public SiteAuthUserView meByToken(String token) {
+        Long loginId = resolveLoginIdByToken(token);
+        UserEntity user = requireUser(loginId);
+        return toSiteUserView(user);
+    }
+
+    public void logoutByToken(String token) {
+        String normalizedToken = normalizeToken(token);
+        if (!StringUtils.hasText(normalizedToken)) {
+            throw new BusinessException(ErrorCode.BAD_REQUEST, "token 不能为空");
+        }
+        StpUtil.logoutByTokenValue(normalizedToken);
+    }
+
     private String normalizeEmail(String email) {
-        return email == null ? null : email.trim().toLowerCase();
+        return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    private String normalizeUsername(String username) {
+        return username == null ? null : username.trim();
+    }
+
+    private String normalizeToken(String token) {
+        return token == null ? null : token.trim();
     }
 
     private UserEntity findByEmail(String email) {
@@ -166,12 +207,17 @@ public class AuthService {
                 .last("limit 1"));
     }
 
-    private void recordLoginLog(Long tenantId, Long userId, AuthRequestContext context, boolean success, String reason) {
+    private UserEntity findByUsername(String username) {
+        return userMapper.selectOne(new LambdaQueryWrapper<UserEntity>()
+                .eq(UserEntity::getUsername, username)
+                .last("limit 1"));
+    }
+
+    private void recordLoginLog(Long userId, AuthRequestContext context, boolean success, String reason) {
         LoginLogEntity log = new LoginLogEntity();
-        log.setTenantId(tenantId == null ? 0L : tenantId);
         log.setUserId(userId);
-        log.setIp(context.ip());
-        log.setUa(context.userAgent());
+        log.setIp(context == null ? null : context.ip());
+        log.setUa(context == null ? null : context.userAgent());
         log.setSuccess(success);
         log.setReason(reason);
         loginLogMapper.insert(log);
@@ -200,7 +246,81 @@ public class AuthService {
         );
     }
 
+    private SiteAuthSessionResponse buildSiteSessionResponse(UserEntity user) {
+        return new SiteAuthSessionResponse(StpUtil.getTokenValue(), toSiteUserView(user));
+    }
+
     private AuthUserView toUserView(UserEntity user) {
-        return new AuthUserView(user.getId(), user.getTenantId(), user.getEmail(), user.getStatus());
+        return new AuthUserView(user.getId(), user.getEmail(), user.getStatus());
+    }
+
+    private SiteAuthUserView toSiteUserView(UserEntity user) {
+        String username = StringUtils.hasText(user.getUsername())
+                ? user.getUsername()
+                : extractEmailPrefix(user.getEmail());
+        String createdAt = user.getCreatedTime() == null
+                ? null
+                : user.getCreatedTime().atZone(ZoneId.systemDefault()).toInstant().toString();
+        return new SiteAuthUserView(user.getId(), username, user.getEmail(), createdAt);
+    }
+
+    private Long resolveLoginIdByToken(String token) {
+        String normalizedToken = normalizeToken(token);
+        if (!StringUtils.hasText(normalizedToken)) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户未登录");
+        }
+        Object loginId = StpUtil.getLoginIdByToken(normalizedToken);
+        if (loginId == null) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户未登录");
+        }
+        if (loginId instanceof Number number) {
+            return number.longValue();
+        }
+        try {
+            return Long.parseLong(loginId.toString());
+        } catch (NumberFormatException ex) {
+            throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户未登录");
+        }
+    }
+
+    private String resolveUniqueAutoUsername(String rawBase) {
+        String base = normalizeUsername(rawBase);
+        if (!StringUtils.hasText(base)) {
+            base = "user";
+        }
+        base = truncate(base, AUTO_USERNAME_MAX_LENGTH);
+        String candidate = base;
+        for (int i = 0; i <= AUTO_USERNAME_MAX_RETRY; i++) {
+            if (i > 0) {
+                String suffix = String.valueOf(i);
+                int maxBaseLength = Math.max(1, AUTO_USERNAME_MAX_LENGTH - suffix.length());
+                candidate = truncate(base, maxBaseLength) + suffix;
+            }
+            if (findByUsername(candidate) == null) {
+                return candidate;
+            }
+        }
+        throw new BusinessException(ErrorCode.CONFLICT, "用户名已存在");
+    }
+
+    private String extractEmailPrefix(String email) {
+        if (!StringUtils.hasText(email)) {
+            return "user";
+        }
+        int index = email.indexOf('@');
+        if (index <= 0) {
+            return email;
+        }
+        return email.substring(0, index);
+    }
+
+    private String truncate(String value, int maxLength) {
+        if (value == null) {
+            return null;
+        }
+        if (value.length() <= maxLength) {
+            return value;
+        }
+        return value.substring(0, maxLength);
     }
 }

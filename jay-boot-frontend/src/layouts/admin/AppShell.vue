@@ -15,7 +15,6 @@
       <a-layout-header class="app-header">
         <div class="app-header__title">{{ pageTitle }}</div>
         <div class="app-header__actions">
-          <a-tag color="blue">{{ tenantName }}</a-tag>
           <span class="app-header__user">{{ authStore.displayName }}</span>
           <a-button type="link" @click="onLogout">退出登录</a-button>
         </div>
@@ -39,7 +38,6 @@ const authStore = useAuthStore()
 
 const menuItems: MenuProps['items'] = [
   { key: '/admin/dashboard', label: '控制台总览' },
-  { key: '/admin/tenant', label: 'Workspace 租户' },
   { key: '/admin/rbac', label: '角色权限' },
   { key: '/admin/billing', label: '订阅计费' },
   { key: '/admin/apikey', label: 'API Key 管理' },
@@ -61,8 +59,6 @@ const pageTitle = computed(() => {
   }
   return 'Jay Boot Frontend'
 })
-
-const tenantName = computed(() => authStore.user?.tenantName || '未分配租户')
 
 const onMenuClick: MenuProps['onClick'] = ({ key }) => {
   router.push(String(key))

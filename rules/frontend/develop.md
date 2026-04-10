@@ -132,13 +132,13 @@ sequenceDiagram
 }
 ```
 
-| 参数名           | 类型   | 必填 | 说明     | 示例值               |
-|---------------| ------ | ---- | -------- |-------------------|
-| code          | int    | 是   | 错误码   | 200               |
+| 参数名           | 类型   | 必填 | 说明   | 示例值               |
+|---------------| ------ | ---- |------|-------------------|
+| code          | int    | 是   | 状态码  | 200               |
 | body          | object | 是   | 响应数据 |                   |
-| body.user_id  | int    | 是   | 用户ID   | 1                 |
-| body.username | string | 是   | 用户名   | admin             |
-| body.email    | string | 是   | 邮箱     | admin@example.com |
+| body.user_id  | int    | 是   | 用户ID | 1                 |
+| body.username | string | 是   | 用户名  | admin             |
+| body.email    | string | 是   | 邮箱   | admin@example.com |
 | body.status   | string | 是   | 用户状态 | active            |
 | message       | string | 是   | 响应消息 | 获取用户基本信息成功        |
 | success       | bool   | 是   | 是否成功 | true              |
