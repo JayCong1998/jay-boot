@@ -115,13 +115,13 @@ export const useAdminUserManagementStore = defineStore('admin-user-management', 
     async createUser(payload: AdminUserCreatePayload) {
       await this.runMutation(async (token) => createAdminUserApi(token, payload))
     },
-    async updateUser(id: number, payload: AdminUserUpdatePayload) {
+    async updateUser(id: string, payload: AdminUserUpdatePayload) {
       await this.runMutation(async (token) => updateAdminUserApi(token, id, payload))
     },
-    async updateUserStatus(id: number, status: AdminUserStatus) {
+    async updateUserStatus(id: string, status: AdminUserStatus) {
       await this.runMutation(async (token) => updateAdminUserStatusApi(token, id, status))
     },
-    async resetUserPassword(id: number, newPassword: string) {
+    async resetUserPassword(id: string, newPassword: string) {
       await this.runMutation(async (token) => resetAdminUserPasswordApi(token, id, newPassword))
     },
     async runMutation(action: (token: string) => Promise<unknown>) {

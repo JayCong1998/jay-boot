@@ -1,5 +1,7 @@
 package com.jaycong.boot.modules.auth.dto;
 
+import com.jaycong.boot.common.constant.enums.AdminUserRole;
+import com.jaycong.boot.common.constant.enums.AdminUserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "管理端用户分页查询请求")

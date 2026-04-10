@@ -5,8 +5,8 @@ import com.jaycong.boot.modules.auth.dto.AdminUserCreateRequest;
 import com.jaycong.boot.modules.auth.dto.AdminUserPageRequest;
 import com.jaycong.boot.modules.auth.dto.AdminUserPageResponse;
 import com.jaycong.boot.modules.auth.dto.AdminUserPasswordResetRequest;
-import com.jaycong.boot.modules.auth.dto.AdminUserRole;
-import com.jaycong.boot.modules.auth.dto.AdminUserStatus;
+import com.jaycong.boot.common.constant.enums.AdminUserRole;
+import com.jaycong.boot.common.constant.enums.AdminUserStatus;
 import com.jaycong.boot.modules.auth.dto.AdminUserStatusUpdateRequest;
 import com.jaycong.boot.modules.auth.dto.AdminUserUpdateRequest;
 import com.jaycong.boot.modules.auth.service.AdminUserService;
@@ -17,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,7 +53,7 @@ public class AdminUserController {
     }
 
     @Operation(summary = "更新用户信息")
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public ApiResponse<Void> update(@PathVariable Long id, @Valid @RequestBody AdminUserUpdateRequest request) {
         adminUserService.update(id, request);
         return ApiResponse.success(null);

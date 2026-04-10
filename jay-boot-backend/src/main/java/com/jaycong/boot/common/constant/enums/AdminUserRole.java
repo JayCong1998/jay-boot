@@ -1,4 +1,4 @@
-package com.jaycong.boot.modules.auth.dto;
+package com.jaycong.boot.common.constant.enums;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

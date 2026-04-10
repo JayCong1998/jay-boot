@@ -4,7 +4,7 @@ export type AdminUserRole = 'admin' | 'user'
 export type AdminUserStatus = 'ACTIVE' | 'INACTIVE'
 
 export interface AdminUserItem {
-  id: number
+  id: string
   username: string
   email: string
   role: AdminUserRole
@@ -80,8 +80,8 @@ export const createAdminUserApi = (token: string, payload: AdminUserCreatePayloa
  * url地址：/api/admin/users/{id}
  * 请求方式：PUT
  */
-export const updateAdminUserApi = (token: string, id: number, payload: AdminUserUpdatePayload) =>
-  requestAdminAuthRealApi<null>('PUT', `/api/admin/users/${id}`, { token, payload })
+export const updateAdminUserApi = (token: string, id: string, payload: AdminUserUpdatePayload) =>
+  requestAdminAuthRealApi<null>('POST', `/api/admin/users/${id}`, { token, payload })
 
 /**
  * 更新用户状态
@@ -91,7 +91,7 @@ export const updateAdminUserApi = (token: string, id: number, payload: AdminUser
  * url地址：/api/admin/users/{id}/status
  * 请求方式：POST
  */
-export const updateAdminUserStatusApi = (token: string, id: number, status: AdminUserStatus) =>
+export const updateAdminUserStatusApi = (token: string, id: string, status: AdminUserStatus) =>
   requestAdminAuthRealApi<null>('POST', `/api/admin/users/${id}/status`, { token, payload: { status } as AdminUserStatusPayload })
 
 /**
@@ -102,7 +102,7 @@ export const updateAdminUserStatusApi = (token: string, id: number, status: Admi
  * url地址：/api/admin/users/{id}/password/reset
  * 请求方式：POST
  */
-export const resetAdminUserPasswordApi = (token: string, id: number, newPassword: string) =>
+export const resetAdminUserPasswordApi = (token: string, id: string, newPassword: string) =>
   requestAdminAuthRealApi<null>('POST', `/api/admin/users/${id}/password/reset`, {
     token,
     payload: { newPassword } as AdminUserPasswordResetPayload,

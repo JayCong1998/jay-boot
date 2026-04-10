@@ -3,7 +3,7 @@ import { get, post } from './index'
 import { requestAdminAuthRealApi } from './realApi'
 
 interface RealAuthUser {
-  id: number
+  id: string
   email: string
   status: string
 }
@@ -15,14 +15,14 @@ interface RealAuthTokenResponse {
 }
 
 interface RealAuthSessionResponse {
-  loginId: number
+  loginId: string
   token: string
   tokenTimeout: number
   user: RealAuthUser
 }
 
 export interface AuthUser {
-  id: number
+  id: string
   email: string
   status?: string
   username?: string
@@ -56,7 +56,7 @@ const resolveDisplayName = (email: string, username?: string) => {
 }
 
 const mapRealUser = (user: RealAuthUser): AuthUser => ({
-  id: user.id,
+  id: String(user.id),
   email: user.email,
   status: user.status,
   username: resolveDisplayName(user.email),

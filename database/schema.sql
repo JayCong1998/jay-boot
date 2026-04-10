@@ -1,6 +1,3 @@
--- Auth module bootstrap schema for MySQL 8.0
-DROP TABLE IF EXISTS user_tenant;
-DROP TABLE IF EXISTS tenants;
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY,

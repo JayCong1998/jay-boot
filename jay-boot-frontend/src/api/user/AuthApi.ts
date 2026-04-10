@@ -1,7 +1,7 @@
 import { get, post } from './index'
 
 export interface UserAuthUser {
-  id: number
+  id: string
   username: string
   email: string
   createdAt: string

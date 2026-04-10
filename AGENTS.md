@@ -32,6 +32,13 @@ jayboot
 - **版本控制**：编写有意义的提交信息，保持逻辑相关的更改在同一提交中
 - **异常处理**：正确处理边缘情况和错误，提供有用的错误信息 
 
+
+# 请求规范
+仅允许使用 GET 和 POST 两种请求方式
+GET: 用于数据查询和获取
+POST: 用于数据创建、更新、删除
+
+
 # 前端开发规范
 开发前端代码时必须加载@rules/frontend/develop.md文件并遵守其中的规范
 
@@ -59,11 +66,9 @@ AI 绝对禁止：
 
 # 构建与编码操作规范（Maven）
 
+当前后端目录下可以直接运行mvn命令
 - 后端代码改动后，默认执行一次编译验证（不跑测试）：
-  - `D:\develop\apache-maven-3.9.0\bin\mvn.cmd --% -Dmaven.repo.local=D:\develop\maven_repo -DskipTests compile`
-- 若终端已正确加载 PATH，可使用 `mvn`；若当前会话未刷新 PATH，必须使用 Maven 绝对路径执行。
-- 若用户要求执行测试，再补充执行：
-  - `D:\develop\apache-maven-3.9.0\bin\mvn.cmd --% -Dmaven.repo.local=D:\develop\maven_repo test`
+`mvn.cmd -DskipTests compile`
 - 构建失败时，必须在回复中明确：
   - 失败命令
   - 首个关键报错

@@ -77,7 +77,7 @@ interface HomeCaseItem {
 }
 
 interface MockUserRecord {
-  id: number
+  id: string
   username: string
   email: string
   password: string
@@ -85,7 +85,7 @@ interface MockUserRecord {
 }
 
 interface PublicUserProfile {
-  id: number
+  id: string
   username: string
   email: string
   createdAt: string
@@ -479,7 +479,13 @@ const readAuthUsers = (): MockUserRecord[] => {
   }
   try {
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? (parsed as MockUserRecord[]) : []
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+    return parsed.map((item) => ({
+      ...(item as Record<string, unknown>),
+      id: String((item as Record<string, unknown>).id ?? ''),
+    })) as MockUserRecord[]
   } catch {
     return []
   }
@@ -509,7 +515,7 @@ const ensureDefaultAuthUsers = () => {
   }
   const now = new Date().toISOString()
   const defaultUser: MockUserRecord = {
-    id: 1,
+    id: '1',
     username: 'creator',
     email: 'creator@jayboot.local',
     password: 'creator123',
@@ -519,9 +525,9 @@ const ensureDefaultAuthUsers = () => {
   writeAuthIdSeed(2)
 }
 
-const issueMockToken = (userId: number) => `user-mock-token-${userId}-${Date.now()}`
+const issueMockToken = (userId: string) => `user-mock-token-${userId}-${Date.now()}`
 
-const parseUserIdFromToken = (token: string): number | null => {
+const parseUserIdFromToken = (token: string): string | null => {
   if (!token.startsWith('user-mock-token-')) {
     return null
   }
@@ -529,8 +535,8 @@ const parseUserIdFromToken = (token: string): number | null => {
   if (segments.length < 5) {
     return null
   }
-  const id = Number(segments[3])
-  if (!Number.isFinite(id) || id < 1) {
+  const id = String(segments[3] ?? '').trim()
+  if (!id) {
     return null
   }
   return id
@@ -570,7 +576,7 @@ const initializeAuthMockApis = () => {
 
     const nextId = readAuthIdSeed()
     const newUser: MockUserRecord = {
-      id: nextId,
+      id: String(nextId),
       username,
       email,
       password,

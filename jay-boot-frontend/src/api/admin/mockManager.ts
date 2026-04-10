@@ -18,7 +18,7 @@ export type MockResponse<T = unknown> = MockSuccessResponse<T> | MockErrorRespon
 type MockHandler = (payload?: Record<string, unknown>) => MockResponse | Promise<MockResponse>
 
 interface MockUserRecord {
-  id: number
+  id: string
   username: string
   email: string
   password: string
@@ -26,7 +26,7 @@ interface MockUserRecord {
 }
 
 interface PublicUserProfile {
-  id: number
+  id: string
   username: string
   email: string
   createdAt: string
@@ -257,7 +257,13 @@ const readUsers = (): MockUserRecord[] => {
   }
   try {
     const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? (parsed as MockUserRecord[]) : []
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+    return parsed.map((item) => ({
+      ...(item as Record<string, unknown>),
+      id: String((item as Record<string, unknown>).id ?? ''),
+    })) as MockUserRecord[]
   } catch {
     return []
   }
@@ -273,13 +279,13 @@ const ensureDefaultUsers = () => {
     return
   }
   writeUsers([
-    { id: 1, username: 'admin', email: 'admin@jayboot.local', password: 'admin123', createdAt: nowIso() },
+    { id: '1', username: 'admin', email: 'admin@jayboot.local', password: 'admin123', createdAt: nowIso() },
   ])
 }
 
-const issueToken = (userId: number) => `mock-token-${userId}-${Date.now()}`
+const issueToken = (userId: string) => `mock-token-${userId}-${Date.now()}`
 
-const parseUserIdFromToken = (token: string): number | null => {
+const parseUserIdFromToken = (token: string): string | null => {
   if (!token.startsWith('mock-token-')) {
     return null
   }
@@ -287,8 +293,8 @@ const parseUserIdFromToken = (token: string): number | null => {
   if (parts.length < 4) {
     return null
   }
-  const id = Number(parts[2])
-  if (!Number.isFinite(id) || id < 1) {
+  const id = String(parts[2] ?? '').trim()
+  if (!id) {
     return null
   }
   return id
@@ -441,7 +447,7 @@ const initAuthApis = () => {
     if (users.some((u) => u.email === email || u.username === username)) {
       return createErrorResponse('username or email exists')
     }
-    const nextId = users.length === 0 ? 1 : Math.max(...users.map((u) => u.id)) + 1
+    const nextId = `${Date.now()}${Math.floor(Math.random() * 1000)}`
     const user: MockUserRecord = { id: nextId, username, email, password, createdAt: nowIso() }
     writeUsers([...users, user])
     const result: AuthResultBody = { token: issueToken(user.id), user: toPublicUser(user) }

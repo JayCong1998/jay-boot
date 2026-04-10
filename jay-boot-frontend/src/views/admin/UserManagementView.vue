@@ -1,0 +1,486 @@
+<template>
+  <section class="user-page">
+    <header class="user-toolbar">
+      <div>
+        <h2 class="user-title">用户管理</h2>
+        <p class="user-subtitle">统一管理管理端账户，支持筛选检索、创建、编辑、启用/禁用与密码重置。</p>
+      </div>
+      <div class="user-toolbar__actions">
+        <a-button :loading="userStore.refreshing" @click="onRefreshClick">
+          <template #icon>
+            <ReloadOutlined />
+          </template>
+          刷新
+        </a-button>
+        <a-button type="primary" @click="onOpenCreateModal">新建用户</a-button>
+      </div>
+    </header>
+
+    <a-alert v-if="userStore.errorMessage" class="user-error" type="error" show-icon :message="userStore.errorMessage">
+      <template #action>
+        <a-button size="small" @click="onRetryClick">重试</a-button>
+      </template>
+    </a-alert>
+
+    <a-card class="user-card" :bordered="false">
+      <a-form layout="vertical">
+        <a-row :gutter="12">
+          <a-col :xs="24" :md="12" :lg="8">
+            <a-form-item label="关键词">
+              <a-input
+                v-model:value="filters.keyword"
+                allow-clear
+                placeholder="输入用户名或邮箱"
+                @pressEnter="onSearchClick"
+              />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="6" :lg="4">
+            <a-form-item label="角色">
+              <a-select v-model:value="filters.role" :options="roleFilterOptions" />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :md="6" :lg="4">
+            <a-form-item label="状态">
+              <a-select v-model:value="filters.status" :options="statusFilterOptions" />
+            </a-form-item>
+          </a-col>
+          <a-col :xs="24" :lg="8">
+            <a-form-item label=" ">
+              <a-space>
+                <a-button type="primary" :loading="userStore.refreshing" @click="onSearchClick">查询</a-button>
+                <a-button @click="onResetClick">重置</a-button>
+              </a-space>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
+    </a-card>
+
+    <a-card class="user-card" :bordered="false">
+      <a-skeleton v-if="userStore.loadingInitial && !userStore.hasData" active :paragraph="{ rows: 6 }" />
+      <template v-else>
+        <a-table
+          :columns="tableColumns"
+          :data-source="userStore.records"
+          :loading="tableLoading"
+          :pagination="false"
+          row-key="id"
+          :scroll="{ x: 920 }"
+          size="small"
+        >
+          <template #bodyCell="{ column, record }">
+            <template v-if="column.key === 'role'">
+              <a-tag :color="record.role === 'admin' ? 'processing' : 'default'">
+                {{ record.role === 'admin' ? '管理员' : '普通用户' }}
+              </a-tag>
+            </template>
+            <template v-else-if="column.key === 'status'">
+              <a-tag :color="record.status === 'ACTIVE' ? 'success' : 'default'">
+                {{ record.status === 'ACTIVE' ? '启用' : '禁用' }}
+              </a-tag>
+            </template>
+            <template v-else-if="column.key === 'createdTime'">
+              {{ formatDateTime(record.createdTime) }}
+            </template>
+            <template v-else-if="column.key === 'actions'">
+              <a-space size="small">
+                <a-button type="link" size="small" @click="onOpenEditModal(record)">编辑</a-button>
+                <a-button type="link" size="small" :loading="userStore.submitting" @click="onToggleStatus(record)">
+                  {{ record.status === 'ACTIVE' ? '禁用' : '启用' }}
+                </a-button>
+                <a-button type="link" size="small" @click="onOpenPasswordModal(record)">重置密码</a-button>
+              </a-space>
+            </template>
+          </template>
+        </a-table>
+
+        <div class="user-pagination">
+          <a-pagination
+            :current="userStore.page"
+            :page-size="userStore.pageSize"
+            :total="userStore.total"
+            :show-total="(total: number) => `共 ${total} 条`"
+            show-size-changer
+            :page-size-options="['10', '20', '50']"
+            @change="onPageChange"
+          />
+        </div>
+      </template>
+    </a-card>
+
+    <a-modal
+      v-model:open="userModal.open"
+      :title="userModal.mode === 'create' ? '新建用户' : '编辑用户'"
+      :confirm-loading="userStore.submitting"
+      @ok="onSubmitUser"
+    >
+      <a-form layout="vertical">
+        <a-form-item label="用户名" required>
+          <a-input v-model:value="userModal.form.username" :maxlength="30" placeholder="请输入用户名" />
+        </a-form-item>
+        <a-form-item label="邮箱" required>
+          <a-input v-model:value="userModal.form.email" placeholder="请输入邮箱" />
+        </a-form-item>
+        <a-form-item label="角色" required>
+          <a-select v-model:value="userModal.form.role" :options="roleFormOptions" />
+        </a-form-item>
+        <a-form-item label="状态" required>
+          <a-select v-model:value="userModal.form.status" :options="statusFormOptions" />
+        </a-form-item>
+        <a-form-item v-if="userModal.mode === 'create'" label="初始密码" required>
+          <a-input-password
+            v-model:value="userModal.form.password"
+            :maxlength="10"
+            placeholder="请输入 6-10 位密码"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
+    <a-modal v-model:open="passwordModal.open" title="重置密码" :confirm-loading="userStore.submitting" @ok="onSubmitPassword">
+      <a-form layout="vertical">
+        <a-form-item label="用户">
+          <a-input :value="passwordModal.username" disabled />
+        </a-form-item>
+        <a-form-item label="新密码" required>
+          <a-input-password
+            v-model:value="passwordModal.password"
+            :maxlength="10"
+            placeholder="请输入 6-10 位新密码"
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+  </section>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, reactive } from 'vue'
+import { ReloadOutlined } from '@ant-design/icons-vue'
+import { message, Modal } from 'ant-design-vue'
+import type { AdminUserItem, AdminUserRole, AdminUserStatus } from '../../api/admin/UserApi'
+import { useAdminUserManagementStore } from '../../stores/admin/userManagement'
+
+type UserModalMode = 'create' | 'edit'
+
+const userStore = useAdminUserManagementStore()
+
+const filters = reactive({
+  keyword: '',
+  role: '' as '' | AdminUserRole,
+  status: '' as '' | AdminUserStatus,
+})
+
+const userModal = reactive({
+  open: false,
+  mode: 'create' as UserModalMode,
+  editingId: '',
+  form: {
+    username: '',
+    email: '',
+    role: 'user' as AdminUserRole,
+    status: 'ACTIVE' as AdminUserStatus,
+    password: '',
+  },
+})
+
+const passwordModal = reactive({
+  open: false,
+  userId: '',
+  username: '',
+  password: '',
+})
+
+const tableColumns = [
+  { title: '用户名', dataIndex: 'username', key: 'username', width: 150 },
+  { title: '邮箱', dataIndex: 'email', key: 'email', width: 240 },
+  { title: '角色', dataIndex: 'role', key: 'role', width: 120 },
+  { title: '状态', dataIndex: 'status', key: 'status', width: 120 },
+  { title: '创建时间', dataIndex: 'createdTime', key: 'createdTime', width: 190 },
+  { title: '操作', key: 'actions', width: 220 },
+]
+
+const roleFilterOptions: Array<{ label: string; value: '' | AdminUserRole }> = [
+  { label: '全部角色', value: '' },
+  { label: '管理员', value: 'admin' },
+  { label: '普通用户', value: 'user' },
+]
+
+const statusFilterOptions: Array<{ label: string; value: '' | AdminUserStatus }> = [
+  { label: '全部状态', value: '' },
+  { label: '启用', value: 'ACTIVE' },
+  { label: '禁用', value: 'INACTIVE' },
+]
+
+const roleFormOptions: Array<{ label: string; value: AdminUserRole }> = [
+  { label: '管理员', value: 'admin' },
+  { label: '普通用户', value: 'user' },
+]
+
+const statusFormOptions: Array<{ label: string; value: AdminUserStatus }> = [
+  { label: '启用', value: 'ACTIVE' },
+  { label: '禁用', value: 'INACTIVE' },
+]
+
+const tableLoading = computed(() => userStore.loadingInitial || userStore.refreshing)
+
+const syncFiltersFromStore = () => {
+  filters.keyword = userStore.keyword
+  filters.role = userStore.role
+  filters.status = userStore.status
+}
+
+const resetUserForm = () => {
+  userModal.form.username = ''
+  userModal.form.email = ''
+  userModal.form.role = 'user'
+  userModal.form.status = 'ACTIVE'
+  userModal.form.password = ''
+}
+
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+const validateUserForm = () => {
+  const username = userModal.form.username.trim()
+  const email = userModal.form.email.trim()
+
+  if (!username) {
+    message.warning('请输入用户名')
+    return false
+  }
+  if (!email || !isValidEmail(email)) {
+    message.warning('请输入合法邮箱')
+    return false
+  }
+  if (userModal.mode === 'create') {
+    const password = userModal.form.password.trim()
+    if (!password || password.length < 6 || password.length > 10) {
+      message.warning('初始密码长度需为 6-10 位')
+      return false
+    }
+  }
+  return true
+}
+
+const formatDateTime = (value: string) => {
+  if (!value) {
+    return '--'
+  }
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+  return date.toLocaleString('zh-CN', { hour12: false })
+}
+
+const onRefreshClick = async () => {
+  await userStore.fetchList('refresh')
+  if (!userStore.errorMessage) {
+    message.success('用户列表已刷新')
+  }
+}
+
+const onRetryClick = async () => {
+  await userStore.fetchList('refresh')
+}
+
+const onSearchClick = async () => {
+  userStore.setFilters({
+    keyword: filters.keyword.trim(),
+    role: filters.role,
+    status: filters.status,
+  })
+  await userStore.searchWithCurrentFilters()
+}
+
+const onResetClick = async () => {
+  userStore.resetFilters()
+  syncFiltersFromStore()
+  await userStore.fetchList('refresh')
+}
+
+const onPageChange = async (page: number, pageSize: number) => {
+  await userStore.changePage(page, pageSize)
+}
+
+const onOpenCreateModal = () => {
+  userModal.mode = 'create'
+  userModal.editingId = ''
+  resetUserForm()
+  userModal.open = true
+}
+
+const onOpenEditModal = (record: AdminUserItem) => {
+  userModal.mode = 'edit'
+  userModal.editingId = record.id
+  userModal.form.username = record.username
+  userModal.form.email = record.email
+  userModal.form.role = record.role
+  userModal.form.status = record.status
+  userModal.form.password = ''
+  userModal.open = true
+}
+
+const onSubmitUser = async () => {
+  if (!validateUserForm()) {
+    return
+  }
+
+  try {
+    if (userModal.mode === 'create') {
+      await userStore.createUser({
+        username: userModal.form.username.trim(),
+        email: userModal.form.email.trim(),
+        role: userModal.form.role,
+        password: userModal.form.password.trim(),
+        status: userModal.form.status,
+      })
+      message.success('用户创建成功')
+    } else {
+      await userStore.updateUser(userModal.editingId, {
+        username: userModal.form.username.trim(),
+        email: userModal.form.email.trim(),
+        role: userModal.form.role,
+        status: userModal.form.status,
+      })
+      message.success('用户信息已更新')
+    }
+    userModal.open = false
+    await userStore.fetchList('refresh')
+  } catch (error) {
+    if (error instanceof Error) {
+      message.error(error.message)
+    } else {
+      message.error('提交失败，请稍后重试')
+    }
+  }
+}
+
+const onToggleStatus = (record: AdminUserItem) => {
+  const nextStatus: AdminUserStatus = record.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
+  const nextText = nextStatus === 'ACTIVE' ? '启用' : '禁用'
+
+  Modal.confirm({
+    title: `确认${nextText}该用户？`,
+    content: `用户：${record.username}`,
+    okText: '确认',
+    cancelText: '取消',
+    async onOk() {
+      try {
+        await userStore.updateUserStatus(record.id, nextStatus)
+        await userStore.fetchList('refresh')
+        message.success(`用户已${nextText}`)
+      } catch (error) {
+        if (error instanceof Error) {
+          message.error(error.message)
+        } else {
+          message.error('状态更新失败，请稍后重试')
+        }
+      }
+    },
+  })
+}
+
+const onOpenPasswordModal = (record: AdminUserItem) => {
+  passwordModal.open = true
+  passwordModal.userId = record.id
+  passwordModal.username = record.username
+  passwordModal.password = ''
+}
+
+const onSubmitPassword = async () => {
+  const password = passwordModal.password.trim()
+  if (password.length < 6 || password.length > 10) {
+    message.warning('新密码长度需为 6-10 位')
+    return
+  }
+
+  try {
+    await userStore.resetUserPassword(passwordModal.userId, password)
+    passwordModal.open = false
+    message.success('密码重置成功')
+  } catch (error) {
+    if (error instanceof Error) {
+      message.error(error.message)
+    } else {
+      message.error('密码重置失败，请稍后重试')
+    }
+  }
+}
+
+onMounted(async () => {
+  await userStore.initialize()
+  syncFiltersFromStore()
+})
+</script>
+
+<style scoped>
+.user-page {
+  display: grid;
+  gap: 16px;
+}
+
+.user-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background: linear-gradient(130deg, #eef2ff 0%, #f5f3ff 56%, #f8fafc 100%);
+  border: 1px solid #dce6f0;
+}
+
+.user-title {
+  margin: 0;
+  font-size: 24px;
+  color: #312e81;
+}
+
+.user-subtitle {
+  margin: 8px 0 0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.user-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-error {
+  margin-top: -6px;
+}
+
+.user-card {
+  border-radius: 14px;
+  border: 1px solid #dce6f0;
+}
+
+.user-pagination {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 1100px) {
+  .user-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-toolbar__actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .user-pagination {
+    justify-content: center;
+  }
+}
+</style>

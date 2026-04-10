@@ -9,6 +9,12 @@ const adminChildren: RouteRecordRaw[] = [
     meta: { title: '控制台总览', requiresAuth: true },
   },
   {
+    path: 'users',
+    name: 'admin-users',
+    component: () => import('../../views/admin/UserManagementView.vue'),
+    meta: { title: '用户管理', requiresAuth: true },
+  },
+  {
     path: 'rbac',
     name: 'admin-rbac',
     component: () => import('../../views/admin/RbacView.vue'),
