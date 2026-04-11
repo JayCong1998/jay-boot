@@ -58,6 +58,7 @@ const isSiderOpen = ref(false)
 const menuItems: MenuProps['items'] = [
   { key: '/admin/dashboard', label: '控制台总览' },
   { key: '/admin/users', label: '用户管理' },
+  { key: '/admin/plans', label: '套餐管理' },
   // { key: '/admin/rbac', label: '角色权限' },
   // { key: '/admin/billing', label: '订阅计费' },
   // { key: '/admin/apikey', label: 'API Key 管理' },

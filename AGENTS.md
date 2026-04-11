@@ -68,7 +68,8 @@ AI 绝对禁止：
 
 当前后端目录下可以直接运行mvn命令
 - 后端代码改动后，默认执行一次编译验证（不跑测试）：
-`mvn.cmd -DskipTests compile`
+maven地址
+`D:\develop\java\apache-maven-3.9.14`
 - 构建失败时，必须在回复中明确：
   - 失败命令
   - 首个关键报错
