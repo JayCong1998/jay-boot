@@ -1,4 +1,4 @@
-package com.jaycong.boot.modules.auth.entity;
+package com.jaycong.boot.modules.user.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

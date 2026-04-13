@@ -9,12 +9,12 @@ import com.jaycong.boot.common.constant.enums.PlanBillingCycle;
 import com.jaycong.boot.common.constant.enums.PlanStatus;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
-import com.jaycong.boot.modules.auth.entity.UserEntity;
-import com.jaycong.boot.modules.auth.mapper.UserMapper;
+import com.jaycong.boot.common.web.PageResult;
+import com.jaycong.boot.modules.user.entity.UserEntity;
+import com.jaycong.boot.modules.user.mapper.UserMapper;
 import com.jaycong.boot.modules.plan.dto.AdminPlanCreateRequest;
 import com.jaycong.boot.modules.plan.dto.AdminPlanItemView;
 import com.jaycong.boot.modules.plan.dto.AdminPlanPageRequest;
-import com.jaycong.boot.modules.plan.dto.AdminPlanPageResponse;
 import com.jaycong.boot.modules.plan.dto.AdminPlanStatusUpdateRequest;
 import com.jaycong.boot.modules.plan.dto.AdminPlanUpdateRequest;
 import com.jaycong.boot.modules.plan.entity.PlanEntity;
@@ -39,7 +39,7 @@ public class AdminPlanService {
         this.objectMapper = objectMapper;
     }
 
-    public AdminPlanPageResponse page(AdminPlanPageRequest request) {
+    public PageResult<AdminPlanItemView> page(AdminPlanPageRequest request) {
         ensureAdminOperator();
 
         long pageNo = request.page() == null || request.page() < 1 ? 1 : request.page();
@@ -60,7 +60,7 @@ public class AdminPlanService {
 
         Page<PlanEntity> page = planMapper.selectPage(new Page<>(pageNo, pageSize), wrapper);
         List<AdminPlanItemView> records = page.getRecords().stream().map(this::toItemView).toList();
-        return new AdminPlanPageResponse(records, page.getTotal(), page.getCurrent(), page.getSize());
+        return PageResult.of(records, page.getTotal(), page.getCurrent(), page.getSize());
     }
 
     @Transactional

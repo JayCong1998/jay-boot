@@ -1,16 +1,19 @@
 package com.jaycong.boot.modules.auth.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "当前会话响应")
+@Schema(description = "Current admin auth session")
 public record AuthSessionResponse(
-        @Schema(description = "登录用户 ID")
+        @Schema(description = "Login user ID serialized as string", type = "string")
+        @JsonSerialize(using = ToStringSerializer.class)
         Long loginId,
-        @Schema(description = "当前令牌")
+        @Schema(description = "Current token")
         String token,
-        @Schema(description = "令牌有效期（秒）")
+        @Schema(description = "Token TTL in seconds")
         long tokenTimeout,
-        @Schema(description = "当前登录用户信息")
+        @Schema(description = "Current user info")
         AuthUserView user
 ) {
 }

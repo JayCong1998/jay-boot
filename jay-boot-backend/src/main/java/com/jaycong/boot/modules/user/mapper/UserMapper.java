@@ -1,7 +1,7 @@
-package com.jaycong.boot.modules.auth.mapper;
+package com.jaycong.boot.modules.user.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.jaycong.boot.modules.auth.entity.UserEntity;
+import com.jaycong.boot.modules.user.entity.UserEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

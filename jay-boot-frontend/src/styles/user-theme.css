@@ -27,19 +27,19 @@
   --user-shadow-lg: 0 16px 30px rgba(var(--user-shadow-rgb), 0.12);
 }
 
-:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-btn-primary {
+:where(.user-shell, .home-view, .features-view, .pricing-view, .auth-view, .user-page-skeleton) .ant-btn-primary {
   border-color: var(--user-accent);
   background: var(--user-accent);
 }
 
-:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-btn-primary:hover,
-:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-btn-primary:focus {
+:where(.user-shell, .home-view, .features-view, .pricing-view, .auth-view, .user-page-skeleton) .ant-btn-primary:hover,
+:where(.user-shell, .home-view, .features-view, .pricing-view, .auth-view, .user-page-skeleton) .ant-btn-primary:focus {
   border-color: var(--user-accent-hover);
   background: var(--user-accent-hover);
 }
 
-:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-tag-magenta,
-:where(.user-shell, .home-view, .features-view, .auth-view, .user-page-skeleton) .ant-tag-blue {
+:where(.user-shell, .home-view, .features-view, .pricing-view, .auth-view, .user-page-skeleton) .ant-tag-magenta,
+:where(.user-shell, .home-view, .features-view, .pricing-view, .auth-view, .user-page-skeleton) .ant-tag-blue {
   color: var(--user-accent-deep);
   background: var(--user-accent-soft);
   border-color: var(--user-border-strong);

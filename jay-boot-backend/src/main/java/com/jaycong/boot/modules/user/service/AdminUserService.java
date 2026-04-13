@@ -1,21 +1,21 @@
-package com.jaycong.boot.modules.auth.service;
+package com.jaycong.boot.modules.user.service;
 
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
-import com.jaycong.boot.modules.auth.dto.AdminUserCreateRequest;
-import com.jaycong.boot.modules.auth.dto.AdminUserItemView;
-import com.jaycong.boot.modules.auth.dto.AdminUserPageRequest;
-import com.jaycong.boot.modules.auth.dto.AdminUserPageResponse;
-import com.jaycong.boot.modules.auth.dto.AdminUserPasswordResetRequest;
+import com.jaycong.boot.common.web.PageResult;
+import com.jaycong.boot.modules.user.dto.AdminUserCreateRequest;
+import com.jaycong.boot.modules.user.dto.AdminUserItemView;
+import com.jaycong.boot.modules.user.dto.AdminUserPageRequest;
+import com.jaycong.boot.modules.user.dto.AdminUserPasswordResetRequest;
 import com.jaycong.boot.common.constant.enums.AdminUserRole;
 import com.jaycong.boot.common.constant.enums.AdminUserStatus;
-import com.jaycong.boot.modules.auth.dto.AdminUserStatusUpdateRequest;
-import com.jaycong.boot.modules.auth.dto.AdminUserUpdateRequest;
-import com.jaycong.boot.modules.auth.entity.UserEntity;
-import com.jaycong.boot.modules.auth.mapper.UserMapper;
+import com.jaycong.boot.modules.user.dto.AdminUserStatusUpdateRequest;
+import com.jaycong.boot.modules.user.dto.AdminUserUpdateRequest;
+import com.jaycong.boot.modules.user.entity.UserEntity;
+import com.jaycong.boot.modules.user.mapper.UserMapper;
 import java.util.List;
 import java.util.Locale;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,7 +38,7 @@ public class AdminUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AdminUserPageResponse page(AdminUserPageRequest request) {
+    public PageResult<AdminUserItemView> page(AdminUserPageRequest request) {
         ensureAdminOperator();
         long pageNo = request.page() == null || request.page() < 1 ? 1 : request.page();
         long pageSize = request.pageSize() == null || request.pageSize() < 1 ? 10 : request.pageSize();
@@ -58,7 +58,7 @@ public class AdminUserService {
 
         Page<UserEntity> page = userMapper.selectPage(new Page<>(pageNo, pageSize), wrapper);
         List<AdminUserItemView> records = page.getRecords().stream().map(this::toItemView).toList();
-        return new AdminUserPageResponse(records, page.getTotal(), page.getCurrent(), page.getSize());
+        return PageResult.of(records, page.getTotal(), page.getCurrent(), page.getSize());
     }
 
     @Transactional

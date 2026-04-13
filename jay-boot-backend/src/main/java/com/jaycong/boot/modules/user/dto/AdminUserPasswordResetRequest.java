@@ -1,4 +1,4 @@
-package com.jaycong.boot.modules.auth.dto;
+package com.jaycong.boot.modules.user.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

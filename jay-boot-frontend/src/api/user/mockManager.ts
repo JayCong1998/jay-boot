@@ -169,6 +169,72 @@ interface FeaturesRoleFitBody {
   roles: FeaturesRoleProfile[]
 }
 
+type PricingBillingCycle = 'MONTHLY' | 'YEARLY'
+
+interface PricingHero {
+  eyebrow: string
+  title: string
+  description: string
+  primaryActionText: string
+  secondaryActionText: string
+}
+
+interface PricingCycleOption {
+  key: PricingBillingCycle
+  label: string
+  hint: string
+}
+
+interface PricingPlanCard {
+  id: string
+  code: string
+  name: string
+  tag?: string | null
+  price: number
+  priceText: string
+  billingCycleText: string
+  fitFor: string
+  highlights: string[]
+  recommended: boolean
+  contactSales: boolean
+}
+
+interface PricingComparisonCell {
+  planCode: string
+  value: string
+}
+
+interface PricingComparisonRow {
+  id: string
+  feature: string
+  description: string
+  cells: PricingComparisonCell[]
+}
+
+interface PricingFaqItem {
+  id: string
+  question: string
+  answer: string
+}
+
+interface PricingFinalCta {
+  title: string
+  description: string
+  primaryActionText: string
+  secondaryActionText: string
+}
+
+interface PricingOverviewBody {
+  hero: PricingHero
+  cycleOptions: PricingCycleOption[]
+  selectedCycle: PricingBillingCycle
+  planCards: PricingPlanCard[]
+  comparisonRows: PricingComparisonRow[]
+  faqList: PricingFaqItem[]
+  finalCta: PricingFinalCta
+  updatedAt: string
+}
+
 const USER_MOCK_STORAGE_KEY = 'jay_boot_user_mock_auth_users'
 const USER_MOCK_ID_SEED_KEY = 'jay_boot_user_mock_auth_id_seed'
 
@@ -457,6 +523,142 @@ const createFeaturesRoleFit = (): FeaturesRoleFitBody => ({
   ],
 })
 
+const toPricingCycle = (payload?: Record<string, unknown>): PricingBillingCycle => {
+  const raw = String(payload?.billingCycle ?? '')
+    .trim()
+    .toUpperCase()
+  if (raw === 'YEARLY') {
+    return 'YEARLY'
+  }
+  return 'MONTHLY'
+}
+
+const createPricingOverview = (cycle: PricingBillingCycle): PricingOverviewBody => {
+  const isYearly = cycle === 'YEARLY'
+  const billingCycleText = isYearly ? '/ 年' : '/ 月'
+  return {
+    hero: {
+      eyebrow: '定价透明，按增长阶段选择',
+      title: '订阅定价',
+      description: '通过清晰权益和周期折扣，帮助你更快完成购买决策。',
+      primaryActionText: '咨询推荐方案',
+      secondaryActionText: '进入支付页',
+    },
+    cycleOptions: [
+      { key: 'MONTHLY', label: '月付', hint: '适合先验证增长节奏' },
+      { key: 'YEARLY', label: '年付', hint: '相比月付更优惠' },
+    ],
+    selectedCycle: cycle,
+    planCards: [
+      {
+        id: isYearly ? 'plan_starter_yearly' : 'plan_starter_monthly',
+        code: isYearly ? 'STARTER_YEARLY' : 'STARTER_MONTHLY',
+        name: '入门版',
+        tag: null,
+        price: isYearly ? 3900 : 4900,
+        priceText: isYearly ? '¥39' : '¥49',
+        billingCycleText,
+        fitFor: '适合个人轻度创作',
+        highlights: ['每月 200 次生成', '基础模板与历史记录', '轻量入门，无门槛启动'],
+        recommended: false,
+        contactSales: false,
+      },
+      {
+        id: isYearly ? 'plan_pro_yearly' : 'plan_pro_monthly',
+        code: isYearly ? 'PRO_YEARLY' : 'PRO_MONTHLY',
+        name: 'Pro 创作版',
+        tag: 'Most Popular',
+        price: isYearly ? 9900 : 12900,
+        priceText: isYearly ? '¥99' : '¥129',
+        billingCycleText,
+        fitFor: '适合稳定生产内容的创作者',
+        highlights: ['每月 1200 次生成', '高级模板与导出交付', '优先模型队列与客服支持'],
+        recommended: true,
+        contactSales: false,
+      },
+      {
+        id: isYearly ? 'plan_team_yearly' : 'plan_team_monthly',
+        code: isYearly ? 'TEAM_YEARLY' : 'TEAM_MONTHLY',
+        name: '团队版',
+        tag: null,
+        price: isYearly ? 21900 : 26900,
+        priceText: isYearly ? '¥219' : '¥269',
+        billingCycleText,
+        fitFor: '适合多人协作团队',
+        highlights: ['每月 4000 次生成', '多人协作与团队权限', '专属顾问与策略支持'],
+        recommended: false,
+        contactSales: true,
+      },
+    ],
+    comparisonRows: [
+      {
+        id: 'monthly_quota',
+        feature: '月度生成额度',
+        description: '每个套餐的默认月度生成能力',
+        cells: [
+          { planCode: isYearly ? 'STARTER_YEARLY' : 'STARTER_MONTHLY', value: '200 次/月' },
+          { planCode: isYearly ? 'PRO_YEARLY' : 'PRO_MONTHLY', value: '1200 次/月' },
+          { planCode: isYearly ? 'TEAM_YEARLY' : 'TEAM_MONTHLY', value: '4000 次/月' },
+        ],
+      },
+      {
+        id: 'advanced_templates',
+        feature: '高级模板',
+        description: '是否支持高级模板与创作助手',
+        cells: [
+          { planCode: isYearly ? 'STARTER_YEARLY' : 'STARTER_MONTHLY', value: '不支持' },
+          { planCode: isYearly ? 'PRO_YEARLY' : 'PRO_MONTHLY', value: '支持' },
+          { planCode: isYearly ? 'TEAM_YEARLY' : 'TEAM_MONTHLY', value: '支持' },
+        ],
+      },
+      {
+        id: 'batch_export',
+        feature: '批量导出',
+        description: '是否支持批量导出与交付',
+        cells: [
+          { planCode: isYearly ? 'STARTER_YEARLY' : 'STARTER_MONTHLY', value: '不支持' },
+          { planCode: isYearly ? 'PRO_YEARLY' : 'PRO_MONTHLY', value: '支持' },
+          { planCode: isYearly ? 'TEAM_YEARLY' : 'TEAM_MONTHLY', value: '支持' },
+        ],
+      },
+      {
+        id: 'team_collaboration',
+        feature: '多人协作',
+        description: '是否支持多人协作和权限管理',
+        cells: [
+          { planCode: isYearly ? 'STARTER_YEARLY' : 'STARTER_MONTHLY', value: '不支持' },
+          { planCode: isYearly ? 'PRO_YEARLY' : 'PRO_MONTHLY', value: '不支持' },
+          { planCode: isYearly ? 'TEAM_YEARLY' : 'TEAM_MONTHLY', value: '支持（10 人）' },
+        ],
+      },
+    ],
+    faqList: [
+      {
+        id: 'faq_1',
+        question: '可以随时升级或降级吗？',
+        answer: '支持按账单周期切换，差价自动折算。',
+      },
+      {
+        id: 'faq_2',
+        question: '是否支持企业发票？',
+        answer: '支持开具电子发票，支付页可填写抬头与税号。',
+      },
+      {
+        id: 'faq_3',
+        question: '有退款政策吗？',
+        answer: '首购 7 天内可申请一次退款，具体规则以帮助中心说明为准。',
+      },
+    ],
+    finalCta: {
+      title: '从今天开始，让内容产出稳定转化为收入',
+      description: '优先推荐 Pro 档，后续可按团队规模平滑升级。',
+      primaryActionText: '立即开通',
+      secondaryActionText: '预约演示',
+    },
+    updatedAt: new Date().toISOString(),
+  }
+}
+
 const toCasesLimit = (payload?: Record<string, unknown>) => {
   const parsed = Number(payload?.limit)
   if (!Number.isFinite(parsed)) {
@@ -673,6 +875,13 @@ const initializeFeaturesMockApis = () => {
   })
 }
 
+const initializePricingMockApis = () => {
+  registerMockApi('GET', '/api/user/pricing/overview', (payload) => {
+    const cycle = toPricingCycle(payload)
+    return createSuccessResponse(createPricingOverview(cycle), '获取定价页数据成功')
+  })
+}
+
 /**
  * 注册 Mock API
  * 功能描述：将指定 method + url 映射到处理器，供前端 API 调用
@@ -732,6 +941,7 @@ export const initializeMockApis = () => {
   initializeAuthMockApis()
   initializeHomeMockApis()
   initializeFeaturesMockApis()
+  initializePricingMockApis()
 
   initialized = true
 }

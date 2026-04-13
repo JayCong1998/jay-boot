@@ -1,13 +1,13 @@
 # Admin Auth API
 
-## 1. 接口概览
+## 1. Overview
 
-- 登录：`POST /api/admin/auth/login`
-- 注册：`POST /api/admin/auth/register`
-- 当前会话：`GET /api/admin/auth/session`
-- 退出登录：`POST /api/admin/auth/logout`
+- Login: `POST /api/admin/auth/login`
+- Register: `POST /api/admin/auth/register`
+- Current Session: `GET /api/admin/auth/session`
+- Logout: `POST /api/admin/auth/logout`
 
-统一返回结构：
+Unified response envelope:
 
 ```json
 {
@@ -18,24 +18,12 @@
 }
 ```
 
-## 2. 请求参数
+## 2. Request Parameters
 
-### 2.1 登录
+### 2.1 Login
 
-- 接口地址：`/api/admin/auth/login`
-- 请求方式：`POST`
-
-```json
-{
-  "email": "admin@example.com",
-  "password": "Password123"
-}
-```
-
-### 2.2 注册
-
-- 接口地址：`/api/admin/auth/register`
-- 请求方式：`POST`
+- Endpoint: `/api/admin/auth/login`
+- Method: `POST`
 
 ```json
 {
@@ -44,26 +32,38 @@
 }
 ```
 
-说明：
+### 2.2 Register
 
-- 前端注册页不再要求用户名。
-- 如前端调用时传入 `username`，real 模式下会自动忽略该字段，仅提交邮箱和密码。
+- Endpoint: `/api/admin/auth/register`
+- Method: `POST`
 
-### 2.3 获取当前会话
+```json
+{
+  "email": "admin@example.com",
+  "password": "Password123"
+}
+```
 
-- 接口地址：`/api/admin/auth/session`
-- 请求方式：`GET`
-- 请求头：`satoken: <token>`
+Notes:
 
-### 2.4 退出登录
+- Frontend register form no longer requires `username`.
+- If `username` is sent by frontend, real mode ignores it and only submits email/password.
 
-- 接口地址：`/api/admin/auth/logout`
-- 请求方式：`POST`
-- 请求头：`satoken: <token>`
+### 2.3 Get Current Session
 
-## 3. 返回参数说明
+- Endpoint: `/api/admin/auth/session`
+- Method: `GET`
+- Header: `satoken: <token>`
 
-### 3.1 登录/注册返回
+### 2.4 Logout
+
+- Endpoint: `/api/admin/auth/logout`
+- Method: `POST`
+- Header: `satoken: <token>`
+
+## 3. Response Examples
+
+### 3.1 Login/Register Response
 
 ```json
 {
@@ -72,7 +72,7 @@
     "token": "xxx",
     "tokenTimeout": 2592000,
     "user": {
-      "id": 1001,
+      "id": "1001",
       "email": "admin@example.com",
       "status": "ACTIVE"
     }
@@ -82,17 +82,17 @@
 }
 ```
 
-### 3.2 会话返回
+### 3.2 Session Response
 
 ```json
 {
   "code": 200,
   "body": {
-    "loginId": 1001,
+    "loginId": "1001",
     "token": "xxx",
     "tokenTimeout": 2592000,
     "user": {
-      "id": 1001,
+      "id": "1001",
       "email": "admin@example.com",
       "status": "ACTIVE"
     }
@@ -102,14 +102,14 @@
 }
 ```
 
-## 4. 前端模式切换配置
+## 4. Frontend Mode Config
 
-`src/api/admin/AuthApi.ts` 支持 `real/mock` 两种模式：
+`src/api/admin/AuthApi.ts` supports both `real` and `mock`:
 
-- `real`：调用后端真实接口（本次默认）
-- `mock`：走 `src/api/admin/mockManager.ts`
+- `real`: call backend real API (default)
+- `mock`: use `src/api/admin/mockManager.ts`
 
-环境变量：
+Environment variables:
 
 ```bash
 VITE_ADMIN_AUTH_API_MODE=real

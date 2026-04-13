@@ -1,16 +1,19 @@
 package com.jaycong.boot.modules.auth.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "用户端当前用户信息")
+@Schema(description = "Current site user")
 public record SiteAuthUserView(
-        @Schema(description = "用户 ID", example = "2")
+        @Schema(description = "User ID serialized as string", example = "2", type = "string")
+        @JsonSerialize(using = ToStringSerializer.class)
         Long id,
-        @Schema(description = "用户名", example = "creator01")
+        @Schema(description = "Username", example = "creator01")
         String username,
-        @Schema(description = "邮箱", example = "creator01@example.com")
+        @Schema(description = "Email", example = "creator01@example.com")
         String email,
-        @Schema(description = "创建时间（ISO-8601）", example = "2026-04-09T08:00:00.000Z")
+        @Schema(description = "Created time in ISO-8601", example = "2026-04-09T08:00:00.000Z")
         String createdAt
 ) {
 }

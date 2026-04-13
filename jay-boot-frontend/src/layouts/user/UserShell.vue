@@ -69,7 +69,7 @@ const userAuthStore = useUserAuthStore()
 const navItems = [
   { path: '/user/home', label: '首页' },
   // { path: '/user/features', label: '功能' },
-  // { path: '/user/pricing', label: '定价' },
+  { path: '/user/pricing', label: '定价' },
   { path: '/user/workspace', label: '工作台' },
   // { path: '/user/history', label: '历史' },
   // { path: '/user/subscription', label: '订阅' },

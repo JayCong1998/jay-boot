@@ -135,20 +135,3 @@ sequenceDiagram
 | success | boolean | 是 | 请求是否成功 | true |
 
 ---
-
-## Mock 与真实接口切换
-
-通过环境变量切换：
-
-- `VITE_USER_API_MODE=mock`：走 `src/api/user/mockManager.ts`
-- `VITE_USER_API_MODE=real`：走真实后端请求
-- `VITE_USER_API_BASE_URL`：真实接口基础地址（例如 `http://127.0.0.1:8080`）
-- `VITE_USER_MOCK_DELAY_MS`：Mock 延迟（毫秒）
-
-示例：
-
-```bash
-VITE_USER_API_MODE=real
-VITE_USER_API_BASE_URL=http://127.0.0.1:8080
-VITE_USER_MOCK_DELAY_MS=180
-```

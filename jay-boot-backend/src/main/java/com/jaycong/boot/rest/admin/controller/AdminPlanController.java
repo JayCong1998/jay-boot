@@ -3,9 +3,10 @@ package com.jaycong.boot.rest.admin.controller;
 import com.jaycong.boot.common.constant.enums.PlanBillingCycle;
 import com.jaycong.boot.common.constant.enums.PlanStatus;
 import com.jaycong.boot.common.web.ApiResponse;
+import com.jaycong.boot.common.web.PageResult;
 import com.jaycong.boot.modules.plan.dto.AdminPlanCreateRequest;
+import com.jaycong.boot.modules.plan.dto.AdminPlanItemView;
 import com.jaycong.boot.modules.plan.dto.AdminPlanPageRequest;
-import com.jaycong.boot.modules.plan.dto.AdminPlanPageResponse;
 import com.jaycong.boot.modules.plan.dto.AdminPlanStatusUpdateRequest;
 import com.jaycong.boot.modules.plan.dto.AdminPlanUpdateRequest;
 import com.jaycong.boot.modules.plan.service.AdminPlanService;
@@ -35,7 +36,7 @@ public class AdminPlanController {
 
     @Operation(summary = "分页查询套餐")
     @GetMapping
-    public ApiResponse<AdminPlanPageResponse> page(
+    public ApiResponse<PageResult<AdminPlanItemView>> page(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) String keyword,

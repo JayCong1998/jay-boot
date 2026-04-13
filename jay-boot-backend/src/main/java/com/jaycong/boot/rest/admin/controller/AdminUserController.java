@@ -1,15 +1,16 @@
 package com.jaycong.boot.rest.admin.controller;
 
 import com.jaycong.boot.common.web.ApiResponse;
-import com.jaycong.boot.modules.auth.dto.AdminUserCreateRequest;
-import com.jaycong.boot.modules.auth.dto.AdminUserPageRequest;
-import com.jaycong.boot.modules.auth.dto.AdminUserPageResponse;
-import com.jaycong.boot.modules.auth.dto.AdminUserPasswordResetRequest;
+import com.jaycong.boot.common.web.PageResult;
+import com.jaycong.boot.modules.user.dto.AdminUserCreateRequest;
+import com.jaycong.boot.modules.user.dto.AdminUserItemView;
+import com.jaycong.boot.modules.user.dto.AdminUserPageRequest;
+import com.jaycong.boot.modules.user.dto.AdminUserPasswordResetRequest;
 import com.jaycong.boot.common.constant.enums.AdminUserRole;
 import com.jaycong.boot.common.constant.enums.AdminUserStatus;
-import com.jaycong.boot.modules.auth.dto.AdminUserStatusUpdateRequest;
-import com.jaycong.boot.modules.auth.dto.AdminUserUpdateRequest;
-import com.jaycong.boot.modules.auth.service.AdminUserService;
+import com.jaycong.boot.modules.user.dto.AdminUserStatusUpdateRequest;
+import com.jaycong.boot.modules.user.dto.AdminUserUpdateRequest;
+import com.jaycong.boot.modules.user.service.AdminUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -36,7 +37,7 @@ public class AdminUserController {
 
     @Operation(summary = "分页查询用户")
     @GetMapping
-    public ApiResponse<AdminUserPageResponse> page(
+    public ApiResponse<PageResult<AdminUserItemView>> page(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize,
             @RequestParam(required = false) String keyword,

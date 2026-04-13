@@ -68,8 +68,6 @@ AI 绝对禁止：
 
 当前后端目录下可以直接运行mvn命令
 - 后端代码改动后，默认执行一次编译验证（不跑测试）：
-maven地址
-`D:\develop\java\apache-maven-3.9.14`
 - 构建失败时，必须在回复中明确：
   - 失败命令
   - 首个关键报错
@@ -84,6 +82,6 @@ maven地址
 
 ## 数据库地址
 
-url: jdbc:mysql://127.0.0.1:3306/jay_boot_saas?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=true
+url: jdbc:mysql://127.0.0.1:3306/jay_boot?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=true
 username: root
 password: root

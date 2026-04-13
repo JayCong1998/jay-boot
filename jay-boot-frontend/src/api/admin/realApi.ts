@@ -14,6 +14,27 @@ interface RealApiOptions {
   payload?: Record<string, unknown>
 }
 
+const LONG_INTEGER_LENGTH = 16
+const LONG_INTEGER_ID_FIELD_REGEX = new RegExp(
+  `("[A-Za-z0-9_]*[iI]d"\s*:\s*)(-?\d{${LONG_INTEGER_LENGTH},})(?=\s*[,}])`,
+  'g',
+)
+
+const normalizeLongIntegerIdFields = (rawText: string) =>
+  rawText.replace(LONG_INTEGER_ID_FIELD_REGEX, '$1"$2"')
+
+const parseEnvelope = <T>(rawText: string): ApiEnvelope<T> | null => {
+  if (!rawText) {
+    return null
+  }
+  const normalizedText = normalizeLongIntegerIdFields(rawText)
+  try {
+    return JSON.parse(normalizedText) as ApiEnvelope<T>
+  } catch {
+    return null
+  }
+}
+
 const appendQuery = (url: string, query?: Record<string, unknown>) => {
   if (!query) {
     return url
@@ -74,7 +95,8 @@ export const requestAdminAuthRealApi = async <T>(
     body: method === 'GET' ? undefined : JSON.stringify(payload ?? {}),
   })
 
-  const result = (await response.json().catch(() => null)) as ApiEnvelope<T> | null
+  const responseText = await response.text()
+  const result = parseEnvelope<T>(responseText)
   if (!response.ok) {
     throw new Error(result?.message || `请求失败：${response.status}`)
   }

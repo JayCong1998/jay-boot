@@ -1,4 +1,4 @@
-package com.jaycong.boot.modules.auth.dto;
+package com.jaycong.boot.modules.user.dto;
 
 import com.jaycong.boot.common.constant.enums.AdminUserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;

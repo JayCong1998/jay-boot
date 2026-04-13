@@ -1,14 +1,17 @@
 package com.jaycong.boot.modules.auth.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "登录用户信息")
+@Schema(description = "Authenticated user")
 public record AuthUserView(
-        @Schema(description = "用户 ID", example = "1001")
+        @Schema(description = "User ID serialized as string", example = "1001", type = "string")
+        @JsonSerialize(using = ToStringSerializer.class)
         Long id,
-        @Schema(description = "邮箱", example = "user@example.com")
+        @Schema(description = "Email", example = "user@example.com")
         String email,
-        @Schema(description = "用户状态", example = "ACTIVE")
+        @Schema(description = "Status", example = "ACTIVE")
         String status
 ) {
 }
