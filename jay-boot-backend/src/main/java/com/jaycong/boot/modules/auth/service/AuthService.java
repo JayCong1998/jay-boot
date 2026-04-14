@@ -1,9 +1,13 @@
 package com.jaycong.boot.modules.auth.service;
 
+import cn.dev33.satoken.stp.SaLoginModel;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
+import com.jaycong.boot.modules.auth.context.LoginClientType;
+import com.jaycong.boot.modules.auth.context.LoginPrincipal;
+import com.jaycong.boot.modules.auth.context.LoginSessionKeys;
 import com.jaycong.boot.modules.auth.dto.AuthRequestContext;
 import com.jaycong.boot.modules.auth.dto.AuthSessionResponse;
 import com.jaycong.boot.modules.auth.dto.AuthTokenResponse;
@@ -15,10 +19,10 @@ import com.jaycong.boot.modules.auth.dto.SiteAuthSessionResponse;
 import com.jaycong.boot.modules.auth.dto.SiteAuthUserView;
 import com.jaycong.boot.modules.auth.dto.SiteLoginRequest;
 import com.jaycong.boot.modules.auth.dto.SiteRegisterRequest;
-import com.jaycong.boot.modules.auth.entity.LoginLogEntity;
 import com.jaycong.boot.modules.user.entity.UserEntity;
-import com.jaycong.boot.modules.auth.mapper.LoginLogMapper;
 import com.jaycong.boot.modules.user.mapper.UserMapper;
+import cn.dev33.satoken.session.SaSession;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Locale;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,14 +40,14 @@ public class AuthService {
     private static final int AUTO_USERNAME_MAX_RETRY = 50;
 
     private final UserMapper userMapper;
-    private final LoginLogMapper loginLogMapper;
+    private final LoginLogService loginLogService;
     private final PasswordEncoder passwordEncoder;
 
     public AuthService(UserMapper userMapper,
-                       LoginLogMapper loginLogMapper,
+                       LoginLogService loginLogService,
                        PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
-        this.loginLogMapper = loginLogMapper;
+        this.loginLogService = loginLogService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -64,8 +68,7 @@ public class AuthService {
 
         userMapper.insert(user);
 
-        StpUtil.login(user.getId());
-        recordLoginLog(user.getId(), context, true, "REGISTER");
+        bindLoginSession(user, LoginClientType.ADMIN, context, "REGISTER");
         return buildTokenResponse(user);
     }
 
@@ -88,8 +91,7 @@ public class AuthService {
         user.setStatus(USER_STATUS_ACTIVE);
         userMapper.insert(user);
 
-        StpUtil.login(user.getId());
-        recordLoginLog(user.getId(), context, true, "REGISTER");
+        bindLoginSession(user, LoginClientType.SITE, context, "REGISTER");
         return buildSiteSessionResponse(user);
     }
 
@@ -112,8 +114,7 @@ public class AuthService {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "邮箱或密码错误");
         }
 
-        StpUtil.login(user.getId());
-        recordLoginLog(user.getId(), context, true, "LOGIN");
+        bindLoginSession(user, LoginClientType.ADMIN, context, "LOGIN");
         return buildTokenResponse(user);
     }
 
@@ -136,8 +137,7 @@ public class AuthService {
             throw new BusinessException(ErrorCode.UNAUTHORIZED, "邮箱或密码错误");
         }
 
-        StpUtil.login(user.getId());
-        recordLoginLog(user.getId(), context, true, "LOGIN");
+        bindLoginSession(user, LoginClientType.SITE, context, "LOGIN");
         return buildSiteSessionResponse(user);
     }
 
@@ -214,13 +214,56 @@ public class AuthService {
     }
 
     private void recordLoginLog(Long userId, AuthRequestContext context, boolean success, String reason) {
-        LoginLogEntity log = new LoginLogEntity();
-        log.setUserId(userId);
-        log.setIp(context == null ? null : context.ip());
-        log.setUa(context == null ? null : context.userAgent());
-        log.setSuccess(success);
-        log.setReason(reason);
-        loginLogMapper.insert(log);
+        loginLogService.record(
+                userId,
+                context == null ? null : context.ip(),
+                context == null ? null : context.userAgent(),
+                success,
+                reason
+        );
+    }
+
+    private void bindLoginSession(UserEntity user,
+                                  LoginClientType clientType,
+                                  AuthRequestContext context,
+                                  String loginAction) {
+        LocalDateTime loginTime = LocalDateTime.now();
+        SaLoginModel loginModel = new SaLoginModel()
+                .setExtra(LoginSessionKeys.LOGIN_TYPE, loginAction)
+                .setExtra(LoginSessionKeys.LOGIN_REASON, loginAction)
+                .setExtra(LoginSessionKeys.CLIENT_TYPE, clientType.name())
+                .setExtra(LoginSessionKeys.LOGIN_TIME, loginTime);
+        if (context != null && StringUtils.hasText(context.ip())) {
+            loginModel.setExtra(LoginSessionKeys.LOGIN_IP, context.ip());
+        }
+        if (context != null && StringUtils.hasText(context.userAgent())) {
+            loginModel.setExtra(LoginSessionKeys.LOGIN_UA, context.userAgent());
+        }
+
+        StpUtil.login(user.getId(), loginModel);
+        SaSession session = StpUtil.getTokenSession();
+        if (session == null) {
+            return;
+        }
+
+        String loginIp = context == null ? null : context.ip();
+        String loginUa = context == null ? null : context.userAgent();
+        LoginPrincipal principal = new LoginPrincipal(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                clientType,
+                loginIp,
+                loginUa,
+                loginTime
+        );
+        session.set(LoginSessionKeys.LOGIN_PRINCIPAL, principal);
+        session.set(LoginSessionKeys.LOGIN_IP, loginIp);
+        session.set(LoginSessionKeys.LOGIN_UA, loginUa);
+        session.set(LoginSessionKeys.LOGIN_TYPE, clientType.name());
+        session.set(LoginSessionKeys.CLIENT_TYPE, clientType.name());
+        session.set(LoginSessionKeys.LOGIN_TIME, loginTime);
     }
 
     private Long ensureLogin() {
