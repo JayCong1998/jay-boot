@@ -10,6 +10,7 @@ import com.jaycong.boot.common.constant.enums.PlanStatus;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.common.web.PageResult;
+import com.jaycong.boot.modules.auth.context.LoginContext;
 import com.jaycong.boot.modules.user.entity.UserEntity;
 import com.jaycong.boot.modules.user.mapper.UserMapper;
 import com.jaycong.boot.modules.plan.dto.AdminPlanCreateRequest;
@@ -32,11 +33,13 @@ public class AdminPlanService {
     private final PlanMapper planMapper;
     private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
+    private final LoginContext loginContext;
 
-    public AdminPlanService(PlanMapper planMapper, UserMapper userMapper, ObjectMapper objectMapper) {
+    public AdminPlanService(PlanMapper planMapper, UserMapper userMapper, ObjectMapper objectMapper, LoginContext loginContext) {
         this.planMapper = planMapper;
         this.userMapper = userMapper;
         this.objectMapper = objectMapper;
+        this.loginContext = loginContext;
     }
 
     public PageResult<AdminPlanItemView> page(AdminPlanPageRequest request) {
@@ -138,10 +141,7 @@ public class AdminPlanService {
     }
 
     private Long ensureAdminOperator() {
-        if (!StpUtil.isLogin()) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户未登录");
-        }
-        Long loginId = StpUtil.getLoginIdAsLong();
+        Long loginId = resolveOperatorId();
         UserEntity operator = userMapper.selectById(loginId);
         if (operator == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND, "用户不存在");
@@ -150,6 +150,17 @@ public class AdminPlanService {
             throw new BusinessException(ErrorCode.FORBIDDEN, "仅管理员可执行该操作");
         }
         return loginId;
+    }
+
+    private Long resolveOperatorId() {
+        return loginContext.currentPrincipal()
+                .map(principal -> principal.userId())
+                .orElseGet(() -> {
+                    if (!StpUtil.isLogin()) {
+                        throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户未登录");
+                    }
+                    return StpUtil.getLoginIdAsLong();
+                });
     }
 
     private boolean hasAdminPermission(String roleValue) {

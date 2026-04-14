@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.common.web.PageResult;
+import com.jaycong.boot.modules.auth.context.LoginContext;
 import com.jaycong.boot.modules.user.dto.AdminUserCreateRequest;
 import com.jaycong.boot.modules.user.dto.AdminUserItemView;
 import com.jaycong.boot.modules.user.dto.AdminUserPageRequest;
@@ -32,10 +33,12 @@ public class AdminUserService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final LoginContext loginContext;
 
-    public AdminUserService(UserMapper userMapper, PasswordEncoder passwordEncoder) {
+    public AdminUserService(UserMapper userMapper, PasswordEncoder passwordEncoder, LoginContext loginContext) {
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
+        this.loginContext = loginContext;
     }
 
     public PageResult<AdminUserItemView> page(AdminUserPageRequest request) {
@@ -125,15 +128,23 @@ public class AdminUserService {
     }
 
     private Long ensureAdminOperator() {
-        if (!StpUtil.isLogin()) {
-            throw new BusinessException(ErrorCode.UNAUTHORIZED, "User not logged in");
-        }
-        Long loginId = StpUtil.getLoginIdAsLong();
+        Long loginId = resolveOperatorId();
         UserEntity operator = requireUser(loginId);
         if (!isManagementRole(operator.getRole())) {
             throw new BusinessException(ErrorCode.FORBIDDEN, "Only super admin or admin can perform this action");
         }
         return loginId;
+    }
+
+    private Long resolveOperatorId() {
+        return loginContext.currentPrincipal()
+                .map(principal -> principal.userId())
+                .orElseGet(() -> {
+                    if (!StpUtil.isLogin()) {
+                        throw new BusinessException(ErrorCode.UNAUTHORIZED, "User not logged in");
+                    }
+                    return StpUtil.getLoginIdAsLong();
+                });
     }
 
     private UserEntity requireUser(Long id) {
