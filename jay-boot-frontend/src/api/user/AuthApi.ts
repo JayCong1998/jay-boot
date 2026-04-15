@@ -1,4 +1,4 @@
-import { get, post } from './index'
+import { get, post } from '../index'
 
 export interface UserAuthUser {
   id: string
@@ -53,7 +53,7 @@ export const userLoginApi = (payload: UserLoginPayload) =>
  * url地址：/api/user/auth/me
  * 请求方式：GET
  */
-export const userMeApi = (token: string) => get<UserAuthUser>('/api/user/auth/me', { token })
+export const userMeApi = (token: string) => get<UserAuthUser>('/api/user/auth/me', undefined, token)
 
 /**
  * 退出登录
@@ -63,4 +63,4 @@ export const userMeApi = (token: string) => get<UserAuthUser>('/api/user/auth/me
  * url地址：/api/user/auth/logout
  * 请求方式：POST
  */
-export const userLogoutApi = (token: string) => post<null>('/api/user/auth/logout', { token })
+export const userLogoutApi = (token: string) => post<null>('/api/user/auth/logout', undefined, token)

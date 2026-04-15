@@ -8,6 +8,6 @@ export const rootRoute: RouteRecordRaw = {
 export const notFoundRoute: RouteRecordRaw = {
   path: '/:pathMatch(.*)*',
   name: 'not-found',
-  component: () => import('../../views/admin/NotFoundView.vue'),
+  component: () => import('../../views/NotFoundView.vue'),
   meta: { title: '页面不存在' },
 }

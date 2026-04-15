@@ -61,7 +61,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { userApiConfig } from '../../config/api'
+import { apiConfig } from '../../config/api'
 import { useUserAuthStore } from '../../stores/user/auth'
 
 const router = useRouter()
@@ -87,7 +87,7 @@ const rules = {
   ],
 }
 
-const apiModeText = computed(() => (userApiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
+const apiModeText = computed(() => (apiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
 
 const registerLink = computed(() => {
   const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''

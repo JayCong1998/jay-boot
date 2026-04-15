@@ -129,3 +129,53 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     KEY idx_subscriptions_status (status),
     KEY idx_subscriptions_plan (plan_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS request_logs (
+    id BIGINT PRIMARY KEY,
+    request_id VARCHAR(32) NOT NULL COMMENT '请求唯一标识',
+    user_id BIGINT NULL COMMENT '操作用户ID',
+    username VARCHAR(64) NULL COMMENT '操作用户名',
+    method VARCHAR(8) NOT NULL COMMENT '请求方法',
+    path VARCHAR(255) NOT NULL COMMENT '请求路径',
+    query_string TEXT NULL COMMENT '查询参数',
+    request_params TEXT NULL COMMENT '请求参数(JSON)',
+    status_code INT NOT NULL COMMENT 'HTTP响应状态码',
+    duration_ms INT NOT NULL COMMENT '执行耗时(毫秒)',
+    client_ip VARCHAR(64) NULL COMMENT '客户端IP',
+    user_agent VARCHAR(500) NULL COMMENT '浏览器标识',
+    creator_id BIGINT NOT NULL,
+    creator_name VARCHAR(64) NOT NULL,
+    created_time DATETIME(3) NOT NULL,
+    updater_id BIGINT NOT NULL,
+    updater_name VARCHAR(64) NOT NULL,
+    updated_time DATETIME(3) NOT NULL,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    KEY idx_request_logs_time (created_time),
+    KEY idx_request_logs_user (user_id),
+    KEY idx_request_logs_path (path),
+    KEY idx_request_logs_status (status_code),
+    KEY idx_request_logs_request_id (request_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='请求日志表';
+
+CREATE TABLE IF NOT EXISTS error_logs (
+    id BIGINT PRIMARY KEY,
+    request_id VARCHAR(32) NULL COMMENT '请求唯一标识',
+    user_id BIGINT NULL COMMENT '操作用户ID',
+    username VARCHAR(64) NULL COMMENT '操作用户名',
+    request_path VARCHAR(255) NULL COMMENT '请求路径',
+    request_params TEXT NULL COMMENT '请求参数(JSON)',
+    client_ip VARCHAR(64) NULL COMMENT '客户端IP',
+    exception_class VARCHAR(255) NOT NULL COMMENT '异常类名',
+    exception_message TEXT NULL COMMENT '异常消息',
+    stack_trace MEDIUMTEXT NULL COMMENT '完整堆栈信息',
+    creator_id BIGINT NOT NULL,
+    creator_name VARCHAR(64) NOT NULL,
+    created_time DATETIME(3) NOT NULL,
+    updater_id BIGINT NOT NULL,
+    updater_name VARCHAR(64) NOT NULL,
+    updated_time DATETIME(3) NOT NULL,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    KEY idx_error_logs_time (created_time),
+    KEY idx_error_logs_user (user_id),
+    KEY idx_error_logs_request_id (request_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='异常日志表';

@@ -3501,7 +3501,7 @@ satoken
 ```json
 {
   "id": 1001,
-  "tenantId": 2001,
+  "username": "creator01",
   "email": "user@example.com",
   "status": "ACTIVE"
 }
@@ -3515,7 +3515,7 @@ satoken
 |Name|Type|Required|Restrictions|Description|
 |---|---|---|---|---|
 |id|integer(int64)|false|none|用户 ID|
-|tenantId|integer(int64)|false|none|租户 ID|
+|username|string|false|none|用户名|
 |email|string|false|none|邮箱|
 |status|string|false|none|用户状态|
 

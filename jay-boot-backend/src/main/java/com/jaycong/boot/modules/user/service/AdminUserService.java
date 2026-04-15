@@ -1,6 +1,5 @@
 package com.jaycong.boot.modules.user.service;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jaycong.boot.common.exception.BusinessException;
@@ -33,16 +32,13 @@ public class AdminUserService {
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final LoginContext loginContext;
 
-    public AdminUserService(UserMapper userMapper, PasswordEncoder passwordEncoder, LoginContext loginContext) {
+    public AdminUserService(UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
         this.passwordEncoder = passwordEncoder;
-        this.loginContext = loginContext;
     }
 
     public PageResult<AdminUserItemView> page(AdminUserPageRequest request) {
-        ensureAdminOperator();
         long pageNo = request.page() == null || request.page() < 1 ? 1 : request.page();
         long pageSize = request.pageSize() == null || request.pageSize() < 1 ? 10 : request.pageSize();
 
@@ -66,8 +62,6 @@ public class AdminUserService {
 
     @Transactional
     public void create(AdminUserCreateRequest request) {
-        ensureAdminOperator();
-
         String username = normalizeUsername(request.username());
         String email = normalizeEmail(request.email());
         ensureUsernameUnique(username, null);
@@ -84,8 +78,6 @@ public class AdminUserService {
 
     @Transactional
     public void update(Long id, AdminUserUpdateRequest request) {
-        ensureAdminOperator();
-
         UserEntity entity = requireUser(id);
         String username = normalizeUsername(request.username());
         String email = normalizeEmail(request.email());
@@ -105,7 +97,7 @@ public class AdminUserService {
 
     @Transactional
     public void updateStatus(Long id, AdminUserStatusUpdateRequest request) {
-        Long operatorId = ensureAdminOperator();
+        Long operatorId = LoginContext.requireUserId();
         UserEntity entity = requireUser(id);
         String nextStatus = request.status().name();
 
@@ -121,30 +113,9 @@ public class AdminUserService {
 
     @Transactional
     public void resetPassword(Long id, AdminUserPasswordResetRequest request) {
-        ensureAdminOperator();
         UserEntity entity = requireUser(id);
         entity.setPasswordHash(passwordEncoder.encode(request.newPassword()));
         userMapper.updateById(entity);
-    }
-
-    private Long ensureAdminOperator() {
-        Long loginId = resolveOperatorId();
-        UserEntity operator = requireUser(loginId);
-        if (!isManagementRole(operator.getRole())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "Only super admin or admin can perform this action");
-        }
-        return loginId;
-    }
-
-    private Long resolveOperatorId() {
-        return loginContext.currentPrincipal()
-                .map(principal -> principal.userId())
-                .orElseGet(() -> {
-                    if (!StpUtil.isLogin()) {
-                        throw new BusinessException(ErrorCode.UNAUTHORIZED, "User not logged in");
-                    }
-                    return StpUtil.getLoginIdAsLong();
-                });
     }
 
     private UserEntity requireUser(Long id) {

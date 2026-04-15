@@ -11,12 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class MybatisPlusMetaObjectHandler implements MetaObjectHandler {
 
-    private final LoginContext loginContext;
-
-    public MybatisPlusMetaObjectHandler(LoginContext loginContext) {
-        this.loginContext = loginContext;
-    }
-
     @Override
     public void insertFill(MetaObject metaObject) {
         LoginPrincipal principal = resolvePrincipal().orElse(null);
@@ -39,6 +33,11 @@ public class MybatisPlusMetaObjectHandler implements MetaObjectHandler {
     }
 
     private Optional<LoginPrincipal> resolvePrincipal() {
-        return loginContext.currentPrincipal();
+        try {
+            return LoginContext.currentPrincipal();
+        } catch (Exception e) {
+            // 如果无法获取登录上下文（例如在应用启动初期），返回空
+            return Optional.empty();
+        }
     }
 }

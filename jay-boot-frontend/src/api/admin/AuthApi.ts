@@ -1,11 +1,10 @@
-import { adminAuthApiConfig } from '../../config/api'
-import { get, post } from './index'
-import { requestAdminAuthRealApi } from './realApi'
+import { get, post } from '../index'
 
 interface RealAuthUser {
   id: string
   email: string
   status: string
+  username?: string
 }
 
 interface RealAuthTokenResponse {
@@ -59,7 +58,7 @@ const mapRealUser = (user: RealAuthUser): AuthUser => ({
   id: String(user.id),
   email: user.email,
   status: user.status,
-  username: resolveDisplayName(user.email),
+  username: resolveDisplayName(user.email, user.username),
 })
 
 const mapRealSession = (response: RealAuthTokenResponse): AuthSession => ({
@@ -71,23 +70,17 @@ const mapRealSession = (response: RealAuthTokenResponse): AuthSession => ({
 /**
  * 用户注册
  * 功能描述：完成账号注册并返回登录态信息
- * 入参：邮箱、密码（real 模式下会忽略 username）
+ * 入参：邮箱、密码
  * 返回参数：token 与用户信息
  * url地址：/api/admin/auth/register
  * 请求方式：POST
  */
 export const registerApi = async (payload: RegisterPayload): Promise<AuthSession> => {
-  if (adminAuthApiConfig.mode === 'real') {
-    const result = await requestAdminAuthRealApi<RealAuthTokenResponse>('POST', '/api/admin/auth/register', {
-      payload: {
-        email: String(payload.email ?? '').trim(),
-        password: String(payload.password ?? ''),
-      },
-    })
-    return mapRealSession(result)
-  }
-
-  return post<AuthSession>('/api/admin/auth/register', payload)
+  const result = await post<RealAuthTokenResponse>('/api/admin/auth/register', {
+    email: String(payload.email ?? '').trim(),
+    password: String(payload.password ?? ''),
+  })
+  return mapRealSession(result)
 }
 
 /**
@@ -99,17 +92,11 @@ export const registerApi = async (payload: RegisterPayload): Promise<AuthSession
  * 请求方式：POST
  */
 export const loginApi = async (payload: LoginPayload): Promise<AuthSession> => {
-  if (adminAuthApiConfig.mode === 'real') {
-    const result = await requestAdminAuthRealApi<RealAuthTokenResponse>('POST', '/api/admin/auth/login', {
-      payload: {
-        email: String(payload.email ?? '').trim(),
-        password: String(payload.password ?? ''),
-      },
-    })
-    return mapRealSession(result)
-  }
-
-  return post<AuthSession>('/api/admin/auth/login', payload)
+  const result = await post<RealAuthTokenResponse>('/api/admin/auth/login', {
+    email: String(payload.email ?? '').trim(),
+    password: String(payload.password ?? ''),
+  })
+  return mapRealSession(result)
 }
 
 /**
@@ -117,18 +104,12 @@ export const loginApi = async (payload: LoginPayload): Promise<AuthSession> => {
  * 功能描述：根据 token 获取当前登录用户信息
  * 入参：token
  * 返回参数：当前用户信息
- * url地址：real=/api/admin/auth/session, mock=/api/admin/auth/me
+ * url地址：/api/admin/auth/session
  * 请求方式：GET
  */
 export const meApi = async (token: string): Promise<AuthUser> => {
-  if (adminAuthApiConfig.mode === 'real') {
-    const result = await requestAdminAuthRealApi<RealAuthSessionResponse>('GET', '/api/admin/auth/session', {
-      token,
-    })
-    return mapRealUser(result.user)
-  }
-
-  return get<AuthUser>('/api/admin/auth/me', { token })
+  const result = await get<RealAuthSessionResponse>('/api/admin/auth/session', undefined, token)
+  return mapRealUser(result.user)
 }
 
 /**
@@ -140,9 +121,5 @@ export const meApi = async (token: string): Promise<AuthUser> => {
  * 请求方式：POST
  */
 export const logoutApi = async (token: string): Promise<null> => {
-  if (adminAuthApiConfig.mode === 'real') {
-    return requestAdminAuthRealApi<null>('POST', '/api/admin/auth/logout', { token })
-  }
-
-  return post<null>('/api/admin/auth/logout', { token })
+  return post<null>('/api/admin/auth/logout', undefined, token)
 }

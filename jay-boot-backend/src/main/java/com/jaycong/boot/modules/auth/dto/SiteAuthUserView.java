@@ -1,13 +1,10 @@
 package com.jaycong.boot.modules.auth.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Current site user")
 public record SiteAuthUserView(
         @Schema(description = "User ID serialized as string", example = "2", type = "string")
-        @JsonSerialize(using = ToStringSerializer.class)
         Long id,
         @Schema(description = "Username", example = "creator01")
         String username,

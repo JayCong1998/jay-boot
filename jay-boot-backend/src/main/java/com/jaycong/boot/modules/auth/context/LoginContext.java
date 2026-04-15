@@ -2,8 +2,8 @@ package com.jaycong.boot.modules.auth.context;
 
 import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
-import com.jaycong.boot.modules.user.entity.UserEntity;
-import com.jaycong.boot.modules.user.mapper.UserMapper;
+import com.jaycong.boot.common.exception.BusinessException;
+import com.jaycong.boot.common.exception.ErrorCode;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -11,57 +11,73 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
-@Component
+/**
+ * 登录上下文工具类，提供静态方法获取当前登录用户信息
+ */
 @Slf4j
-public class LoginContext {
+public final class LoginContext {
 
-    private final UserMapper userMapper;
-
-    public LoginContext(UserMapper userMapper) {
-        this.userMapper = userMapper;
+    private LoginContext() {
+        // 私有构造函数，防止实例化
     }
 
-    public Optional<LoginPrincipal> currentPrincipal() {
-        Optional<LoginPrincipal> sessionPrincipal = currentPrincipalFromSession();
-        if (sessionPrincipal.isPresent()) {
-            return sessionPrincipal;
-        }
-
-        if (!StpUtil.isLogin()) {
-            return Optional.empty();
-        }
-
-        Object loginId = StpUtil.getLoginIdDefaultNull();
-        if (loginId == null) {
-            return Optional.empty();
-        }
-
-        UserEntity user = userMapper.selectById(resolveUserId(loginId));
-        if (user == null) {
-            return Optional.empty();
-        }
-
-        SaSession tokenSession = getTokenSession();
-        SaSession legacySession = StpUtil.getSessionByLoginId(loginId);
-        SaSession session = tokenSession != null ? tokenSession : legacySession;
-        LoginClientType clientType = resolveClientType(session);
-        LoginPrincipal fallbackPrincipal = new LoginPrincipal(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                clientType,
-                readString(session, LoginSessionKeys.LOGIN_IP),
-                readString(session, LoginSessionKeys.LOGIN_UA),
-                resolveLoginTime(session)
-        );
-        bindPrincipal(session, fallbackPrincipal);
-        return Optional.of(fallbackPrincipal);
+    /**
+     * 获取当前登录用户的主体信息
+     *
+     * @return 登录主体信息，未登录时返回 Optional.empty()
+     */
+    public static Optional<LoginPrincipal> currentPrincipal() {
+        return currentPrincipalFromSession();
     }
 
-    public Optional<LoginPrincipal> currentPrincipalFromSession() {
+    /**
+     * 获取当前登录用户的主体信息，如果未登录则抛出异常
+     *
+     * @return 登录主体信息
+     * @throws BusinessException 如果用户未登录
+     */
+    public static LoginPrincipal requirePrincipal() {
+        return currentPrincipal()
+                .orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED, "用户未登录"));
+    }
+
+    /**
+     * 获取当前登录用户的 ID，如果未登录则抛出异常
+     *
+     * @return 用户 ID
+     * @throws BusinessException 如果用户未登录
+     */
+    public static Long requireUserId() {
+        return requirePrincipal().userId();
+    }
+
+    /**
+     * 获取当前登录用户的用户名，如果未登录则抛出异常
+     *
+     * @return 用户名
+     * @throws BusinessException 如果用户未登录
+     */
+    public static String requireUsername() {
+        return requirePrincipal().username();
+    }
+
+    /**
+     * 获取当前登录用户的角色，如果未登录则抛出异常
+     *
+     * @return 用户角色
+     * @throws BusinessException 如果用户未登录
+     */
+    public static String requireRole() {
+        return requirePrincipal().role();
+    }
+
+    /**
+     * 从 Session 中获取当前登录用户的主体信息
+     *
+     * @return 登录主体信息，未登录或 Session 中无信息时返回 Optional.empty()
+     */
+    public static Optional<LoginPrincipal> currentPrincipalFromSession() {
         if (!StpUtil.isLogin()) {
             return Optional.empty();
         }
@@ -85,7 +101,7 @@ public class LoginContext {
         return Optional.empty();
     }
 
-    private LoginPrincipal readPrincipal(SaSession session) {
+    private static LoginPrincipal readPrincipal(SaSession session) {
         if (session == null) {
             return null;
         }
@@ -104,7 +120,7 @@ public class LoginContext {
         }
     }
 
-    private LoginPrincipal fromMap(Map<?, ?> map, SaSession session) {
+    private static LoginPrincipal fromMap(Map<?, ?> map, SaSession session) {
         try {
             Object userIdValue = map.get("userId");
             Long userId = resolveLong(userIdValue);
@@ -127,7 +143,7 @@ public class LoginContext {
         }
     }
 
-    private LoginPrincipal resolvePrincipal(LoginPrincipal principal, SaSession session) {
+    private static LoginPrincipal resolvePrincipal(LoginPrincipal principal, SaSession session) {
         if (principal == null) {
             return null;
         }
@@ -147,7 +163,7 @@ public class LoginContext {
         );
     }
 
-    private Optional<LoginPrincipal> validatePrincipal(LoginPrincipal principal, Object loginId, SaSession session) {
+    private static Optional<LoginPrincipal> validatePrincipal(LoginPrincipal principal, Object loginId, SaSession session) {
         LoginPrincipal resolvedPrincipal = resolvePrincipal(principal, session);
         Long currentLoginId = resolveLong(loginId);
         if (currentLoginId == null || resolvedPrincipal == null) {
@@ -161,19 +177,9 @@ public class LoginContext {
         return Optional.of(resolvedPrincipal);
     }
 
-    private void bindPrincipal(SaSession session, LoginPrincipal principal) {
-        if (session == null || principal == null) {
-            return;
-        }
-        session.set(LoginSessionKeys.LOGIN_PRINCIPAL, principal);
-        session.set(LoginSessionKeys.LOGIN_IP, principal.loginIp());
-        session.set(LoginSessionKeys.LOGIN_UA, principal.loginUa());
-        session.set(LoginSessionKeys.LOGIN_TYPE, principal.clientType() == null ? null : principal.clientType().name());
-        session.set(LoginSessionKeys.CLIENT_TYPE, principal.clientType() == null ? null : principal.clientType().name());
-        session.set(LoginSessionKeys.LOGIN_TIME, principal.loginTime());
-    }
 
-    private LoginClientType resolveClientType(SaSession session) {
+
+    private static LoginClientType resolveClientType(SaSession session) {
         if (session == null) {
             return LoginClientType.ADMIN;
         }
@@ -190,25 +196,14 @@ public class LoginContext {
         }
     }
 
-    private LoginClientType resolveClientType(Object value) {
+    private static LoginClientType resolveClientType(Object value) {
         if (value instanceof LoginClientType clientType) {
             return clientType;
         }
         return LoginClientType.resolve(value == null ? null : value.toString());
     }
 
-    private Long resolveUserId(Object loginId) {
-        if (loginId instanceof Number number) {
-            return number.longValue();
-        }
-        try {
-            return Long.parseLong(String.valueOf(loginId));
-        } catch (Exception ex) {
-            return null;
-        }
-    }
-
-    private Long resolveLong(Object value) {
+    private static Long resolveLong(Object value) {
         if (value instanceof Number number) {
             return number.longValue();
         }
@@ -222,7 +217,7 @@ public class LoginContext {
         }
     }
 
-    private LocalDateTime resolveLoginTime(Object value, SaSession session) {
+    private static LocalDateTime resolveLoginTime(Object value, SaSession session) {
         LocalDateTime loginTime = resolveLocalDateTime(value);
         if (loginTime != null) {
             return loginTime;
@@ -230,7 +225,7 @@ public class LoginContext {
         return resolveLoginTime(session);
     }
 
-    private LocalDateTime resolveLocalDateTime(Object value) {
+    private static LocalDateTime resolveLocalDateTime(Object value) {
         if (value instanceof LocalDateTime localDateTime) {
             return localDateTime;
         }
@@ -247,7 +242,7 @@ public class LoginContext {
         return null;
     }
 
-    private LocalDateTime resolveLoginTime(SaSession session) {
+    private static LocalDateTime resolveLoginTime(SaSession session) {
         if (session == null) {
             return null;
         }
@@ -268,23 +263,23 @@ public class LoginContext {
         }
     }
 
-    private SaSession getTokenSession() {
+    private static SaSession getTokenSession() {
         return StpUtil.getTokenSession();
     }
 
-    private String readString(SaSession session, String key) {
+    private static String readString(SaSession session, String key) {
         if (session == null) {
             return null;
         }
         return toString(session.get(key));
     }
 
-    private String firstNonNullString(Object first, String second) {
+    private static String firstNonNullString(Object first, String second) {
         String value = toString(first);
         return value != null ? value : second;
     }
 
-    private String toString(Object value) {
+    private static String toString(Object value) {
         if (value == null) {
             return null;
         }

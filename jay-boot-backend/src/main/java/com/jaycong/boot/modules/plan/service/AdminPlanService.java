@@ -1,18 +1,13 @@
 package com.jaycong.boot.modules.plan.service;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jaycong.boot.common.constant.enums.AdminUserRole;
 import com.jaycong.boot.common.constant.enums.PlanBillingCycle;
 import com.jaycong.boot.common.constant.enums.PlanStatus;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.common.web.PageResult;
-import com.jaycong.boot.modules.auth.context.LoginContext;
-import com.jaycong.boot.modules.user.entity.UserEntity;
-import com.jaycong.boot.modules.user.mapper.UserMapper;
 import com.jaycong.boot.modules.plan.dto.AdminPlanCreateRequest;
 import com.jaycong.boot.modules.plan.dto.AdminPlanItemView;
 import com.jaycong.boot.modules.plan.dto.AdminPlanPageRequest;
@@ -31,20 +26,14 @@ import org.springframework.util.StringUtils;
 public class AdminPlanService {
 
     private final PlanMapper planMapper;
-    private final UserMapper userMapper;
     private final ObjectMapper objectMapper;
-    private final LoginContext loginContext;
 
-    public AdminPlanService(PlanMapper planMapper, UserMapper userMapper, ObjectMapper objectMapper, LoginContext loginContext) {
+    public AdminPlanService(PlanMapper planMapper, ObjectMapper objectMapper) {
         this.planMapper = planMapper;
-        this.userMapper = userMapper;
         this.objectMapper = objectMapper;
-        this.loginContext = loginContext;
     }
 
     public PageResult<AdminPlanItemView> page(AdminPlanPageRequest request) {
-        ensureAdminOperator();
-
         long pageNo = request.page() == null || request.page() < 1 ? 1 : request.page();
         long pageSize = request.pageSize() == null || request.pageSize() < 1 ? 10 : request.pageSize();
 
@@ -68,7 +57,6 @@ public class AdminPlanService {
 
     @Transactional
     public void create(AdminPlanCreateRequest request) {
-        ensureAdminOperator();
         validateQuotaJson(request.quotaJson());
 
         PlanEntity entity = new PlanEntity();
@@ -84,7 +72,6 @@ public class AdminPlanService {
 
     @Transactional
     public void update(Long id, AdminPlanUpdateRequest request) {
-        ensureAdminOperator();
         validateQuotaJson(request.quotaJson());
 
         PlanEntity entity = requirePlan(id);
@@ -99,7 +86,6 @@ public class AdminPlanService {
 
     @Transactional
     public void updateStatus(Long id, AdminPlanStatusUpdateRequest request) {
-        ensureAdminOperator();
         PlanEntity entity = requirePlan(id);
         entity.setStatus(request.status().name());
         updatePlan(entity);
@@ -137,41 +123,6 @@ public class AdminPlanService {
             objectMapper.readTree(quotaJson);
         } catch (Exception ex) {
             throw new BusinessException(ErrorCode.BAD_REQUEST, "配额JSON格式不合法");
-        }
-    }
-
-    private Long ensureAdminOperator() {
-        Long loginId = resolveOperatorId();
-        UserEntity operator = userMapper.selectById(loginId);
-        if (operator == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND, "用户不存在");
-        }
-        if (!hasAdminPermission(operator.getRole())) {
-            throw new BusinessException(ErrorCode.FORBIDDEN, "仅管理员可执行该操作");
-        }
-        return loginId;
-    }
-
-    private Long resolveOperatorId() {
-        return loginContext.currentPrincipal()
-                .map(principal -> principal.userId())
-                .orElseGet(() -> {
-                    if (!StpUtil.isLogin()) {
-                        throw new BusinessException(ErrorCode.UNAUTHORIZED, "用户未登录");
-                    }
-                    return StpUtil.getLoginIdAsLong();
-                });
-    }
-
-    private boolean hasAdminPermission(String roleValue) {
-        if (!StringUtils.hasText(roleValue)) {
-            return false;
-        }
-        try {
-            AdminUserRole role = AdminUserRole.fromValue(roleValue);
-            return role == AdminUserRole.ADMIN || role == AdminUserRole.SUPER_ADMIN;
-        } catch (IllegalArgumentException ex) {
-            return false;
         }
     }
 

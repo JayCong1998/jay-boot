@@ -1,13 +1,13 @@
-# Admin Auth API
+# 管理员认证接口文档
 
-## 1. Overview
+## 1. 概述
 
-- Login: `POST /api/admin/auth/login`
-- Register: `POST /api/admin/auth/register`
-- Current Session: `GET /api/admin/auth/session`
-- Logout: `POST /api/admin/auth/logout`
+- 登录：`POST /api/admin/auth/login`
+- 注册：`POST /api/admin/auth/register`
+- 当前会话：`GET /api/admin/auth/session`
+- 登出：`POST /api/admin/auth/logout`
 
-Unified response envelope:
+统一响应格式：
 
 ```json
 {
@@ -18,24 +18,12 @@ Unified response envelope:
 }
 ```
 
-## 2. Request Parameters
+## 2. 请求参数
 
-### 2.1 Login
+### 2.1 登录
 
-- Endpoint: `/api/admin/auth/login`
-- Method: `POST`
-
-```json
-{
-  "email": "admin@example.com",
-  "password": "Password123"
-}
-```
-
-### 2.2 Register
-
-- Endpoint: `/api/admin/auth/register`
-- Method: `POST`
+- 接口地址：`/api/admin/auth/login`
+- 请求方法：`POST`
 
 ```json
 {
@@ -44,26 +32,38 @@ Unified response envelope:
 }
 ```
 
-Notes:
+### 2.2 注册
 
-- Frontend register form no longer requires `username`.
-- If `username` is sent by frontend, real mode ignores it and only submits email/password.
+- 接口地址：`/api/admin/auth/register`
+- 请求方法：`POST`
 
-### 2.3 Get Current Session
+```json
+{
+  "email": "admin@example.com",
+  "password": "Password123"
+}
+```
 
-- Endpoint: `/api/admin/auth/session`
-- Method: `GET`
-- Header: `satoken: <token>`
+说明：
 
-### 2.4 Logout
+- 前端注册表单不再需要 `username` 字段。
+- 如果前端发送了 `username`，真实模式将忽略它，只提交邮箱和密码。
 
-- Endpoint: `/api/admin/auth/logout`
-- Method: `POST`
-- Header: `satoken: <token>`
+### 2.3 获取当前会话
 
-## 3. Response Examples
+- 接口地址：`/api/admin/auth/session`
+- 请求方法：`GET`
+- 请求头：`satoken: <token>`
 
-### 3.1 Login/Register Response
+### 2.4 登出
+
+- 接口地址：`/api/admin/auth/logout`
+- 请求方法：`POST`
+- 请求头：`satoken: <token>`
+
+## 3. 响应示例
+
+### 3.1 登录/注册响应
 
 ```json
 {
@@ -82,7 +82,7 @@ Notes:
 }
 ```
 
-### 3.2 Session Response
+### 3.2 会话响应
 
 ```json
 {
@@ -102,14 +102,14 @@ Notes:
 }
 ```
 
-## 4. Frontend Mode Config
+## 4. 前端模式配置
 
-`src/api/admin/AuthApi.ts` supports both `real` and `mock`:
+`src/api/admin/AuthApi.ts` 支持 `real`（真实）和 `mock`（模拟）两种模式：
 
-- `real`: call backend real API (default)
-- `mock`: use `src/api/admin/mockManager.ts`
+- `real`：调用后端真实接口（默认）
+- `mock`：使用 `src/api/admin/mockManager.ts`
 
-Environment variables:
+环境变量配置：
 
 ```bash
 VITE_ADMIN_AUTH_API_MODE=real

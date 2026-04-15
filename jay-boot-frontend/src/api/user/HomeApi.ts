@@ -1,4 +1,4 @@
-import { get } from './index'
+import { get } from '../index'
 
 export interface HomeHero {
   eyebrow: string

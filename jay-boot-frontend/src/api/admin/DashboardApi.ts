@@ -1,4 +1,4 @@
-import { get } from './index'
+import { get } from '../index'
 
 export type DashboardRange = '24h' | '7d' | '30d'
 export type DashboardTrendDirection = 'up' | 'down' | 'flat'

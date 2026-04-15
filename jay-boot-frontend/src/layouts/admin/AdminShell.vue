@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <a-layout class="app-layout" :class="{ 'app-layout--sider-open': isSiderOpen }">
     <a-layout-sider :width="240" class="app-sider" theme="light">
       <div class="app-brand">
@@ -28,8 +28,18 @@
           <div class="app-header__title">{{ pageTitle }}</div>
         </div>
         <div class="app-header__actions">
-          <span class="app-header__user">{{ authStore.displayName }}</span>
-          <a-button type="link" @click="onLogout">退出登录</a-button>
+          <a-popover v-if="authStore.isLoggedIn" placement="bottomRight" trigger="hover">
+            <template #content>
+              <div class="user-popover">
+                <strong class="user-popover__name">{{ userName }}</strong>
+                <p class="user-popover__email">{{ userEmail }}</p>
+                <button type="button" class="user-popover__logout" @click="onLogout">退出登录</button>
+              </div>
+            </template>
+            <button type="button" class="user-avatar" :aria-label="`当前用户 ${userName}`">
+              {{ avatarInitial }}
+            </button>
+          </a-popover>
         </div>
       </a-layout-header>
       <a-layout-content class="app-content">
@@ -59,11 +69,8 @@ const menuItems: MenuProps['items'] = [
   { key: '/admin/dashboard', label: '控制台总览' },
   { key: '/admin/users', label: '用户管理' },
   { key: '/admin/plans', label: '套餐管理' },
-  // { key: '/admin/rbac', label: '角色权限' },
-  // { key: '/admin/billing', label: '订阅计费' },
-  // { key: '/admin/apikey', label: 'API Key 管理' },
-  // { key: '/admin/ai-gateway', label: 'AI Gateway' },
-  // { key: '/admin/usage', label: '用量与运营' },
+  { key: '/admin/logs/requests', label: '请求日志' },
+  { key: '/admin/logs/errors', label: '异常日志' },
 ]
 
 const selectedKeys = computed(() => {
@@ -79,6 +86,13 @@ const pageTitle = computed(() => {
     return route.meta.title
   }
   return 'Jay Boot Frontend'
+})
+
+const userName = computed(() => authStore.user?.username || 'Admin')
+const userEmail = computed(() => authStore.user?.email || '')
+const avatarInitial = computed(() => {
+  const first = userName.value.trim().charAt(0)
+  return (first || 'A').toUpperCase()
 })
 
 const closeSider = () => {
@@ -217,9 +231,68 @@ onBeforeUnmount(() => {
   gap: 8px;
 }
 
-.app-header__user {
-  font-size: 13px;
-  color: #354052;
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  color: #f8fafc;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-avatar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+}
+
+.user-avatar:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+.user-popover {
+  min-width: 160px;
+  display: grid;
+  gap: 8px;
+}
+
+.user-popover__name {
+  font-size: 14px;
+  line-height: 1.2;
+  color: #1f2d3d;
+}
+
+.user-popover__email {
+  margin: 0;
+  font-size: 12px;
+  color: #6f7a88;
+  word-break: break-all;
+}
+
+.user-popover__logout {
+  border: 1px solid #e8ecf3;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: #1f2d3d;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+}
+
+.user-popover__logout:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+  background: #f5f3ff;
 }
 
 .app-content {
@@ -268,10 +341,6 @@ onBeforeUnmount(() => {
 
   .app-header__actions {
     margin-left: auto;
-  }
-
-  .app-header__user {
-    display: none;
   }
 
   .app-content {

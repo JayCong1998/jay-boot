@@ -294,7 +294,7 @@ public class AuthService {
     }
 
     private AuthUserView toUserView(UserEntity user) {
-        return new AuthUserView(user.getId(), user.getEmail(), user.getStatus());
+        return new AuthUserView(user.getId(), user.getUsername(),user.getEmail(), user.getStatus());
     }
 
     private SiteAuthUserView toSiteUserView(UserEntity user) {

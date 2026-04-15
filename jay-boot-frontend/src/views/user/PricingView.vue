@@ -138,7 +138,7 @@ import {
   type PricingOverviewResponse,
   type PricingPlanCard,
 } from '../../api/user/PricingApi'
-import { userApiConfig } from '../../config/api'
+import { apiConfig } from '../../config/api'
 
 const PRICING_CYCLE_CACHE_KEY = 'jay_boot_user_pricing_cycle'
 
@@ -149,7 +149,7 @@ const cycleSwitching = ref(false)
 const loadError = ref('')
 const activeCycle = ref<PricingBillingCycle>('MONTHLY')
 
-const apiSourceText = computed(() => (userApiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
+const apiSourceText = computed(() => (apiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
 
 const cycleOptions = computed<PricingCycleOption[]>(() => overview.value?.cycleOptions ?? [])
 const planCards = computed<PricingPlanCard[]>(() => overview.value?.planCards ?? [])

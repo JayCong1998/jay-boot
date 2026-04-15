@@ -59,7 +59,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getHomeOverviewApi, type HomeOverviewResponse } from '../../api/user/HomeApi'
-import { userApiConfig } from '../../config/api'
+import { apiConfig } from '../../config/api'
 
 const router = useRouter()
 
@@ -67,7 +67,7 @@ const overview = ref<HomeOverviewResponse | null>(null)
 const overviewLoading = ref(false)
 const loadError = ref('')
 
-const apiSourceText = computed(() => (userApiConfig.mode === 'mock' ? 'Mock API' : '生产 API'))
+const apiSourceText = computed(() => (apiConfig.mode === 'mock' ? 'Mock API' : '生产 API'))
 
 const updatedAtText = computed(() => {
   if (!overview.value?.updatedAt) {

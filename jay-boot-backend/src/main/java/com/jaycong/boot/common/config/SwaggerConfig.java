@@ -32,10 +32,10 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("Jay Boot 项目接口文档"))
                 .components(new Components()
-                        .addSecuritySchemes("satoken", new SecurityScheme()
+                        .addSecuritySchemes("Authorization", new SecurityScheme()
                                 .type(SecurityScheme.Type.APIKEY)
                                 .in(SecurityScheme.In.HEADER)
-                                .name("satoken")));
+                                .name("Authorization")));
     }
 
     /**
@@ -80,8 +80,7 @@ public class SwaggerConfig {
         if ("/api/system/ping".equals(path)) {
             return false;
         }
-        return !path.startsWith("/api/auth/")
-                && !path.startsWith("/api/admin/auth/")
+        return !path.startsWith("/api/admin/auth/")
                 && !path.startsWith("/api/user/auth/");
     }
 
@@ -94,9 +93,9 @@ public class SwaggerConfig {
             securityRequirements = new ArrayList<>();
             operation.setSecurity(securityRequirements);
         }
-        boolean exists = securityRequirements.stream().anyMatch(req -> req.containsKey("satoken"));
+        boolean exists = securityRequirements.stream().anyMatch(req -> req.containsKey("Authorization"));
         if (!exists) {
-            securityRequirements.add(new SecurityRequirement().addList("satoken"));
+            securityRequirements.add(new SecurityRequirement().addList("Authorization"));
         }
     }
 }

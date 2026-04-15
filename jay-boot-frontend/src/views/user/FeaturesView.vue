@@ -134,7 +134,7 @@ import {
   type FeaturesOverviewResponse,
   type FeaturesRoleFitResponse,
 } from '../../api/user/FeaturesApi'
-import { userApiConfig } from '../../config/api'
+import { apiConfig } from '../../config/api'
 
 const router = useRouter()
 
@@ -144,7 +144,7 @@ const activeRoleKey = ref('')
 const pageLoading = ref(false)
 const loadError = ref('')
 
-const apiSourceText = computed(() => (userApiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
+const apiSourceText = computed(() => (apiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
 
 const updatedAtText = computed(() => {
   if (!overview.value?.updatedAt) {

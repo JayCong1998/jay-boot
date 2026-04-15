@@ -1,5 +1,7 @@
 package com.jaycong.boot.rest.admin.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaMode;
 import com.jaycong.boot.common.constant.enums.PlanBillingCycle;
 import com.jaycong.boot.common.constant.enums.PlanStatus;
 import com.jaycong.boot.common.web.ApiResponse;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/plans")
 @Validated
 @Tag(name = "管理端套餐管理", description = "套餐分页、创建、编辑与状态启停")
+@SaCheckRole(value = {"admin", "super_admin"}, mode = SaMode.OR)
 public class AdminPlanController {
 
     private final AdminPlanService adminPlanService;

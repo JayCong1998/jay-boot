@@ -1,5 +1,7 @@
 package com.jaycong.boot.rest.admin.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
+import cn.dev33.satoken.annotation.SaMode;
 import com.jaycong.boot.common.web.ApiResponse;
 import com.jaycong.boot.common.web.PageResult;
 import com.jaycong.boot.modules.user.dto.AdminUserCreateRequest;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/users")
 @Validated
 @Tag(name = "管理端用户管理", description = "用户列表、创建、编辑、启停用、重置密码")
+@SaCheckRole(value = {"admin", "super_admin"}, mode = SaMode.OR)
 public class AdminUserController {
 
     private final AdminUserService adminUserService;

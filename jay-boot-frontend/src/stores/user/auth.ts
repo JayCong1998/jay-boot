@@ -38,6 +38,8 @@ const clearStorageSession = () => {
   localStorage.removeItem(USER_INFO_STORAGE_KEY)
 }
 
+export const hasUserStorageSession = () => Boolean(readStorageToken())
+
 export const useUserAuthStore = defineStore('user-auth', () => {
   const token = ref('')
   const user = ref<UserAuthUser | null>(null)

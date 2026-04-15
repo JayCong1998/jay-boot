@@ -1,4 +1,4 @@
-import { get } from './index'
+import { get } from '../index'
 
 export type PricingBillingCycle = 'MONTHLY' | 'YEARLY'
 

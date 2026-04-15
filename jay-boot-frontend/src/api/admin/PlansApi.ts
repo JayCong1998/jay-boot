@@ -1,4 +1,4 @@
-import { requestAdminAuthRealApi } from './realApi'
+import { get, post } from '../index'
 
 export type PlanStatus = 'ACTIVE' | 'INACTIVE'
 export type PlanBillingCycle = 'MONTHLY' | 'YEARLY'
@@ -59,7 +59,7 @@ interface AdminPlanStatusPayload extends Record<string, unknown> {
  * 请求方式：GET
  */
 export const getAdminPlanPageApi = (token: string, params: AdminPlanPageParams) =>
-  requestAdminAuthRealApi<AdminPlanPageResponse>('GET', '/api/admin/plans', { token, payload: params })
+  get<AdminPlanPageResponse>('/api/admin/plans', params, token)
 
 /**
  * 创建套餐
@@ -70,7 +70,7 @@ export const getAdminPlanPageApi = (token: string, params: AdminPlanPageParams) 
  * 请求方式：POST
  */
 export const createAdminPlanApi = (token: string, payload: AdminPlanCreatePayload) =>
-  requestAdminAuthRealApi<null>('POST', '/api/admin/plans', { token, payload })
+  post<null>('/api/admin/plans', payload, token)
 
 /**
  * 更新套餐
@@ -81,7 +81,7 @@ export const createAdminPlanApi = (token: string, payload: AdminPlanCreatePayloa
  * 请求方式：POST
  */
 export const updateAdminPlanApi = (token: string, id: string, payload: AdminPlanUpdatePayload) =>
-  requestAdminAuthRealApi<null>('POST', `/api/admin/plans/${id}`, { token, payload })
+  post<null>(`/api/admin/plans/${id}`, payload, token)
 
 /**
  * 更新套餐状态
@@ -92,8 +92,5 @@ export const updateAdminPlanApi = (token: string, id: string, payload: AdminPlan
  * 请求方式：POST
  */
 export const updateAdminPlanStatusApi = (token: string, id: string, status: PlanStatus) =>
-  requestAdminAuthRealApi<null>('POST', `/api/admin/plans/${id}/status`, {
-    token,
-    payload: { status } as AdminPlanStatusPayload,
-  })
+  post<null>(`/api/admin/plans/${id}/status`, { status } as AdminPlanStatusPayload, token)
 

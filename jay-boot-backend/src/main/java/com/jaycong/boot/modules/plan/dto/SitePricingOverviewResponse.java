@@ -1,7 +1,5 @@
 package com.jaycong.boot.modules.plan.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.jaycong.boot.common.constant.enums.PlanBillingCycle;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
@@ -55,7 +53,6 @@ public record SitePricingOverviewResponse(
     @Schema(description = "套餐卡片")
     public record PlanCard(
             @Schema(description = "套餐ID（字符串返回）", example = "1949000000000000002", type = "string")
-            @JsonSerialize(using = ToStringSerializer.class)
             Long id,
             @Schema(description = "套餐编码", example = "PRO_MONTHLY")
             String code,

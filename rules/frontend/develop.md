@@ -16,7 +16,6 @@
 
 - API文件位置: [src/api/]
 - 命名规范: `模块名称 + Api.js` (如 [UserApi.js]
-- Mock数据统一管理: [mockManager.js]
 - API入口文件: [index.js]
 
 ### 文档组织
@@ -44,19 +43,6 @@ export function apiFunction(params) {
   return get('/api/endpoint', params)
 }
 ```
-
-### 2. Mock数据规范
-
-- 所有API接口都必须在 [mockManager.js] 中提供Mock实现
-- Mock数据要真实、完整，符合实际业务场景
-- 使用 `registerMockApi(method, url, handler)` 注册Mock接口
-- 返回数据格式统一使用 `createSuccessResponse()` 和 `createErrorResponse()`
-
-### 3. 请求方式限制
-
-- **仅允许使用 GET 和 POST 两种请求方式**
-- GET: 用于数据查询和获取
-- POST: 用于数据创建、更新、删除
 
 ## 📖 API文档规范
 
@@ -165,12 +151,9 @@ export function getCartList() {
 }
 ```
 
-
-
 ## 🚫 开发限制
 
 ### 禁止事项
 - 不允许在对话中使用 `npm run dev` 启动项目
-- 不要在页面中定义测试数据，所有数据必须来自后端服务或Mock接口
 - 不要创建测试文档
 - 页面组件嵌套不要超过三层

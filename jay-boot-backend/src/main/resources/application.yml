@@ -1,7 +1,11 @@
 server:
   port: 8080
 
+
+
 spring:
+  main:
+    allow-circular-references: true
   application:
     name: jay-boot
   profiles:
@@ -24,10 +28,20 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 
 sa-token:
-  token-name: satoken
+  token-name: Authorization
   timeout: 2592000
   active-timeout: -1
   is-concurrent: true
   is-share: true
   token-style: uuid
   is-log: true
+  is-read-extra: true
+
+app:
+  log:
+    request:
+      enabled: true
+      max-count: 100000
+    error:
+      enabled: true
+      max-count: 50000
