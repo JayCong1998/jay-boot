@@ -116,3 +116,43 @@ export const deleteErrorLogApi = (id: string) =>
  */
 export const batchDeleteErrorLogApi = (ids: string[]) =>
   post<null>('/api/admin/logs/errors/batch-delete', { ids } as BatchDeletePayload)
+
+export interface OperationLogItem {
+  id: string
+  module: string
+  action: string
+  detail: string | null
+  userId: string | null
+  username: string | null
+  clientIp: string | null
+  requestId: string | null
+  createdTime: string
+}
+
+export interface OperationLogPageResponse {
+  records: OperationLogItem[]
+  total: number
+  page: number
+  pageSize: number
+}
+
+export interface OperationLogPageParams extends Record<string, unknown> {
+  page?: number
+  pageSize?: number
+  module?: string
+  userId?: string
+  startTime?: string
+  endTime?: string
+}
+
+/**
+ * 获取操作日志分页列表
+ */
+export const getOperationLogPageApi = (params: OperationLogPageParams) =>
+  get<OperationLogPageResponse>('/api/admin/logs/operations', params)
+
+/**
+ * 获取操作日志详情
+ */
+export const getOperationLogDetailApi = (id: string) =>
+  get<OperationLogItem>(`/api/admin/logs/operations/${id}`)
