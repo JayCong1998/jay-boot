@@ -5,6 +5,8 @@ import cn.dev33.satoken.exception.NotPermissionException;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.modules.log.handler.ErrorLogHandler;
+import com.jaycong.boot.modules.lock.exception.DistributedLockException;
+import com.jaycong.boot.modules.ratelimit.exception.RateLimitException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolation(ConstraintViolationException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.fail(ErrorCode.BAD_REQUEST.getCode(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(RateLimitException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRateLimit(RateLimitException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("X-RateLimit-Remaining", "0")
+                .header("Retry-After", String.valueOf(ex.getRetryAfter()))
+                .body(ApiResponse.fail(ex.getCode(), ex.getMessage()));
+    }
+
+    @ExceptionHandler(DistributedLockException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDistributedLock(DistributedLockException ex) {
+        log.warn("分布式锁异常: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ApiResponse.fail(429, ex.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

@@ -15,6 +15,13 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 
+      database: 0
+      timeout: 5000ms
 
 
 management:
@@ -35,7 +42,6 @@ sa-token:
   is-share: true
   token-style: uuid
   is-log: true
-  is-read-extra: true
 
 app:
   log:
@@ -45,3 +51,15 @@ app:
     error:
       enabled: true
       max-count: 50000
+
+rate-limit:
+  enabled: true
+  default-qps: 10
+  default-burst: 20
+  redis-key-prefix: "rate_limit"
+
+distributed-lock:
+  enabled: true
+  key-prefix: "jay_lock"
+  default-wait-time: 0
+  default-lease-time: -1
