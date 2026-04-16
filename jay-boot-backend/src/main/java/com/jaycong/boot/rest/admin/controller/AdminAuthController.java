@@ -3,6 +3,7 @@ package com.jaycong.boot.rest.admin.controller;
 import com.jaycong.boot.common.web.ApiResponse;
 import com.jaycong.boot.modules.auth.dto.*;
 import com.jaycong.boot.modules.auth.service.AuthService;
+import com.jaycong.boot.modules.ratelimit.annotation.RateLimit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +40,8 @@ public class AdminAuthController {
      * 用户登录并返回登录态信息。
      */
     @Operation(summary = "用户登录")
+    @RateLimit(qps = 5, burst = 10, dimension = RateLimit.Dimension.IP,
+               message = "登录请求过于频繁，请稍后再试")
     @PostMapping("/login")
     public ApiResponse<AuthTokenResponse> login(@Valid @RequestBody LoginRequest request,
                                                 HttpServletRequest httpRequest) {

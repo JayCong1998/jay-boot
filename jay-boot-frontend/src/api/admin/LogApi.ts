@@ -72,47 +72,47 @@ interface BatchDeletePayload extends Record<string, unknown> {
 /**
  * 获取请求日志分页列表
  */
-export const getRequestLogPageApi = (token: string, params: RequestLogPageParams) =>
-  get<RequestLogPageResponse>('/api/admin/logs/requests', params, token)
+export const getRequestLogPageApi = (params: RequestLogPageParams) =>
+  get<RequestLogPageResponse>('/api/admin/logs/requests', params)
 
 /**
  * 获取请求日志详情
  */
-export const getRequestLogDetailApi = (token: string, id: string) =>
-  get<RequestLogItem>(`/api/admin/logs/requests/${id}`, undefined, token)
+export const getRequestLogDetailApi = (id: string) =>
+  get<RequestLogItem>(`/api/admin/logs/requests/${id}`)
 
 /**
  * 删除请求日志
  */
-export const deleteRequestLogApi = (token: string, id: string) =>
-  post<null>(`/api/admin/logs/requests/${id}/delete`, undefined, token)
+export const deleteRequestLogApi = (id: string) =>
+  post<null>(`/api/admin/logs/requests/${id}/delete`)
 
 /**
  * 批量删除请求日志
  */
-export const batchDeleteRequestLogApi = (token: string, ids: string[]) =>
-  post<null>('/api/admin/logs/requests/batch-delete', { ids } as BatchDeletePayload, token)
+export const batchDeleteRequestLogApi = (ids: string[]) =>
+  post<null>('/api/admin/logs/requests/batch-delete', { ids } as BatchDeletePayload)
 
 /**
  * 获取异常日志分页列表
  */
-export const getErrorLogPageApi = (token: string, params: ErrorLogPageParams) =>
-  get<ErrorLogPageResponse>('/api/admin/logs/errors', params, token)
+export const getErrorLogPageApi = (params: ErrorLogPageParams) =>
+  get<ErrorLogPageResponse>('/api/admin/logs/errors', params)
 
 /**
  * 获取异常日志详情
  */
-export const getErrorLogDetailApi = (token: string, id: string) =>
-  get<ErrorLogItem>(`/api/admin/logs/errors/${id}`, undefined, token)
+export const getErrorLogDetailApi = (id: string) =>
+  get<ErrorLogItem>(`/api/admin/logs/errors/${id}`)
 
 /**
  * 删除异常日志
  */
-export const deleteErrorLogApi = (token: string, id: string) =>
-  post<null>(`/api/admin/logs/errors/${id}/delete`, undefined, token)
+export const deleteErrorLogApi = (id: string) =>
+  post<null>(`/api/admin/logs/errors/${id}/delete`)
 
 /**
  * 批量删除异常日志
  */
-export const batchDeleteErrorLogApi = (token: string, ids: string[]) =>
-  post<null>('/api/admin/logs/errors/batch-delete', { ids } as BatchDeletePayload, token)
+export const batchDeleteErrorLogApi = (ids: string[]) =>
+  post<null>('/api/admin/logs/errors/batch-delete', { ids } as BatchDeletePayload)

@@ -6,7 +6,7 @@
         <p class="plans-subtitle">维护套餐定义、配额规则与启停状态，支持编码检索和周期筛选。</p>
       </div>
       <div class="plans-toolbar__actions">
-        <a-button :loading="plansStore.refreshing" @click="onRefreshClick">
+        <a-button :loading="pageState.refreshing" @click="onRefreshClick">
           <template #icon>
             <ReloadOutlined />
           </template>
@@ -16,7 +16,7 @@
       </div>
     </header>
 
-    <a-alert v-if="plansStore.errorMessage" class="plans-error" type="error" show-icon :message="plansStore.errorMessage">
+    <a-alert v-if="pageState.errorMessage" class="plans-error" type="error" show-icon :message="pageState.errorMessage">
       <template #action>
         <a-button size="small" @click="onRetryClick">重试</a-button>
       </template>
@@ -48,7 +48,7 @@
           <a-col :xs="24" :lg="8">
             <a-form-item label=" ">
               <a-space>
-                <a-button type="primary" :loading="plansStore.refreshing" @click="onSearchClick">查询</a-button>
+                <a-button type="primary" :loading="pageState.refreshing" @click="onSearchClick">查询</a-button>
                 <a-button @click="onResetClick">重置</a-button>
               </a-space>
             </a-form-item>
@@ -58,11 +58,11 @@
     </a-card>
 
     <a-card class="plans-card" :bordered="false">
-      <a-skeleton v-if="plansStore.loadingInitial && !plansStore.hasData" active :paragraph="{ rows: 6 }" />
+      <a-skeleton v-if="pageState.loadingInitial && !pageState.hasData" active :paragraph="{ rows: 6 }" />
       <template v-else>
         <a-table
           :columns="tableColumns"
-          :data-source="plansStore.records"
+          :data-source="pageState.records"
           :loading="tableLoading"
           :pagination="false"
           row-key="id"
@@ -87,7 +87,7 @@
             <template v-else-if="column.key === 'actions'">
               <a-space size="small">
                 <a-button type="link" size="small" @click="onOpenEditModal(record)">编辑</a-button>
-                <a-button type="link" size="small" :loading="plansStore.submitting" @click="onToggleStatus(record)">
+                <a-button type="link" size="small" :loading="pageState.submitting" @click="onToggleStatus(record)">
                   {{ record.status === 'ACTIVE' ? '停用' : '启用' }}
                 </a-button>
               </a-space>
@@ -97,9 +97,9 @@
 
         <div class="plans-pagination">
           <a-pagination
-            :current="plansStore.page"
-            :page-size="plansStore.pageSize"
-            :total="plansStore.total"
+            :current="pageState.page"
+            :page-size="pageState.pageSize"
+            :total="pageState.total"
             :show-total="(total: number) => `共 ${total} 条`"
             show-size-changer
             :page-size-options="['10', '20', '50']"
@@ -112,7 +112,7 @@
     <a-modal
       v-model:open="planModal.open"
       :title="planModal.mode === 'create' ? '新建套餐' : '编辑套餐'"
-      :confirm-loading="plansStore.submitting"
+      :confirm-loading="pageState.submitting"
       :width="760"
       @ok="onSubmitPlan"
     >
@@ -177,19 +177,41 @@
 import { computed, onMounted, reactive } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
-import type { AdminPlanItem, PlanBillingCycle, PlanStatus } from '../../api/admin/PlansApi'
-import { useAdminPlansStore } from '../../stores/admin/plans'
+import {
+  createAdminPlanApi,
+  getAdminPlanPageApi,
+  updateAdminPlanApi,
+  updateAdminPlanStatusApi,
+  type AdminPlanCreatePayload,
+  type AdminPlanItem,
+  type AdminPlanUpdatePayload,
+  type PlanBillingCycle,
+  type PlanStatus,
+} from '../../api/admin/PlansApi'
 
 type PlanModalMode = 'create' | 'edit'
 
-const plansStore = useAdminPlansStore()
+// 页面状态
+const pageState = reactive({
+  records: [] as AdminPlanItem[],
+  total: 0,
+  page: 1,
+  pageSize: 10,
+  loadingInitial: false,
+  refreshing: false,
+  submitting: false,
+  errorMessage: '',
+  hasData: computed(() => pageState.records.length > 0),
+})
 
+// 筛选条件
 const filters = reactive({
   keyword: '',
   billingCycle: '' as '' | PlanBillingCycle,
   status: '' as '' | PlanStatus,
 })
 
+// 套餐弹窗
 const planModal = reactive({
   open: false,
   mode: 'create' as PlanModalMode,
@@ -248,12 +270,18 @@ const statusFormOptions: Array<{ label: string; value: PlanStatus }> = [
   { label: '停用', value: 'INACTIVE' },
 ]
 
-const tableLoading = computed(() => plansStore.loadingInitial || plansStore.refreshing)
+const tableLoading = computed(() => pageState.loadingInitial || pageState.refreshing)
 
-const syncFiltersFromStore = () => {
-  filters.keyword = plansStore.keyword
-  filters.billingCycle = plansStore.billingCycle
-  filters.status = plansStore.status
+const formatDateTime = (value: string) => {
+  if (!value) return '--'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleString('zh-CN', { hour12: false })
+}
+
+const formatPrice = (price: number) => {
+  if (Number.isNaN(price)) return '--'
+  return (price / 100).toFixed(2)
 }
 
 const resetPlanForm = () => {
@@ -318,52 +346,66 @@ const validatePlanForm = () => {
   return true
 }
 
-const formatDateTime = (value: string) => {
-  if (!value) {
-    return '--'
-  }
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-  return date.toLocaleString('zh-CN', { hour12: false })
-}
+// 获取列表
+const fetchList = async (mode: 'initial' | 'refresh' = 'refresh') => {
+  pageState.errorMessage = ''
+  if (mode === 'initial') pageState.loadingInitial = true
+  if (mode === 'refresh') pageState.refreshing = true
 
-const formatPrice = (price: number) => {
-  if (Number.isNaN(price)) {
-    return '--'
+  try {
+    const data = await getAdminPlanPageApi({
+      page: pageState.page,
+      pageSize: pageState.pageSize,
+      keyword: filters.keyword || undefined,
+      billingCycle: filters.billingCycle || undefined,
+      status: filters.status || undefined,
+    })
+    pageState.records = data.records
+    pageState.total = data.total
+    pageState.page = data.page
+    pageState.pageSize = data.pageSize
+
+    // 自动翻页处理
+    if (pageState.total > 0 && pageState.records.length === 0 && pageState.page > 1) {
+      pageState.page -= 1
+      await fetchList('refresh')
+    }
+  } catch (error) {
+    pageState.errorMessage = error instanceof Error ? error.message : '套餐列表加载失败，请稍后重试'
+  } finally {
+    pageState.loadingInitial = false
+    pageState.refreshing = false
   }
-  return (price / 100).toFixed(2)
 }
 
 const onRefreshClick = async () => {
-  await plansStore.fetchList('refresh')
-  if (!plansStore.errorMessage) {
+  await fetchList('refresh')
+  if (!pageState.errorMessage) {
     message.success('套餐列表已刷新')
   }
 }
 
 const onRetryClick = async () => {
-  await plansStore.fetchList('refresh')
+  await fetchList('refresh')
 }
 
 const onSearchClick = async () => {
-  plansStore.setFilters({
-    keyword: filters.keyword.trim(),
-    billingCycle: filters.billingCycle,
-    status: filters.status,
-  })
-  await plansStore.searchWithCurrentFilters()
+  pageState.page = 1
+  await fetchList('refresh')
 }
 
 const onResetClick = async () => {
-  plansStore.resetFilters()
-  syncFiltersFromStore()
-  await plansStore.fetchList('refresh')
+  filters.keyword = ''
+  filters.billingCycle = ''
+  filters.status = ''
+  pageState.page = 1
+  await fetchList('refresh')
 }
 
 const onPageChange = async (page: number, pageSize: number) => {
-  await plansStore.changePage(page, pageSize)
+  pageState.page = page
+  if (pageSize > 0) pageState.pageSize = pageSize
+  await fetchList('refresh')
 }
 
 const onOpenCreateModal = () => {
@@ -386,11 +428,10 @@ const onOpenEditModal = (record: AdminPlanItem) => {
 }
 
 const onSubmitPlan = async () => {
-  if (!validatePlanForm()) {
-    return
-  }
+  if (!validatePlanForm()) return
 
   try {
+    pageState.submitting = true
     const normalizedCode = normalizeCode(planModal.form.code)
     const payload = {
       name: planModal.form.name.trim(),
@@ -399,31 +440,28 @@ const onSubmitPlan = async () => {
       price: planModal.form.price,
       status: planModal.form.status,
     }
+
     if (planModal.mode === 'create') {
-      await plansStore.createPlan({
-        code: normalizedCode,
-        ...payload,
-      })
+      await createAdminPlanApi({ code: normalizedCode, ...payload })
       message.success('套餐创建成功')
     } else {
-      await plansStore.updatePlan(planModal.editingId, payload)
+      await updateAdminPlanApi(planModal.editingId, payload)
       message.success('套餐更新成功')
     }
 
     planModal.open = false
-    await plansStore.fetchList('refresh')
+    await fetchList('refresh')
   } catch (error) {
-    if (error instanceof Error) {
-      message.error(error.message)
-    } else {
-      message.error('提交失败，请稍后重试')
-    }
+    message.error(error instanceof Error ? error.message : '提交失败，请稍后重试')
+  } finally {
+    pageState.submitting = false
   }
 }
 
 const onToggleStatus = (record: AdminPlanItem) => {
   const targetStatus: PlanStatus = record.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
   const actionText = targetStatus === 'ACTIVE' ? '启用' : '停用'
+
   Modal.confirm({
     title: `确认${actionText}该套餐？`,
     content: `套餐：${record.code} / ${record.name}`,
@@ -431,23 +469,18 @@ const onToggleStatus = (record: AdminPlanItem) => {
     cancelText: '取消',
     async onOk() {
       try {
-        await plansStore.updatePlanStatus(record.id, targetStatus)
-        await plansStore.fetchList('refresh')
+        await updateAdminPlanStatusApi(record.id, targetStatus)
+        await fetchList('refresh')
         message.success(`套餐已${actionText}`)
       } catch (error) {
-        if (error instanceof Error) {
-          message.error(error.message)
-        } else {
-          message.error('状态更新失败，请稍后重试')
-        }
+        message.error(error instanceof Error ? error.message : '状态更新失败，请稍后重试')
       }
     },
   })
 }
 
-onMounted(async () => {
-  await plansStore.initialize()
-  syncFiltersFromStore()
+onMounted(() => {
+  void fetchList('initial')
 })
 </script>
 

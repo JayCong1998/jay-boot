@@ -1,10 +1,8 @@
 import { defineStore } from 'pinia'
 import { loginApi, logoutApi, meApi, registerApi, type AuthSession, type AuthUser, type LoginPayload, type RegisterPayload } from '../../api/admin/AuthApi'
+import { getToken, setToken, clearToken } from '../tokenStore'
 
-const TOKEN_STORAGE_KEY = 'jay_boot_auth_token'
 const USER_STORAGE_KEY = 'jay_boot_auth_user'
-
-const readStorageToken = (): string => localStorage.getItem(TOKEN_STORAGE_KEY) ?? ''
 
 const readStorageUser = (): AuthUser | null => {
   const raw = localStorage.getItem(USER_STORAGE_KEY)
@@ -18,17 +16,15 @@ const readStorageUser = (): AuthUser | null => {
   }
 }
 
-const writeStorageSession = (session: AuthSession) => {
-  localStorage.setItem(TOKEN_STORAGE_KEY, session.token)
-  localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(session.user))
+const writeStorageUser = (user: AuthUser) => {
+  localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user))
 }
 
-const clearStorageSession = () => {
-  localStorage.removeItem(TOKEN_STORAGE_KEY)
+const clearStorageUser = () => {
   localStorage.removeItem(USER_STORAGE_KEY)
 }
 
-export const hasStorageSession = () => Boolean(readStorageToken())
+export const hasStorageSession = () => Boolean(getToken())
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -55,19 +51,21 @@ export const useAuthStore = defineStore('auth', {
     setSession(session: AuthSession) {
       this.token = session.token
       this.user = session.user
-      writeStorageSession(session)
+      setToken(session.token)
+      writeStorageUser(session.user)
     },
     clearSession() {
       this.token = ''
       this.user = null
-      clearStorageSession()
+      clearToken()
+      clearStorageUser()
     },
     async hydrate() {
       if (this.hydrated) {
         return
       }
       this.hydrated = true
-      this.token = readStorageToken()
+      this.token = getToken()
       this.user = readStorageUser()
 
       if (!this.token) {
@@ -78,9 +76,9 @@ export const useAuthStore = defineStore('auth', {
       }
 
       try {
-        const user = await meApi(this.token)
+        const user = await meApi()
         this.user = user
-        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user))
+        writeStorageUser(user)
       } catch {
         this.clearSession()
       }
@@ -96,13 +94,9 @@ export const useAuthStore = defineStore('auth', {
       return session
     },
     async logout() {
-      const currentToken = this.token
       this.clearSession()
-      if (!currentToken) {
-        return
-      }
       try {
-        await logoutApi(currentToken)
+        await logoutApi()
       } catch {
         // Mock 场景下退出失败不阻断前端登出流程
       }

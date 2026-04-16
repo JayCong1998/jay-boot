@@ -2,6 +2,7 @@ import { message } from 'ant-design-vue'
 
 import { apiConfig } from './api'
 import { dispatchAuthExpired } from './authEventHandler'
+import { getToken } from '../stores/tokenStore'
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT'
 
@@ -13,7 +14,6 @@ interface ApiEnvelope<T> {
 }
 
 interface RequestOptions {
-  token?: string
   payload?: Record<string, unknown>
 }
 
@@ -59,7 +59,7 @@ export const request = async <T>(
   url: string,
   options: RequestOptions = {},
 ): Promise<T> => {
-  const { payload, token } = options
+  const { payload } = options
   const requestUrl = method === 'GET' ? appendQuery(resolveUrl(url), payload) : resolveUrl(url)
   const headers: Record<string, string> = {}
 
@@ -67,6 +67,8 @@ export const request = async <T>(
     headers['Content-Type'] = 'application/json'
   }
 
+  // 自动从 tokenStore 获取 token
+  const token = getToken()
   if (token) {
     headers.Authorization = token
   }

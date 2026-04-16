@@ -8,6 +8,7 @@ import com.jaycong.boot.modules.auth.dto.SiteLoginRequest;
 import com.jaycong.boot.modules.auth.dto.SiteLogoutRequest;
 import com.jaycong.boot.modules.auth.dto.SiteRegisterRequest;
 import com.jaycong.boot.modules.auth.service.AuthService;
+import com.jaycong.boot.modules.ratelimit.annotation.RateLimit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,6 +51,8 @@ public class AuthController {
      * 用户登录并返回会话信息。
      */
     @Operation(summary = "用户登录")
+    @RateLimit(qps = 5, burst = 10, dimension = RateLimit.Dimension.IP,
+               message = "登录请求过于频繁，请稍后再试")
     @PostMapping("/login")
     public ApiResponse<SiteAuthSessionResponse> login(@Valid @RequestBody SiteLoginRequest request,
                                                       HttpServletRequest httpRequest) {

@@ -53,44 +53,44 @@ interface AdminPlanStatusPayload extends Record<string, unknown> {
 /**
  * 获取套餐分页列表
  * 功能描述：按分页和筛选条件查询管理端套餐列表
- * 入参：token、分页参数、筛选参数
+ * 入参：分页参数、筛选参数
  * 返回参数：分页结果
  * url地址：/api/admin/plans
  * 请求方式：GET
  */
-export const getAdminPlanPageApi = (token: string, params: AdminPlanPageParams) =>
-  get<AdminPlanPageResponse>('/api/admin/plans', params, token)
+export const getAdminPlanPageApi = (params: AdminPlanPageParams) =>
+  get<AdminPlanPageResponse>('/api/admin/plans', params)
 
 /**
  * 创建套餐
  * 功能描述：创建新的套餐定义
- * 入参：token、套餐创建参数
+ * 入参：套餐创建参数
  * 返回参数：空
  * url地址：/api/admin/plans
  * 请求方式：POST
  */
-export const createAdminPlanApi = (token: string, payload: AdminPlanCreatePayload) =>
-  post<null>('/api/admin/plans', payload, token)
+export const createAdminPlanApi = (payload: AdminPlanCreatePayload) =>
+  post<null>('/api/admin/plans', payload)
 
 /**
  * 更新套餐
  * 功能描述：更新指定套餐信息
- * 入参：token、套餐ID、更新参数
+ * 入参：套餐ID、更新参数
  * 返回参数：空
  * url地址：/api/admin/plans/{id}
  * 请求方式：POST
  */
-export const updateAdminPlanApi = (token: string, id: string, payload: AdminPlanUpdatePayload) =>
-  post<null>(`/api/admin/plans/${id}`, payload, token)
+export const updateAdminPlanApi = (id: string, payload: AdminPlanUpdatePayload) =>
+  post<null>(`/api/admin/plans/${id}`, payload)
 
 /**
  * 更新套餐状态
  * 功能描述：启用或停用指定套餐
- * 入参：token、套餐ID、目标状态
+ * 入参：套餐ID、目标状态
  * 返回参数：空
  * url地址：/api/admin/plans/{id}/status
  * 请求方式：POST
  */
-export const updateAdminPlanStatusApi = (token: string, id: string, status: PlanStatus) =>
-  post<null>(`/api/admin/plans/${id}/status`, { status } as AdminPlanStatusPayload, token)
+export const updateAdminPlanStatusApi = (id: string, status: PlanStatus) =>
+  post<null>(`/api/admin/plans/${id}/status`, { status } as AdminPlanStatusPayload)
 

@@ -6,7 +6,7 @@
         <p class="log-subtitle">查看系统所有接口请求记录，支持筛选检索与详情查看。</p>
       </div>
       <div class="log-toolbar__actions">
-        <a-button :loading="logStore.refreshing" @click="onRefreshClick">
+        <a-button :loading="pageState.refreshing" @click="onRefreshClick">
           <template #icon>
             <ReloadOutlined />
           </template>
@@ -15,7 +15,7 @@
       </div>
     </header>
 
-    <a-alert v-if="logStore.errorMessage" class="log-error" type="error" show-icon :message="logStore.errorMessage">
+    <a-alert v-if="pageState.errorMessage" class="log-error" type="error" show-icon :message="pageState.errorMessage">
       <template #action>
         <a-button size="small" @click="onRetryClick">重试</a-button>
       </template>
@@ -47,7 +47,7 @@
           <a-col :xs="24" :lg="8">
             <a-form-item label=" ">
               <a-space>
-                <a-button type="primary" :loading="logStore.refreshing" @click="onSearchClick">查询</a-button>
+                <a-button type="primary" :loading="pageState.refreshing" @click="onSearchClick">查询</a-button>
                 <a-button @click="onResetClick">重置</a-button>
               </a-space>
             </a-form-item>
@@ -57,11 +57,11 @@
     </a-card>
 
     <a-card class="log-card" :bordered="false">
-      <a-skeleton v-if="logStore.loadingInitial && !logStore.hasData" active :paragraph="{ rows: 6 }" />
+      <a-skeleton v-if="pageState.loadingInitial && !pageState.hasData" active :paragraph="{ rows: 6 }" />
       <template v-else>
         <a-table
           :columns="tableColumns"
-          :data-source="logStore.records"
+          :data-source="pageState.records"
           :loading="tableLoading"
           :pagination="false"
           row-key="id"
@@ -100,9 +100,9 @@
 
         <div class="log-pagination">
           <a-pagination
-            :current="logStore.page"
-            :page-size="logStore.pageSize"
-            :total="logStore.total"
+            :current="pageState.page"
+            :page-size="pageState.pageSize"
+            :total="pageState.total"
             :show-total="(total: number) => `共 ${total} 条`"
             show-size-changer
             :page-size-options="['20', '50', '100']"
@@ -137,17 +137,33 @@
 import { computed, onMounted, reactive } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
-import type { RequestLogItem } from '../../api/admin/LogApi'
-import { useRequestLogStore } from '../../stores/admin/requestLog'
+import {
+  getRequestLogPageApi,
+  deleteRequestLogApi,
+  type RequestLogItem,
+  type RequestLogPageParams,
+} from '../../api/admin/LogApi'
 
-const logStore = useRequestLogStore()
+// 页面状态
+const pageState = reactive({
+  records: [] as RequestLogItem[],
+  total: 0,
+  page: 1,
+  pageSize: 20,
+  loadingInitial: false,
+  refreshing: false,
+  errorMessage: '',
+  hasData: computed(() => pageState.records.length > 0),
+})
 
+// 筛选条件
 const filters = reactive({
   keyword: '',
   method: '' as '' | 'GET' | 'POST' | 'PUT' | 'DELETE',
   statusCode: null as number | null,
 })
 
+// 详情弹窗
 const detailModal = reactive({
   open: false,
   data: null as RequestLogItem | null,
@@ -172,7 +188,7 @@ const methodOptions = [
   { label: 'DELETE', value: 'DELETE' },
 ]
 
-const tableLoading = computed(() => logStore.loadingInitial || logStore.refreshing)
+const tableLoading = computed(() => pageState.loadingInitial || pageState.refreshing)
 
 const getMethodColor = (method: string) => {
   const colors: Record<string, string> = {
@@ -207,39 +223,68 @@ const formatJson = (value: string | null | undefined) => {
   }
 }
 
+// 获取列表
+const fetchList = async (mode: 'initial' | 'refresh' = 'refresh') => {
+  pageState.errorMessage = ''
+  if (mode === 'initial') pageState.loadingInitial = true
+  if (mode === 'refresh') pageState.refreshing = true
+
+  try {
+    const params: RequestLogPageParams = {
+      page: pageState.page,
+      pageSize: pageState.pageSize,
+    }
+    if (filters.keyword) params.keyword = filters.keyword
+    if (filters.method) params.method = filters.method
+    if (filters.statusCode !== null) params.statusCode = filters.statusCode
+
+    const data = await getRequestLogPageApi(params)
+    pageState.records = data.records
+    pageState.total = data.total
+    pageState.page = data.page
+    pageState.pageSize = data.pageSize
+
+    // 自动翻页处理
+    if (pageState.total > 0 && pageState.records.length === 0 && pageState.page > 1) {
+      pageState.page -= 1
+      await fetchList('refresh')
+    }
+  } catch (error) {
+    pageState.errorMessage = error instanceof Error ? error.message : '请求日志加载失败，请稍后重试'
+  } finally {
+    pageState.loadingInitial = false
+    pageState.refreshing = false
+  }
+}
+
 const onRefreshClick = async () => {
-  await logStore.fetchList('refresh')
-  if (!logStore.errorMessage) {
+  await fetchList('refresh')
+  if (!pageState.errorMessage) {
     message.success('请求日志已刷新')
   }
 }
 
 const onRetryClick = async () => {
-  await logStore.fetchList('refresh')
+  await fetchList('refresh')
 }
 
 const onSearchClick = async () => {
-  logStore.setFilters({
-    keyword: filters.keyword.trim(),
-    method: filters.method,
-    statusCode: filters.statusCode,
-    userId: '',
-    startTime: '',
-    endTime: '',
-  })
-  await logStore.searchWithCurrentFilters()
+  pageState.page = 1
+  await fetchList('refresh')
 }
 
 const onResetClick = async () => {
   filters.keyword = ''
   filters.method = ''
   filters.statusCode = null
-  logStore.resetFilters()
-  await logStore.fetchList('refresh')
+  pageState.page = 1
+  await fetchList('refresh')
 }
 
 const onPageChange = async (page: number, pageSize: number) => {
-  await logStore.changePage(page, pageSize)
+  pageState.page = page
+  if (pageSize > 0) pageState.pageSize = pageSize
+  await fetchList('refresh')
 }
 
 const onViewDetail = (record: RequestLogItem) => {
@@ -255,22 +300,18 @@ const onDeleteOne = (record: RequestLogItem) => {
     cancelText: '取消',
     async onOk() {
       try {
-        await logStore.deleteOne(record.id)
-        await logStore.fetchList('refresh')
+        await deleteRequestLogApi(record.id)
+        await fetchList('refresh')
         message.success('删除成功')
       } catch (error) {
-        if (error instanceof Error) {
-          message.error(error.message)
-        } else {
-          message.error('删除失败，请稍后重试')
-        }
+        message.error(error instanceof Error ? error.message : '删除失败，请稍后重试')
       }
     },
   })
 }
 
-onMounted(async () => {
-  await logStore.initialize()
+onMounted(() => {
+  void fetchList('initial')
 })
 </script>
 

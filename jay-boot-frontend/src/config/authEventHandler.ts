@@ -1,13 +1,6 @@
 import { message } from 'ant-design-vue'
 import type { Router } from 'vue-router'
-
-/**
- * 认证相关存储键常量
- */
-const ADMIN_TOKEN_KEY = 'jay_boot_auth_token'
-const ADMIN_USER_KEY = 'jay_boot_auth_user'
-const USER_TOKEN_KEY = 'jay_boot_user_auth_token'
-const USER_USER_KEY = 'jay_boot_user_auth_user'
+import { clearToken } from '../stores/tokenStore'
 
 /**
  * 认证过期事件名称
@@ -29,19 +22,15 @@ const isAdminPath = (): boolean => {
 }
 
 /**
- * 清除 admin 端认证信息
+ * 清除认证信息
+ * 同时清除可能存在的旧版本存储键
  */
-const clearAdminSession = (): void => {
-  localStorage.removeItem(ADMIN_TOKEN_KEY)
-  localStorage.removeItem(ADMIN_USER_KEY)
-}
-
-/**
- * 清除 user 端认证信息
- */
-const clearUserSession = (): void => {
-  localStorage.removeItem(USER_TOKEN_KEY)
-  localStorage.removeItem(USER_USER_KEY)
+const clearAuthSession = (): void => {
+  clearToken()
+  // 当前使用的用户存储键
+  localStorage.removeItem('jay_boot_auth_user')
+  // 清除旧版本存储键（兼容历史数据）
+  localStorage.removeItem('jay_boot_user_auth_user')
 }
 
 /**
@@ -80,12 +69,8 @@ const handleAuthExpired = (router: Router): void => {
   try {
     const isAdmin = isAdminPath()
     
-    // 清除对应端的认证信息
-    if (isAdmin) {
-      clearAdminSession()
-    } else {
-      clearUserSession()
-    }
+    // 清除认证信息
+    clearAuthSession()
 
     // 提示用户
     message.warning('登录已过期，请重新登录')

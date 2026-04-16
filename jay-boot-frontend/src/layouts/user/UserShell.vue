@@ -5,8 +5,7 @@
         <RouterLink class="brand" to="/user/home">
           <span class="brand-logo">JC</span>
           <span class="brand-text">
-            <strong>JayBoot Creator</strong>
-            <small>用户端体验骨架</small>
+            <strong>JayBoot</strong>
           </span>
         </RouterLink>
 
@@ -50,8 +49,7 @@
 
     <footer class="site-footer">
       <div class="shell site-footer__inner">
-        <span>© 2026 JayBoot Creator</span>
-        <span>Vue 用户端骨架（映射 product_ui）</span>
+        <span>© 2026 JayBoot</span>
       </div>
     </footer>
   </div>
@@ -71,7 +69,7 @@ const navItems = [
   // { path: '/user/features', label: '功能' },
   { path: '/user/pricing', label: '定价' },
   { path: '/user/workspace', label: '工作台' },
-  // { path: '/user/history', label: '历史' },
+  { path: '/user/history', label: '历史' },
   // { path: '/user/subscription', label: '订阅' },
   // { path: '/user/help', label: '帮助' },
 ]

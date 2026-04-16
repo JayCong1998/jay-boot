@@ -6,7 +6,7 @@
         <p class="user-subtitle">统一管理管理端账户，支持筛选检索、创建、编辑、启用/禁用与密码重置。</p>
       </div>
       <div class="user-toolbar__actions">
-        <a-button :loading="userStore.refreshing" @click="onRefreshClick">
+        <a-button :loading="pageState.refreshing" @click="onRefreshClick">
           <template #icon>
             <ReloadOutlined />
           </template>
@@ -16,7 +16,7 @@
       </div>
     </header>
 
-    <a-alert v-if="userStore.errorMessage" class="user-error" type="error" show-icon :message="userStore.errorMessage">
+    <a-alert v-if="pageState.errorMessage" class="user-error" type="error" show-icon :message="pageState.errorMessage">
       <template #action>
         <a-button size="small" @click="onRetryClick">重试</a-button>
       </template>
@@ -48,7 +48,7 @@
           <a-col :xs="24" :lg="8">
             <a-form-item label=" ">
               <a-space>
-                <a-button type="primary" :loading="userStore.refreshing" @click="onSearchClick">查询</a-button>
+                <a-button type="primary" :loading="pageState.refreshing" @click="onSearchClick">查询</a-button>
                 <a-button @click="onResetClick">重置</a-button>
               </a-space>
             </a-form-item>
@@ -58,11 +58,11 @@
     </a-card>
 
     <a-card class="user-card" :bordered="false">
-      <a-skeleton v-if="userStore.loadingInitial && !userStore.hasData" active :paragraph="{ rows: 6 }" />
+      <a-skeleton v-if="pageState.loadingInitial && !pageState.hasData" active :paragraph="{ rows: 6 }" />
       <template v-else>
         <a-table
           :columns="tableColumns"
-          :data-source="userStore.records"
+          :data-source="pageState.records"
           :loading="tableLoading"
           :pagination="false"
           row-key="id"
@@ -86,7 +86,7 @@
             <template v-else-if="column.key === 'actions'">
               <a-space size="small">
                 <a-button type="link" size="small" @click="onOpenEditModal(record)">编辑</a-button>
-                <a-button type="link" size="small" :loading="userStore.submitting" @click="onToggleStatus(record)">
+                <a-button type="link" size="small" :loading="pageState.submitting" @click="onToggleStatus(record)">
                   {{ record.status === 'ACTIVE' ? '禁用' : '启用' }}
                 </a-button>
                 <a-button type="link" size="small" @click="onOpenPasswordModal(record)">重置密码</a-button>
@@ -97,9 +97,9 @@
 
         <div class="user-pagination">
           <a-pagination
-            :current="userStore.page"
-            :page-size="userStore.pageSize"
-            :total="userStore.total"
+            :current="pageState.page"
+            :page-size="pageState.pageSize"
+            :total="pageState.total"
             :show-total="(total: number) => `共 ${total} 条`"
             show-size-changer
             :page-size-options="['10', '20', '50']"
@@ -112,7 +112,7 @@
     <a-modal
       v-model:open="userModal.open"
       :title="userModal.mode === 'create' ? '新建用户' : '编辑用户'"
-      :confirm-loading="userStore.submitting"
+      :confirm-loading="pageState.submitting"
       @ok="onSubmitUser"
     >
       <a-form layout="vertical">
@@ -138,7 +138,7 @@
       </a-form>
     </a-modal>
 
-    <a-modal v-model:open="passwordModal.open" title="重置密码" :confirm-loading="userStore.submitting" @ok="onSubmitPassword">
+    <a-modal v-model:open="passwordModal.open" title="重置密码" :confirm-loading="pageState.submitting" @ok="onSubmitPassword">
       <a-form layout="vertical">
         <a-form-item label="用户">
           <a-input :value="passwordModal.username" disabled />
@@ -159,19 +159,42 @@
 import { computed, onMounted, reactive } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
-import type { AdminUserItem, AdminUserRole, AdminUserStatus } from '../../api/admin/UserApi'
-import { useAdminUserManagementStore } from '../../stores/admin/userManagement'
+import {
+  createAdminUserApi,
+  getAdminUserPageApi,
+  resetAdminUserPasswordApi,
+  updateAdminUserApi,
+  updateAdminUserStatusApi,
+  type AdminUserCreatePayload,
+  type AdminUserItem,
+  type AdminUserRole,
+  type AdminUserStatus,
+  type AdminUserUpdatePayload,
+} from '../../api/admin/UserApi'
 
 type UserModalMode = 'create' | 'edit'
 
-const userStore = useAdminUserManagementStore()
+// 页面状态
+const pageState = reactive({
+  records: [] as AdminUserItem[],
+  total: 0,
+  page: 1,
+  pageSize: 10,
+  loadingInitial: false,
+  refreshing: false,
+  submitting: false,
+  errorMessage: '',
+  hasData: computed(() => pageState.records.length > 0),
+})
 
+// 筛选条件
 const filters = reactive({
   keyword: '',
   role: '' as '' | AdminUserRole,
   status: '' as '' | AdminUserStatus,
 })
 
+// 用户弹窗
 const userModal = reactive({
   open: false,
   mode: 'create' as UserModalMode,
@@ -185,6 +208,7 @@ const userModal = reactive({
   },
 })
 
+// 密码弹窗
 const passwordModal = reactive({
   open: false,
   userId: '',
@@ -233,12 +257,15 @@ const statusFormOptions: Array<{ label: string; value: AdminUserStatus }> = [
   { label: '禁用', value: 'INACTIVE' },
 ]
 
-const tableLoading = computed(() => userStore.loadingInitial || userStore.refreshing)
+const tableLoading = computed(() => pageState.loadingInitial || pageState.refreshing)
 
-const syncFiltersFromStore = () => {
-  filters.keyword = userStore.keyword
-  filters.role = userStore.role
-  filters.status = userStore.status
+const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+const formatDateTime = (value: string) => {
+  if (!value) return '--'
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toLocaleString('zh-CN', { hour12: false })
 }
 
 const resetUserForm = () => {
@@ -248,8 +275,6 @@ const resetUserForm = () => {
   userModal.form.status = 'ACTIVE'
   userModal.form.password = ''
 }
-
-const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
 const validateUserForm = () => {
   const username = userModal.form.username.trim()
@@ -273,45 +298,66 @@ const validateUserForm = () => {
   return true
 }
 
-const formatDateTime = (value: string) => {
-  if (!value) {
-    return '--'
+// 获取列表
+const fetchList = async (mode: 'initial' | 'refresh' = 'refresh') => {
+  pageState.errorMessage = ''
+  if (mode === 'initial') pageState.loadingInitial = true
+  if (mode === 'refresh') pageState.refreshing = true
+
+  try {
+    const data = await getAdminUserPageApi({
+      page: pageState.page,
+      pageSize: pageState.pageSize,
+      keyword: filters.keyword || undefined,
+      role: filters.role || undefined,
+      status: filters.status || undefined,
+    })
+    pageState.records = data.records
+    pageState.total = data.total
+    pageState.page = data.page
+    pageState.pageSize = data.pageSize
+
+    // 自动翻页处理
+    if (pageState.total > 0 && pageState.records.length === 0 && pageState.page > 1) {
+      pageState.page -= 1
+      await fetchList('refresh')
+    }
+  } catch (error) {
+    pageState.errorMessage = error instanceof Error ? error.message : '用户列表加载失败，请稍后重试'
+  } finally {
+    pageState.loadingInitial = false
+    pageState.refreshing = false
   }
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    return value
-  }
-  return date.toLocaleString('zh-CN', { hour12: false })
 }
 
 const onRefreshClick = async () => {
-  await userStore.fetchList('refresh')
-  if (!userStore.errorMessage) {
+  await fetchList('refresh')
+  if (!pageState.errorMessage) {
     message.success('用户列表已刷新')
   }
 }
 
 const onRetryClick = async () => {
-  await userStore.fetchList('refresh')
+  await fetchList('refresh')
 }
 
 const onSearchClick = async () => {
-  userStore.setFilters({
-    keyword: filters.keyword.trim(),
-    role: filters.role,
-    status: filters.status,
-  })
-  await userStore.searchWithCurrentFilters()
+  pageState.page = 1
+  await fetchList('refresh')
 }
 
 const onResetClick = async () => {
-  userStore.resetFilters()
-  syncFiltersFromStore()
-  await userStore.fetchList('refresh')
+  filters.keyword = ''
+  filters.role = ''
+  filters.status = ''
+  pageState.page = 1
+  await fetchList('refresh')
 }
 
 const onPageChange = async (page: number, pageSize: number) => {
-  await userStore.changePage(page, pageSize)
+  pageState.page = page
+  if (pageSize > 0) pageState.pageSize = pageSize
+  await fetchList('refresh')
 }
 
 const onOpenCreateModal = () => {
@@ -333,13 +379,12 @@ const onOpenEditModal = (record: AdminUserItem) => {
 }
 
 const onSubmitUser = async () => {
-  if (!validateUserForm()) {
-    return
-  }
+  if (!validateUserForm()) return
 
   try {
+    pageState.submitting = true
     if (userModal.mode === 'create') {
-      await userStore.createUser({
+      await createAdminUserApi({
         username: userModal.form.username.trim(),
         email: userModal.form.email.trim(),
         role: userModal.form.role,
@@ -348,7 +393,7 @@ const onSubmitUser = async () => {
       })
       message.success('用户创建成功')
     } else {
-      await userStore.updateUser(userModal.editingId, {
+      await updateAdminUserApi(userModal.editingId, {
         username: userModal.form.username.trim(),
         email: userModal.form.email.trim(),
         role: userModal.form.role,
@@ -357,13 +402,11 @@ const onSubmitUser = async () => {
       message.success('用户信息已更新')
     }
     userModal.open = false
-    await userStore.fetchList('refresh')
+    await fetchList('refresh')
   } catch (error) {
-    if (error instanceof Error) {
-      message.error(error.message)
-    } else {
-      message.error('提交失败，请稍后重试')
-    }
+    message.error(error instanceof Error ? error.message : '提交失败，请稍后重试')
+  } finally {
+    pageState.submitting = false
   }
 }
 
@@ -378,15 +421,11 @@ const onToggleStatus = (record: AdminUserItem) => {
     cancelText: '取消',
     async onOk() {
       try {
-        await userStore.updateUserStatus(record.id, nextStatus)
-        await userStore.fetchList('refresh')
+        await updateAdminUserStatusApi(record.id, nextStatus)
+        await fetchList('refresh')
         message.success(`用户已${nextText}`)
       } catch (error) {
-        if (error instanceof Error) {
-          message.error(error.message)
-        } else {
-          message.error('状态更新失败，请稍后重试')
-        }
+        message.error(error instanceof Error ? error.message : '状态更新失败，请稍后重试')
       }
     },
   })
@@ -407,21 +446,19 @@ const onSubmitPassword = async () => {
   }
 
   try {
-    await userStore.resetUserPassword(passwordModal.userId, password)
+    pageState.submitting = true
+    await resetAdminUserPasswordApi(passwordModal.userId, password)
     passwordModal.open = false
     message.success('密码重置成功')
   } catch (error) {
-    if (error instanceof Error) {
-      message.error(error.message)
-    } else {
-      message.error('密码重置失败，请稍后重试')
-    }
+    message.error(error instanceof Error ? error.message : '密码重置失败，请稍后重试')
+  } finally {
+    pageState.submitting = false
   }
 }
 
-onMounted(async () => {
-  await userStore.initialize()
-  syncFiltersFromStore()
+onMounted(() => {
+  void fetchList('initial')
 })
 </script>
 

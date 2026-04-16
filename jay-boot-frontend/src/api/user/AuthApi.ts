@@ -48,19 +48,19 @@ export const userLoginApi = (payload: UserLoginPayload) =>
 /**
  * 获取当前用户
  * 功能描述：根据 token 获取当前登录用户信息
- * 入参：token
+ * 入参：无
  * 返回参数：当前用户信息
  * url地址：/api/user/auth/me
  * 请求方式：GET
  */
-export const userMeApi = (token: string) => get<UserAuthUser>('/api/user/auth/me', undefined, token)
+export const userMeApi = () => get<UserAuthUser>('/api/user/auth/me')
 
 /**
  * 退出登录
  * 功能描述：清理用户端登录状态
- * 入参：token
+ * 入参：无
  * 返回参数：空
  * url地址：/api/user/auth/logout
  * 请求方式：POST
  */
-export const userLogoutApi = (token: string) => post<null>('/api/user/auth/logout', undefined, token)
+export const userLogoutApi = () => post<null>('/api/user/auth/logout')

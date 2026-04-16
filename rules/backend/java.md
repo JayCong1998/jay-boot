@@ -72,7 +72,6 @@ public class UserEntity extends BaseEntity {
 
 - 必须继承 `BaseEntity`（包含 creator、updater、createdTime、updatedTime、isDeleted）
 - 使用 `@TableId(type = IdType.ASSIGN_ID)` 生成雪花算法 ID
-- 多租户表必须包含 `tenant_id` 字段
 - 逻辑删除使用 `@TableLogic` 注解（在 BaseEntity 中已定义）
 
 ### 4.2 数据访问层（Mapper）规范
@@ -248,13 +247,13 @@ public record ApiResponse<T>(int code, String message, T data) {
 
 **响应码规范：**
 
-- `0`：成功
-- `400`：BAD\_REQUEST（参数错误）
+- `200`：SUCCESS(成功)
+- `400`：BAD_REQUEST（参数错误）
 - `401`：UNAUTHORIZED（未登录/ token 失效）
 - `403`：FORBIDDEN（无权限）
-- `404`：NOT\_FOUND（资源不存在）
+- `404`：NOT_FOUND（资源不存在）
 - `409`：CONFLICT（资源冲突）
-- `500`：INTERNAL\_ERROR（服务器内部错误）
+- `500`：INTERNAL_ERROR（服务器内部错误）
 
 ### 6.2 业务异常（BusinessException）
 

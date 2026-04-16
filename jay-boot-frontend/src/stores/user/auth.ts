@@ -10,11 +10,9 @@ import {
   type UserLoginPayload,
   type UserRegisterPayload,
 } from '../../api/user/AuthApi'
+import { getToken, setToken, clearToken } from '../tokenStore'
 
-const USER_TOKEN_STORAGE_KEY = 'jay_boot_user_auth_token'
-const USER_INFO_STORAGE_KEY = 'jay_boot_user_auth_user'
-
-const readStorageToken = (): string => localStorage.getItem(USER_TOKEN_STORAGE_KEY) ?? ''
+const USER_INFO_STORAGE_KEY = 'jay_boot_auth_user'
 
 const readStorageUser = (): UserAuthUser | null => {
   const raw = localStorage.getItem(USER_INFO_STORAGE_KEY)
@@ -28,17 +26,15 @@ const readStorageUser = (): UserAuthUser | null => {
   }
 }
 
-const writeStorageSession = (session: UserAuthSession) => {
-  localStorage.setItem(USER_TOKEN_STORAGE_KEY, session.token)
-  localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(session.user))
+const writeStorageUser = (user: UserAuthUser) => {
+  localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(user))
 }
 
-const clearStorageSession = () => {
-  localStorage.removeItem(USER_TOKEN_STORAGE_KEY)
+const clearStorageUser = () => {
   localStorage.removeItem(USER_INFO_STORAGE_KEY)
 }
 
-export const hasUserStorageSession = () => Boolean(readStorageToken())
+export const hasUserStorageSession = () => Boolean(getToken())
 
 export const useUserAuthStore = defineStore('user-auth', () => {
   const token = ref('')
@@ -51,13 +47,15 @@ export const useUserAuthStore = defineStore('user-auth', () => {
   const setSession = (session: UserAuthSession) => {
     token.value = session.token
     user.value = session.user
-    writeStorageSession(session)
+    setToken(session.token)
+    writeStorageUser(session.user)
   }
 
   const clearSession = () => {
     token.value = ''
     user.value = null
-    clearStorageSession()
+    clearToken()
+    clearStorageUser()
   }
 
   const hydrate = async () => {
@@ -65,7 +63,7 @@ export const useUserAuthStore = defineStore('user-auth', () => {
       return
     }
     hydrated.value = true
-    token.value = readStorageToken()
+    token.value = getToken()
     user.value = readStorageUser()
 
     if (!token.value || user.value) {
@@ -73,9 +71,9 @@ export const useUserAuthStore = defineStore('user-auth', () => {
     }
 
     try {
-      const profile = await userMeApi(token.value)
+      const profile = await userMeApi()
       user.value = profile
-      localStorage.setItem(USER_INFO_STORAGE_KEY, JSON.stringify(profile))
+      writeStorageUser(profile)
     } catch {
       clearSession()
     }
@@ -94,13 +92,9 @@ export const useUserAuthStore = defineStore('user-auth', () => {
   }
 
   const logout = async () => {
-    const currentToken = token.value
     clearSession()
-    if (!currentToken) {
-      return
-    }
     try {
-      await userLogoutApi(currentToken)
+      await userLogoutApi()
     } catch {
       // Mock 场景下失败不阻断前端登出流程
     }

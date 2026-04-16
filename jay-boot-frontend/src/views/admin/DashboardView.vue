@@ -6,8 +6,8 @@
         <p class="dashboard-subtitle">聚焦核心指标、告警与关键事件流，帮助团队快速判断系统状态。</p>
       </div>
       <div class="dashboard-toolbar__actions">
-        <a-segmented :options="rangeOptions" :value="dashboardStore.range" @change="onRangeChange" />
-        <a-button type="primary" :loading="dashboardStore.refreshing" @click="onRefreshClick">
+        <a-segmented :options="rangeOptions" :value="pageState.range" @change="onRangeChange" />
+        <a-button type="primary" :loading="pageState.refreshing" @click="onRefreshClick">
           <template #icon>
             <ReloadOutlined />
           </template>
@@ -19,11 +19,11 @@
     <div class="dashboard-meta">最后更新：{{ updatedAtText }}</div>
 
     <a-alert
-      v-if="dashboardStore.errorMessage"
+      v-if="pageState.errorMessage"
       class="dashboard-error"
       type="error"
       show-icon
-      :message="dashboardStore.errorMessage"
+      :message="pageState.errorMessage"
     >
       <template #action>
         <a-button size="small" @click="onRetryClick">重试</a-button>
@@ -33,7 +33,7 @@
     <section class="dashboard-block">
       <h3 class="dashboard-block__title">核心指标</h3>
       <a-row :gutter="16">
-        <a-col v-for="kpi in dashboardStore.kpis" :key="kpi.key" :xs="24" :sm="12" :xl="6" class="dashboard-col">
+        <a-col v-for="kpi in pageState.kpis" :key="kpi.key" :xs="24" :sm="12" :xl="6" class="dashboard-col">
           <a-card class="kpi-card" :bordered="false">
             <p class="kpi-title">{{ kpi.title }}</p>
             <p class="kpi-value">{{ kpi.valueText }}</p>
@@ -41,13 +41,13 @@
           </a-card>
         </a-col>
       </a-row>
-      <a-empty v-if="!dashboardStore.hasKpiData" description="暂无核心指标数据" />
+      <a-empty v-if="!hasKpiData" description="暂无核心指标数据" />
     </section>
 
     <a-row :gutter="16" class="dashboard-section-row">
       <a-col :xs="24" :xl="10">
         <a-card title="今日告警" class="dashboard-panel" :bordered="false">
-          <a-list v-if="dashboardStore.hasAlertData" :data-source="dashboardStore.alerts" :split="false">
+          <a-list v-if="hasAlertData" :data-source="pageState.alerts" :split="false">
             <template #renderItem="{ item }">
               <a-list-item class="alert-item">
                 <div class="alert-item__header">
@@ -68,9 +68,9 @@
       <a-col :xs="24" :xl="14">
         <a-card title="关键事件流" class="dashboard-panel" :bordered="false">
           <a-table
-            v-if="dashboardStore.hasEventData"
+            v-if="hasEventData"
             :columns="eventColumns"
-            :data-source="dashboardStore.events"
+            :data-source="pageState.events"
             :pagination="false"
             row-key="id"
             size="small"
@@ -93,17 +93,40 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
-import type {
-  DashboardAlertLevel,
-  DashboardEventStatus,
-  DashboardRange,
-  DashboardTrendDirection,
+import {
+  getDashboardOverviewApi,
+  type DashboardAlertItem,
+  type DashboardAlertLevel,
+  type DashboardEventItem,
+  type DashboardEventStatus,
+  type DashboardKpiItem,
+  type DashboardRange,
+  type DashboardTrendDirection,
 } from '../../api/admin/DashboardApi'
-import { useDashboardStore } from '../../stores/admin/dashboard'
 
-const dashboardStore = useDashboardStore()
+// 页面状态
+const pageState = reactive({
+  range: '7d' as DashboardRange,
+  updatedAt: '',
+  kpis: [] as DashboardKpiItem[],
+  alerts: [] as DashboardAlertItem[],
+  events: [] as DashboardEventItem[],
+  loadingInitial: false,
+  refreshing: false,
+  errorMessage: '',
+})
+
+// 计算属性
+const hasKpiData = computed(() => pageState.kpis.length > 0)
+const hasAlertData = computed(() => pageState.alerts.length > 0)
+const hasEventData = computed(() => pageState.events.length > 0)
+
+const updatedAtText = computed(() => {
+  if (!pageState.updatedAt) return '--'
+  return new Date(pageState.updatedAt).toLocaleString('zh-CN', { hour12: false })
+})
 
 const rangeOptions: Array<{ label: string; value: DashboardRange }> = [
   { label: '近 24 小时', value: '24h' },
@@ -143,24 +166,13 @@ const eventStatusColorMap: Record<DashboardEventStatus, string> = {
   failed: 'error',
 }
 
-const updatedAtText = computed(() => {
-  if (!dashboardStore.updatedAt) {
-    return '--'
-  }
-  return new Date(dashboardStore.updatedAt).toLocaleString('zh-CN', { hour12: false })
-})
-
 const isDashboardRange = (value: unknown): value is DashboardRange => {
   return value === '24h' || value === '7d' || value === '30d'
 }
 
 const getKpiTrendClass = (trendDirection: DashboardTrendDirection) => {
-  if (trendDirection === 'up') {
-    return 'kpi-trend--up'
-  }
-  if (trendDirection === 'down') {
-    return 'kpi-trend--down'
-  }
+  if (trendDirection === 'up') return 'kpi-trend--up'
+  if (trendDirection === 'down') return 'kpi-trend--down'
   return 'kpi-trend--flat'
 }
 
@@ -169,23 +181,44 @@ const getAlertColor = (level: DashboardAlertLevel) => alertColorMap[level]
 const getEventStatusText = (status: DashboardEventStatus) => eventStatusTextMap[status]
 const getEventStatusColor = (status: DashboardEventStatus) => eventStatusColorMap[status]
 
-const onRangeChange = async (value: string | number) => {
-  if (!isDashboardRange(value)) {
-    return
+// 获取数据
+const fetchOverview = async (mode: 'initial' | 'range-change' | 'refresh') => {
+  pageState.errorMessage = ''
+
+  if (mode === 'initial') pageState.loadingInitial = true
+  if (mode === 'refresh') pageState.refreshing = true
+
+  try {
+    const data = await getDashboardOverviewApi({ range: pageState.range })
+    pageState.range = data.range
+    pageState.updatedAt = data.updatedAt
+    pageState.kpis = data.kpis
+    pageState.alerts = data.alerts
+    pageState.events = data.events
+  } catch (error) {
+    pageState.errorMessage = error instanceof Error ? error.message : '加载仪表盘失败，请稍后重试'
+  } finally {
+    pageState.loadingInitial = false
+    pageState.refreshing = false
   }
-  await dashboardStore.changeRange(value)
+}
+
+const onRangeChange = async (value: string | number) => {
+  if (!isDashboardRange(value) || pageState.range === value) return
+  pageState.range = value
+  await fetchOverview('range-change')
 }
 
 const onRefreshClick = async () => {
-  await dashboardStore.refreshPartials()
+  await fetchOverview('refresh')
 }
 
 const onRetryClick = async () => {
-  await dashboardStore.retryCurrentRange()
+  await fetchOverview('range-change')
 }
 
 onMounted(() => {
-  void dashboardStore.initialize()
+  void fetchOverview('initial')
 })
 </script>
 

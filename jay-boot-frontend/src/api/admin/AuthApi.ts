@@ -102,24 +102,24 @@ export const loginApi = async (payload: LoginPayload): Promise<AuthSession> => {
 /**
  * 获取当前用户
  * 功能描述：根据 token 获取当前登录用户信息
- * 入参：token
+ * 入参：无
  * 返回参数：当前用户信息
  * url地址：/api/admin/auth/session
  * 请求方式：GET
  */
-export const meApi = async (token: string): Promise<AuthUser> => {
-  const result = await get<RealAuthSessionResponse>('/api/admin/auth/session', undefined, token)
+export const meApi = async (): Promise<AuthUser> => {
+  const result = await get<RealAuthSessionResponse>('/api/admin/auth/session')
   return mapRealUser(result.user)
 }
 
 /**
  * 退出登录
  * 功能描述：清理登录态
- * 入参：token
+ * 入参：无
  * 返回参数：空
  * url地址：/api/admin/auth/logout
  * 请求方式：POST
  */
-export const logoutApi = async (token: string): Promise<null> => {
-  return post<null>('/api/admin/auth/logout', undefined, token)
+export const logoutApi = async (): Promise<null> => {
+  return post<null>('/api/admin/auth/logout')
 }

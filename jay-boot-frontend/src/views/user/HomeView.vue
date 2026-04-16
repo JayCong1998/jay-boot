@@ -1,102 +1,146 @@
 <template>
   <section class="home-view">
-    <a-alert v-if="loadError" type="error" show-icon :message="loadError">
-      <template #action>
-        <a-button type="link" @click="loadOverview">重试</a-button>
-      </template>
-    </a-alert>
+    <section class="hero-card">
+      <div class="hero-meta" v-once>
+        <span class="eyebrow">{{ homeData.hero.eyebrow }}</span>
+      </div>
+      <h1>{{ homeData.hero.title }}</h1>
+      <p class="hero-desc">{{ homeData.hero.description }}</p>
 
-    <a-skeleton v-if="overviewLoading && !overview" active :paragraph="{ rows: 6 }" />
-
-    <template v-if="overview">
-      <section class="hero-card">
-        <div class="hero-meta" v-once>
-          <span class="eyebrow">{{ overview.hero.eyebrow }}</span>
-          <span class="source-tag">{{ apiSourceText }}</span>
-        </div>
-        <h1>{{ overview.hero.title }}</h1>
-        <p class="hero-desc">{{ overview.hero.description }}</p>
-
-        <div class="hero-actions">
-          <a-button type="primary" size="large" class="btn-main" @click="goExperience">立即体验</a-button>
-          <a-button size="large" class="btn-sub" @click="goRegister">免费注册</a-button>
-        </div>
-      </section>
-
-      <section class="section-block section-block--soft">
-        <div class="section-title">
-          <h2>{{ overview.sectionTitles.features }}</h2>
-          <small>{{ updatedAtText }}</small>
-        </div>
-        <div class="feature-grid" v-memo="[overview.updatedAt]">
-          <article v-for="card in conciseFeatureCards" :key="card.id" class="feature-card" :class="{ soft: card.soft }">
-            <h3>{{ card.title }}</h3>
-            <p>{{ card.points[0] || '快速上手，流畅创作。' }}</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="section-block">
-        <h2 class="kpi-title">{{ overview.sectionTitles.socialProof }}</h2>
-        <div class="kpi-grid">
-          <article v-for="kpi in conciseKpiCards" :key="kpi.id" class="kpi-card" :class="{ soft: kpi.soft }">
-            <p class="kpi-label">{{ kpi.label }}</p>
-            <strong class="kpi-value">{{ kpi.value }}</strong>
-            <p class="kpi-desc">{{ kpi.desc }}</p>
-          </article>
-        </div>
-      </section>
-
-      <section class="final-cta">
-        <h2>{{ overview.finalCta.title }}</h2>
+      <div class="hero-actions">
         <a-button type="primary" size="large" class="btn-main" @click="goExperience">立即体验</a-button>
-      </section>
-    </template>
+        <a-button size="large" class="btn-sub" @click="goRegister">免费注册</a-button>
+      </div>
+    </section>
+
+    <section class="section-block section-block--soft">
+      <div class="section-title">
+        <h2>{{ homeData.sectionTitles.features }}</h2>
+      </div>
+      <div class="feature-grid">
+        <article v-for="card in conciseFeatureCards" :key="card.id" class="feature-card" :class="{ soft: card.soft }">
+          <h3>{{ card.title }}</h3>
+          <p>{{ card.points[0] || '快速上手，流畅创作。' }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <h2 class="kpi-title">{{ homeData.sectionTitles.socialProof }}</h2>
+      <div class="kpi-grid">
+        <article v-for="kpi in conciseKpiCards" :key="kpi.id" class="kpi-card" :class="{ soft: kpi.soft }">
+          <p class="kpi-label">{{ kpi.label }}</p>
+          <strong class="kpi-value">{{ kpi.value }}</strong>
+          <p class="kpi-desc">{{ kpi.desc }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <h2>{{ homeData.finalCta.title }}</h2>
+      <a-button type="primary" size="large" class="btn-main" @click="goExperience">立即体验</a-button>
+    </section>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getHomeOverviewApi, type HomeOverviewResponse } from '../../api/user/HomeApi'
-import { apiConfig } from '../../config/api'
+
+interface HomeFeatureCard {
+  id: string
+  title: string
+  points: string[]
+  soft: boolean
+}
+
+interface HomeKpiCard {
+  id: string
+  label: string
+  value: string
+  desc: string
+  soft: boolean
+}
+
+interface HomeData {
+  hero: {
+    eyebrow: string
+    title: string
+    description: string
+  }
+  sectionTitles: {
+    features: string
+    socialProof: string
+  }
+  featureCards: HomeFeatureCard[]
+  kpiCards: HomeKpiCard[]
+  finalCta: {
+    title: string
+  }
+}
+
+const homeData: HomeData = {
+  hero: {
+    eyebrow: '面向内容创业者的增长引擎',
+    title: '10 秒生成可发布文案',
+    description: '从选题、生成、迭代到交付，帮助你把 AI 创作能力直接转化为稳定收益。首页目标是"看完即理解，点击就试用"。'
+  },
+  sectionTitles: {
+    features: '核心价值',
+    socialProof: '社证数据'
+  },
+  featureCards: [
+    {
+      id: 'feature_1',
+      title: '高转化模板',
+      points: ['按平台和场景生成文案结构', '支持热门选题拆解与复刻', '减少从 0 到 1 的思考成本'],
+      soft: false
+    },
+    {
+      id: 'feature_2',
+      title: '多版本并行',
+      points: ['一次生成多个风格版本', '便于 A/B 测试提升转化', '保留历史用于持续复盘'],
+      soft: false
+    },
+    {
+      id: 'feature_3',
+      title: '结果可交付',
+      points: ['支持链接交付给客户或团队', '支持导出 Markdown 与图片文档', '形成"创作-交付-复购"闭环'],
+      soft: true
+    }
+  ],
+  kpiCards: [
+    {
+      id: 'kpi_1',
+      label: '累计生成内容',
+      value: '2,900 万+',
+      desc: '覆盖营销、私域、直播、电商等场景',
+      soft: false
+    },
+    {
+      id: 'kpi_2',
+      label: '7 日留存',
+      value: '74%',
+      desc: '核心用户持续使用工作台',
+      soft: false
+    },
+    {
+      id: 'kpi_3',
+      label: '付费转化',
+      value: '12.8%',
+      desc: '通过案例页进入的用户转化更高',
+      soft: true
+    }
+  ],
+  finalCta: {
+    title: '准备好把创作效率变成盈利能力了吗？'
+  }
+}
 
 const router = useRouter()
 
-const overview = ref<HomeOverviewResponse | null>(null)
-const overviewLoading = ref(false)
-const loadError = ref('')
-
-const apiSourceText = computed(() => (apiConfig.mode === 'mock' ? 'Mock API' : '生产 API'))
-
-const updatedAtText = computed(() => {
-  if (!overview.value?.updatedAt) {
-    return '--'
-  }
-
-  const date = new Date(overview.value.updatedAt)
-  if (Number.isNaN(date.getTime())) {
-    return '--'
-  }
-
-  return date.toLocaleString('zh-CN', { hour12: false })
-})
-
-const conciseFeatureCards = computed(() => (overview.value?.featureCards ?? []).slice(0, 3))
-const conciseKpiCards = computed(() => (overview.value?.kpiCards ?? []).slice(0, 3))
-
-const loadOverview = async () => {
-  overviewLoading.value = true
-  loadError.value = ''
-
-  try {
-    overview.value = await getHomeOverviewApi()
-  } catch (error) {
-    loadError.value = error instanceof Error ? error.message : '首页数据加载失败'
-  } finally {
-    overviewLoading.value = false
-  }
-}
+const conciseFeatureCards = computed(() => homeData.featureCards.slice(0, 3))
+const conciseKpiCards = computed(() => homeData.kpiCards.slice(0, 3))
 
 const goRegister = () => {
   router.push('/user/auth/register')
@@ -105,10 +149,6 @@ const goRegister = () => {
 const goExperience = () => {
   router.push('/user/workspace')
 }
-
-onMounted(() => {
-  void loadOverview()
-})
 </script>
 
 <style scoped>

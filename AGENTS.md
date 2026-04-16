@@ -39,6 +39,10 @@ GET: 用于数据查询和获取
 POST: 用于数据创建、更新、删除
 
 
+# 数据库规范
+必须包含 creator_id、creator_name、updater_id、updater_name、created_time、updated_time、is_deleted
+
+
 # 前端开发规范
 开发前端代码时必须加载@rules/frontend/develop.md文件并遵守其中的规范
 
@@ -55,13 +59,9 @@ AI 绝对禁止：
 # AI 输出代码要求
 
 生成代码必须：
-
 - 可直接运行
-
 - 不留 TODO
-
 - 不写伪代码
-
 - 不省略 import
 
 # 构建与编码操作规范（Maven）
