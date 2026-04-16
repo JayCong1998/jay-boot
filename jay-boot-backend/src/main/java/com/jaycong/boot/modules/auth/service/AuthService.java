@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
+import com.jaycong.boot.common.util.ValidateUtil;
 import com.jaycong.boot.modules.auth.context.LoginClientType;
 import com.jaycong.boot.modules.auth.context.LoginPrincipal;
 import com.jaycong.boot.modules.auth.context.LoginSessionKeys;
@@ -183,9 +184,7 @@ public class AuthService {
 
     public void logoutByToken(String token) {
         String normalizedToken = normalizeToken(token);
-        if (!StringUtils.hasText(normalizedToken)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "token 不能为空");
-        }
+        ValidateUtil.notBlank(normalizedToken, "token 不能为空");
         StpUtil.logoutByTokenValue(normalizedToken);
     }
 

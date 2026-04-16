@@ -1,9 +1,8 @@
 package com.jaycong.boot.modules.log.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.jaycong.boot.modules.log.dto.OperationLogQueryDTO;
+import com.jaycong.boot.common.web.PageResult;
 import com.jaycong.boot.modules.log.dto.OperationLogVO;
 import com.jaycong.boot.modules.log.entity.OperationLogEntity;
 import com.jaycong.boot.modules.log.mapper.OperationLogMapper;
@@ -16,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -24,6 +24,8 @@ public class OperationLogService {
 
     private final OperationLogMapper operationLogMapper;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final int DEFAULT_PAGE = 1;
+    private static final int DEFAULT_PAGE_SIZE = 20;
 
     public void record(OperationLogEntity entity) {
         try {
@@ -33,19 +35,23 @@ public class OperationLogService {
         }
     }
 
-    public IPage<OperationLogVO> queryPage(OperationLogQueryDTO query) {
-        Page<OperationLogEntity> page = new Page<>(query.getPage(), query.getPageSize());
+    public PageResult<OperationLogVO> page(Integer page, Integer pageSize, String module, Long userId, String startTime, String endTime) {
+        int currentPage = page != null ? page : DEFAULT_PAGE;
+        int currentPageSize = pageSize != null ? pageSize : DEFAULT_PAGE_SIZE;
+        
+        Page<OperationLogEntity> pageParam = new Page<>(currentPage, currentPageSize);
         
         LambdaQueryWrapper<OperationLogEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(StringUtils.hasText(query.getModule()), OperationLogEntity::getModule, query.getModule())
-               .eq(query.getUserId() != null, OperationLogEntity::getUserId, query.getUserId())
-               .ge(query.getStartTime() != null, OperationLogEntity::getCreatedTime, parseStartTime(query.getStartTime()))
-               .le(query.getEndTime() != null, OperationLogEntity::getCreatedTime, parseEndTime(query.getEndTime()))
+        wrapper.eq(StringUtils.hasText(module), OperationLogEntity::getModule, module)
+               .eq(userId != null, OperationLogEntity::getUserId, userId)
+               .ge(StringUtils.hasText(startTime), OperationLogEntity::getCreatedTime, parseStartTime(startTime))
+               .le(StringUtils.hasText(endTime), OperationLogEntity::getCreatedTime, parseEndTime(endTime))
                .orderByDesc(OperationLogEntity::getCreatedTime);
 
-        IPage<OperationLogEntity> entityPage = operationLogMapper.selectPage(page, wrapper);
-
-        return entityPage.convert(this::toVO);
+        Page<OperationLogEntity> result = operationLogMapper.selectPage(pageParam, wrapper);
+        List<OperationLogVO> records = result.getRecords().stream().map(this::toVO).toList();
+        
+        return PageResult.of(records, result.getTotal(), result.getCurrent(), result.getSize());
     }
 
     public OperationLogVO getById(Long id) {

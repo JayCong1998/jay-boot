@@ -7,6 +7,7 @@ import com.jaycong.boot.common.constant.enums.PlanBillingCycle;
 import com.jaycong.boot.common.constant.enums.PlanStatus;
 import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
+import com.jaycong.boot.common.util.ValidateUtil;
 import com.jaycong.boot.common.web.PageResult;
 import com.jaycong.boot.modules.plan.dto.AdminPlanCreateRequest;
 import com.jaycong.boot.modules.plan.dto.AdminPlanItemView;
@@ -116,9 +117,7 @@ public class AdminPlanService {
     }
 
     private void validateQuotaJson(String quotaJson) {
-        if (!StringUtils.hasText(quotaJson)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "配额JSON不能为空");
-        }
+        ValidateUtil.notBlank(quotaJson, "配额JSON不能为空");
         try {
             objectMapper.readTree(quotaJson);
         } catch (Exception ex) {
@@ -128,17 +127,13 @@ public class AdminPlanService {
 
     private String normalizeCode(String code) {
         String normalized = code == null ? null : code.trim().toUpperCase(Locale.ROOT);
-        if (!StringUtils.hasText(normalized)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "套餐编码不能为空");
-        }
+        ValidateUtil.notBlank(normalized, "套餐编码不能为空");
         return normalized;
     }
 
     private String normalizeName(String name) {
         String normalized = name == null ? null : name.trim();
-        if (!StringUtils.hasText(normalized)) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "套餐名称不能为空");
-        }
+        ValidateUtil.notBlank(normalized, "套餐名称不能为空");
         return normalized;
     }
 
