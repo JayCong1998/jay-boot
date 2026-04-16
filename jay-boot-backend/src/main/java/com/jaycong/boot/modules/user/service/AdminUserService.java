@@ -6,6 +6,7 @@ import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.common.web.PageResult;
 import com.jaycong.boot.modules.auth.context.LoginContext;
+import com.jaycong.boot.modules.log.annotation.OperationLog;
 import com.jaycong.boot.modules.user.dto.AdminUserCreateRequest;
 import com.jaycong.boot.modules.user.dto.AdminUserItemView;
 import com.jaycong.boot.modules.user.dto.AdminUserPageRequest;
@@ -61,6 +62,7 @@ public class AdminUserService {
     }
 
     @Transactional
+    @OperationLog(module = "用户管理", action = "创建", detail = "创建用户：#{#request.email}")
     public void create(AdminUserCreateRequest request) {
         String username = normalizeUsername(request.username());
         String email = normalizeEmail(request.email());
@@ -77,6 +79,7 @@ public class AdminUserService {
     }
 
     @Transactional
+    @OperationLog(module = "用户管理", action = "修改", detail = "修改用户ID：#{#id}")
     public void update(Long id, AdminUserUpdateRequest request) {
         UserEntity entity = requireUser(id);
         String username = normalizeUsername(request.username());
@@ -96,6 +99,7 @@ public class AdminUserService {
     }
 
     @Transactional
+    @OperationLog(module = "用户管理", action = "修改状态", detail = "用户#{#id}状态改为#{#request.status.name()}")
     public void updateStatus(Long id, AdminUserStatusUpdateRequest request) {
         Long operatorId = LoginContext.requireUserId();
         UserEntity entity = requireUser(id);
@@ -112,6 +116,7 @@ public class AdminUserService {
     }
 
     @Transactional
+    @OperationLog(module = "用户管理", action = "重置密码", detail = "重置用户ID：#{#id}的密码")
     public void resetPassword(Long id, AdminUserPasswordResetRequest request) {
         UserEntity entity = requireUser(id);
         entity.setPasswordHash(passwordEncoder.encode(request.newPassword()));

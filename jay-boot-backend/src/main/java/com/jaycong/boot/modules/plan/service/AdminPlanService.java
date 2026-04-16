@@ -9,6 +9,7 @@ import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.common.util.ValidateUtil;
 import com.jaycong.boot.common.web.PageResult;
+import com.jaycong.boot.modules.log.annotation.OperationLog;
 import com.jaycong.boot.modules.plan.dto.AdminPlanCreateRequest;
 import com.jaycong.boot.modules.plan.dto.AdminPlanItemView;
 import com.jaycong.boot.modules.plan.dto.AdminPlanPageRequest;
@@ -57,6 +58,7 @@ public class AdminPlanService {
     }
 
     @Transactional
+    @OperationLog(module = "套餐管理", action = "创建", detail = "创建套餐：#{#request.name}")
     public void create(AdminPlanCreateRequest request) {
         validateQuotaJson(request.quotaJson());
 
@@ -72,6 +74,7 @@ public class AdminPlanService {
     }
 
     @Transactional
+    @OperationLog(module = "套餐管理", action = "修改", detail = "修改套餐ID：#{#id}")
     public void update(Long id, AdminPlanUpdateRequest request) {
         validateQuotaJson(request.quotaJson());
 
@@ -86,6 +89,7 @@ public class AdminPlanService {
     }
 
     @Transactional
+    @OperationLog(module = "套餐管理", action = "修改状态", detail = "套餐#{#id}状态改为#{#request.status.name()}")
     public void updateStatus(Long id, AdminPlanStatusUpdateRequest request) {
         PlanEntity entity = requirePlan(id);
         entity.setStatus(request.status().name());
