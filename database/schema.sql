@@ -179,3 +179,24 @@ CREATE TABLE IF NOT EXISTS error_logs (
     KEY idx_error_logs_user (user_id),
     KEY idx_error_logs_request_id (request_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='异常日志表';
+
+CREATE TABLE IF NOT EXISTS operation_logs (
+    id BIGINT PRIMARY KEY,
+    module VARCHAR(64) NOT NULL COMMENT '模块名称',
+    action VARCHAR(64) NOT NULL COMMENT '操作类型',
+    detail TEXT NULL COMMENT '操作详情',
+    user_id BIGINT NULL COMMENT '操作用户ID',
+    username VARCHAR(64) NULL COMMENT '操作用户名',
+    client_ip VARCHAR(64) NULL COMMENT '客户端IP',
+    request_id VARCHAR(32) NULL COMMENT '关联请求ID',
+    creator_id BIGINT NOT NULL,
+    creator_name VARCHAR(64) NOT NULL,
+    created_time DATETIME(3) NOT NULL,
+    updater_id BIGINT NOT NULL,
+    updater_name VARCHAR(64) NOT NULL,
+    updated_time DATETIME(3) NOT NULL,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    KEY idx_operation_logs_time (created_time),
+    KEY idx_operation_logs_user (user_id),
+    KEY idx_operation_logs_module (module)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='操作日志表';
