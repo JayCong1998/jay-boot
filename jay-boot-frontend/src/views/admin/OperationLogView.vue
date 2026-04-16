@@ -66,7 +66,7 @@
     </a-card>
 
     <a-card class="log-card" :bordered="false">
-      <a-skeleton v-if="pageState.loadingInitial && !pageState.hasData" active :paragraph="{ rows: 6 }" />
+      <a-skeleton v-if="pageState.loadingInitial && !hasData" active :paragraph="{ rows: 6 }" />
       <template v-else>
         <a-table
           :columns="tableColumns"
@@ -146,8 +146,9 @@ const pageState = reactive({
   loadingInitial: false,
   refreshing: false,
   errorMessage: '',
-  hasData: computed(() => pageState.records.length > 0),
 })
+
+const hasData = computed(() => pageState.records.length > 0)
 
 const filters = reactive({
   module: '',
