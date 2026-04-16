@@ -32,6 +32,12 @@ const adminChildren: RouteRecordRaw[] = [
     component: () => import('../../views/admin/ErrorLogView.vue'),
     meta: { title: '异常日志' },
   },
+  {
+    path: 'logs/operations',
+    name: 'admin-logs-operations',
+    component: () => import('../../views/admin/OperationLogView.vue'),
+    meta: { title: '操作日志' },
+  },
 ]
 
 export const adminRoutes: RouteRecordRaw[] = [
