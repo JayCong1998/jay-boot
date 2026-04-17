@@ -20,8 +20,11 @@
 - 创建字典项：`POST /api/admin/dicts/items`
 - 更新字典项：`POST /api/admin/dicts/items/{id}`
 - 更新字典项状态：`POST /api/admin/dicts/items/{id}/status`
+- 批量更新字典项状态：`POST /api/admin/dicts/items/batch-status`
 - 更新字典项排序：`POST /api/admin/dicts/items/{id}/sort`
+- 批量调整字典项排序：`POST /api/admin/dicts/items/batch-sort-adjust`
 - 删除字典项：`POST /api/admin/dicts/items/{id}/delete`
+- 批量删除字典项：`POST /api/admin/dicts/items/batch-delete`
 
 统一响应结构：
 
@@ -266,7 +269,36 @@ Query 参数：
 }
 ```
 
-### 3.14 删除字典类型
+### 3.14 批量更新字典项状态
+
+- 地址：`/api/admin/dicts/items/batch-status`
+- 方法：`POST`
+
+请求示例：
+```json
+{
+  "ids": [1001, 1002, 1003],
+  "status": "DISABLED"
+}
+```
+
+### 3.15 批量调整字典项排序
+
+- 地址：`/api/admin/dicts/items/batch-sort-adjust`
+- 方法：`POST`
+
+请求示例：
+```json
+{
+  "ids": [1001, 1002, 1003],
+  "delta": 10
+}
+```
+
+说明：
+- `delta` 为排序增量，可为负数，不能为 `0`。
+
+### 3.16 删除字典类型
 
 - 地址：`/api/admin/dicts/types/{id}/delete`
 - 方法：`POST`
@@ -274,16 +306,28 @@ Query 参数：
 说明：
 - 若该类型下仍存在字典项，将返回 `409`，提示先删除字典项。
 
-### 3.15 删除字典项
+### 3.17 删除字典项
 
 - 地址：`/api/admin/dicts/items/{id}/delete`
 - 方法：`POST`
+
+### 3.18 批量删除字典项
+
+- 地址：`/api/admin/dicts/items/batch-delete`
+- 方法：`POST`
+
+请求示例：
+```json
+{
+  "ids": [1001, 1002, 1003]
+}
+```
 
 ## 4. 错误码说明
 
 | code | 含义 | 示例场景 |
 |---|---|---|
-| 400 | 参数错误 | `typeCode` 格式不合法、`sort` 非整数 |
+| 400 | 参数错误 | `typeCode` 格式不合法、`sort` 非整数、`delta` 为 0 |
 | 401 | 未登录 | 请求头缺失或 token 失效 |
 | 403 | 无权限 | 非管理员访问 `/api/admin/dicts/*` |
 | 404 | 资源不存在 | 字典类型/字典项 ID 不存在 |

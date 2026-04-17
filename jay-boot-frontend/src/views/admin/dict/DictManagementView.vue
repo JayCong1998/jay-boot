@@ -134,6 +134,25 @@
             </a-row>
           </a-form>
 
+          <div class="dict-batch-toolbar">
+            <div class="dict-batch-toolbar__summary">已选 {{ selectedItemIds.length }} 项</div>
+            <a-space :wrap="true" size="small">
+              <a-button :disabled="!hasSelectedItems" @click="onBatchUpdateItemStatus('ENABLED')">批量启用</a-button>
+              <a-button :disabled="!hasSelectedItems" @click="onBatchUpdateItemStatus('DISABLED')">批量禁用</a-button>
+              <a-input-number
+                v-model:value="itemBatchSortDelta"
+                :disabled="!hasSelectedItems"
+                :controls="false"
+                :precision="0"
+                placeholder="排序增量"
+                style="width: 120px"
+              />
+              <a-button :disabled="!hasSelectedItems" @click="onBatchAdjustItemSort">批量调整排序</a-button>
+              <a-button danger :disabled="!hasSelectedItems" @click="onBatchDeleteItems">批量删除</a-button>
+              <a-button :disabled="!hasSelectedItems" @click="clearSelectedItems">清空选择</a-button>
+            </a-space>
+          </div>
+
           <a-skeleton v-if="itemState.loadingInitial && !hasItemData" active :paragraph="{ rows: 6 }" />
           <template v-else>
             <a-table
@@ -141,6 +160,7 @@
               :data-source="itemState.records"
               :loading="itemTableLoading"
               :pagination="false"
+              :row-selection="itemRowSelection"
               row-key="id"
               :scroll="{ x: 1140 }"
               size="small"
@@ -283,6 +303,9 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import {
+  batchAdjustAdminDictItemSortApi,
+  batchDeleteAdminDictItemsApi,
+  batchUpdateAdminDictItemStatusApi,
   createAdminDictItemApi,
   createAdminDictTypeApi,
   deleteAdminDictItemApi,
@@ -346,6 +369,15 @@ const itemState = reactive({
 })
 const hasItemData = computed(() => itemState.records.length > 0)
 const itemTableLoading = computed(() => itemState.loadingInitial || itemState.refreshing)
+const selectedItemIds = ref<string[]>([])
+const itemBatchSortDelta = ref<number>(10)
+const hasSelectedItems = computed(() => selectedItemIds.value.length > 0)
+const itemRowSelection = computed(() => ({
+  selectedRowKeys: selectedItemIds.value,
+  onChange: (keys: Array<string | number>) => {
+    selectedItemIds.value = keys.map((key) => String(key))
+  },
+}))
 
 const isRefreshing = computed(() => activeTab.value === 'type' ? typeState.refreshing : itemState.refreshing)
 const currentErrorMessage = computed(() => activeTab.value === 'type' ? typeState.errorMessage : itemState.errorMessage)
@@ -431,6 +463,10 @@ const normalizeText = (value: string) => value.trim()
 const normalizeOptionalText = (value: string) => {
   const normalized = value.trim()
   return normalized || undefined
+}
+
+const clearSelectedItems = () => {
+  selectedItemIds.value = []
 }
 
 const resetTypeModalForm = () => {
@@ -561,6 +597,8 @@ const fetchItemList = async (mode: 'initial' | 'refresh' = 'refresh') => {
       status: itemFilters.status || undefined,
     })
     itemState.records = data.records
+    const currentIds = new Set(data.records.map((item) => item.id))
+    selectedItemIds.value = selectedItemIds.value.filter((id) => currentIds.has(id))
     itemState.total = data.total
     itemState.page = data.page
     itemState.pageSize = data.pageSize
@@ -600,6 +638,7 @@ const onSearchClick = async () => {
     await fetchTypeList('refresh')
   } else {
     itemState.page = 1
+    clearSelectedItems()
     await fetchItemList('refresh')
   }
 }
@@ -615,6 +654,7 @@ const onResetClick = async () => {
     itemFilters.keyword = ''
     itemFilters.status = ''
     itemState.page = 1
+    clearSelectedItems()
     await fetchItemList('refresh')
   }
 }
@@ -810,6 +850,80 @@ const onToggleItemStatus = (record: AdminDictItem) => {
   })
 }
 
+const ensureSelectedItemIds = () => {
+  if (selectedItemIds.value.length === 0) {
+    message.warning('请先选择字典项')
+    return false
+  }
+  return true
+}
+
+const onBatchUpdateItemStatus = (status: DictStatus) => {
+  if (!ensureSelectedItemIds()) return
+  const actionText = status === 'ENABLED' ? '启用' : '禁用'
+  Modal.confirm({
+    title: `确认批量${actionText}已选字典项？`,
+    content: `已选 ${selectedItemIds.value.length} 项`,
+    okText: '确认',
+    cancelText: '取消',
+    async onOk() {
+      try {
+        await batchUpdateAdminDictItemStatusApi(selectedItemIds.value, status)
+        await fetchItemList('refresh')
+        clearSelectedItems()
+        message.success(`已批量${actionText}`)
+      } catch (error) {
+        message.error(error instanceof Error ? error.message : '批量状态更新失败，请稍后重试')
+      }
+    },
+  })
+}
+
+const onBatchDeleteItems = () => {
+  if (!ensureSelectedItemIds()) return
+  Modal.confirm({
+    title: '确认批量删除已选字典项？',
+    content: `已选 ${selectedItemIds.value.length} 项，删除后不可恢复`,
+    okText: '确认删除',
+    okButtonProps: { danger: true },
+    cancelText: '取消',
+    async onOk() {
+      try {
+        await batchDeleteAdminDictItemsApi(selectedItemIds.value)
+        await fetchItemList('refresh')
+        clearSelectedItems()
+        message.success('批量删除成功')
+      } catch (error) {
+        message.error(error instanceof Error ? error.message : '批量删除失败，请稍后重试')
+      }
+    },
+  })
+}
+
+const onBatchAdjustItemSort = () => {
+  if (!ensureSelectedItemIds()) return
+  if (!Number.isInteger(itemBatchSortDelta.value) || itemBatchSortDelta.value === 0) {
+    message.warning('请输入非0整数作为排序增量')
+    return
+  }
+  Modal.confirm({
+    title: '确认批量调整已选字典项排序？',
+    content: `已选 ${selectedItemIds.value.length} 项，排序增量 ${itemBatchSortDelta.value}`,
+    okText: '确认',
+    cancelText: '取消',
+    async onOk() {
+      try {
+        await batchAdjustAdminDictItemSortApi(selectedItemIds.value, itemBatchSortDelta.value)
+        await fetchItemList('refresh')
+        clearSelectedItems()
+        message.success('批量排序已调整')
+      } catch (error) {
+        message.error(error instanceof Error ? error.message : '批量排序调整失败，请稍后重试')
+      }
+    },
+  })
+}
+
 const onDeleteItem = (record: AdminDictItem) => {
   Modal.confirm({
     title: '确认删除该字典项？',
@@ -841,6 +955,9 @@ const onMoveItemSort = async (record: AdminDictItem, delta: number) => {
 }
 
 watch(activeTab, async (tab) => {
+  if (tab === 'type') {
+    clearSelectedItems()
+  }
   if (tab === 'item' && itemState.records.length === 0 && !itemState.loadingInitial) {
     await fetchItemList('initial')
   }
@@ -897,6 +1014,24 @@ onMounted(() => {
   border: 1px solid #dbe9f2;
 }
 
+.dict-batch-toolbar {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px dashed #b7d7c3;
+  background: #f8fffb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.dict-batch-toolbar__summary {
+  font-size: 13px;
+  color: #166534;
+  white-space: nowrap;
+}
+
 .dict-pagination {
   margin-top: 14px;
   display: flex;
@@ -919,6 +1054,11 @@ onMounted(() => {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .dict-batch-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .dict-pagination {

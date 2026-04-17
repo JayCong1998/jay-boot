@@ -5,6 +5,9 @@ import cn.dev33.satoken.annotation.SaMode;
 import com.jaycong.boot.common.constant.enums.DictStatus;
 import com.jaycong.boot.common.web.ApiResponse;
 import com.jaycong.boot.common.web.PageResult;
+import com.jaycong.boot.modules.dict.dto.AdminDictItemBatchDeleteRequest;
+import com.jaycong.boot.modules.dict.dto.AdminDictItemBatchSortAdjustRequest;
+import com.jaycong.boot.modules.dict.dto.AdminDictItemBatchStatusUpdateRequest;
 import com.jaycong.boot.modules.dict.dto.AdminDictItemCreateRequest;
 import com.jaycong.boot.modules.dict.dto.AdminDictItemPageRequest;
 import com.jaycong.boot.modules.dict.dto.AdminDictItemSortUpdateRequest;
@@ -133,6 +136,27 @@ public class AdminDictController {
     @PostMapping("/items/{id}/sort")
     public ApiResponse<Void> updateItemSort(@PathVariable Long id, @Valid @RequestBody AdminDictItemSortUpdateRequest request) {
         adminDictService.updateItemSort(id, request);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "批量更新字典项状态")
+    @PostMapping("/items/batch-status")
+    public ApiResponse<Void> batchUpdateItemStatus(@Valid @RequestBody AdminDictItemBatchStatusUpdateRequest request) {
+        adminDictService.batchUpdateItemStatus(request);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "批量删除字典项")
+    @PostMapping("/items/batch-delete")
+    public ApiResponse<Void> batchDeleteItems(@Valid @RequestBody AdminDictItemBatchDeleteRequest request) {
+        adminDictService.batchDeleteItems(request);
+        return ApiResponse.success(null);
+    }
+
+    @Operation(summary = "批量调整字典项排序")
+    @PostMapping("/items/batch-sort-adjust")
+    public ApiResponse<Void> batchAdjustItemSort(@Valid @RequestBody AdminDictItemBatchSortAdjustRequest request) {
+        adminDictService.batchAdjustItemSort(request);
         return ApiResponse.success(null);
     }
 

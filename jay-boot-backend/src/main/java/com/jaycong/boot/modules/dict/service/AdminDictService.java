@@ -7,6 +7,9 @@ import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.common.util.ValidateUtil;
 import com.jaycong.boot.common.web.PageResult;
+import com.jaycong.boot.modules.dict.dto.AdminDictItemBatchDeleteRequest;
+import com.jaycong.boot.modules.dict.dto.AdminDictItemBatchSortAdjustRequest;
+import com.jaycong.boot.modules.dict.dto.AdminDictItemBatchStatusUpdateRequest;
 import com.jaycong.boot.modules.dict.dto.AdminDictItemCreateRequest;
 import com.jaycong.boot.modules.dict.dto.AdminDictItemPageRequest;
 import com.jaycong.boot.modules.dict.dto.AdminDictItemSortUpdateRequest;
@@ -25,6 +28,7 @@ import com.jaycong.boot.modules.dict.mapper.DictTypeMapper;
 import com.jaycong.boot.modules.log.annotation.OperationLog;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -182,6 +186,41 @@ public class AdminDictService {
     }
 
     @Transactional
+    @OperationLog(module = "字典管理", action = "批量修改字典项状态", detail = "批量修改字典项状态：#{#request.status.name()}")
+    public void batchUpdateItemStatus(AdminDictItemBatchStatusUpdateRequest request) {
+        List<Long> ids = normalizeBatchIds(request.ids());
+        List<DictItemEntity> entities = requireItems(ids);
+        for (DictItemEntity entity : entities) {
+            entity.setStatus(request.status().name());
+            updateItemEntity(entity);
+        }
+    }
+
+    @Transactional
+    @OperationLog(module = "字典管理", action = "批量删除字典项", detail = "批量删除字典项数量：#{#request.ids.size()}")
+    public void batchDeleteItems(AdminDictItemBatchDeleteRequest request) {
+        List<Long> ids = normalizeBatchIds(request.ids());
+        requireItems(ids);
+        dictItemMapper.deleteBatchIds(ids);
+    }
+
+    @Transactional
+    @OperationLog(module = "字典管理", action = "批量调整字典项排序", detail = "批量调整字典项排序增量：#{#request.delta}")
+    public void batchAdjustItemSort(AdminDictItemBatchSortAdjustRequest request) {
+        ValidateUtil.isFalse(request.delta() == 0, "排序增量不能为0");
+        ValidateUtil.range(request.delta(), -100000, 100000, "排序增量超出范围");
+        List<Long> ids = normalizeBatchIds(request.ids());
+        List<DictItemEntity> entities = requireItems(ids);
+        for (DictItemEntity entity : entities) {
+            int currentSort = entity.getSort() == null ? 0 : entity.getSort();
+            long adjustedSort = (long) currentSort + request.delta();
+            ValidateUtil.isTrue(adjustedSort >= Integer.MIN_VALUE && adjustedSort <= Integer.MAX_VALUE, "排序值超出范围");
+            entity.setSort((int) adjustedSort);
+            updateItemEntity(entity);
+        }
+    }
+
+    @Transactional
     @OperationLog(module = "字典管理", action = "删除字典项", detail = "删除字典项ID：#{#id}")
     public void deleteItem(Long id) {
         requireItem(id);
@@ -213,10 +252,28 @@ public class AdminDictService {
         return entity;
     }
 
+    private List<DictItemEntity> requireItems(List<Long> ids) {
+        LambdaQueryWrapper<DictItemEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.in(DictItemEntity::getId, ids);
+        List<DictItemEntity> entities = dictItemMapper.selectList(wrapper);
+        if (entities.size() != ids.size()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND, "部分字典项不存在或已删除");
+        }
+        return entities;
+    }
+
     private long countItemsByTypeCode(String typeCode) {
         LambdaQueryWrapper<DictItemEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DictItemEntity::getTypeCode, typeCode);
         return dictItemMapper.selectCount(wrapper);
+    }
+
+    private List<Long> normalizeBatchIds(List<Long> ids) {
+        ValidateUtil.notEmpty(ids, "字典项ID列表不能为空");
+        List<Long> normalized = ids.stream().filter(Objects::nonNull).distinct().toList();
+        ValidateUtil.notEmpty(normalized, "字典项ID列表不能为空");
+        ValidateUtil.range(normalized.size(), 1, 200, "单次批量操作最多支持200条数据");
+        return normalized;
     }
 
     private void insertType(DictTypeEntity entity) {

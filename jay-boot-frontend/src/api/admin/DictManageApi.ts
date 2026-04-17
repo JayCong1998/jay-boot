@@ -87,6 +87,18 @@ interface DictSortPayload extends Record<string, unknown> {
   sort: number
 }
 
+interface DictBatchIdsPayload extends Record<string, unknown> {
+  ids: string[]
+}
+
+interface DictItemBatchStatusPayload extends DictBatchIdsPayload {
+  status: DictStatus
+}
+
+interface DictItemBatchSortAdjustPayload extends DictBatchIdsPayload {
+  delta: number
+}
+
 /**
  * 获取字典类型分页列表
  * 功能描述：按分页和筛选条件查询字典类型
@@ -218,6 +230,39 @@ export const updateAdminDictItemStatusApi = (id: string, status: DictStatus) =>
  */
 export const updateAdminDictItemSortApi = (id: string, sort: number) =>
   post<null>(`/api/admin/dicts/items/${id}/sort`, { sort } as DictSortPayload)
+
+/**
+ * 批量更新字典项状态
+ * 功能描述：批量启用或禁用字典项
+ * 入参：字典项ID列表、目标状态
+ * 返回参数：空
+ * url地址：/api/admin/dicts/items/batch-status
+ * 请求方式：POST
+ */
+export const batchUpdateAdminDictItemStatusApi = (ids: string[], status: DictStatus) =>
+  post<null>('/api/admin/dicts/items/batch-status', { ids, status } as DictItemBatchStatusPayload)
+
+/**
+ * 批量删除字典项
+ * 功能描述：批量删除字典项
+ * 入参：字典项ID列表
+ * 返回参数：空
+ * url地址：/api/admin/dicts/items/batch-delete
+ * 请求方式：POST
+ */
+export const batchDeleteAdminDictItemsApi = (ids: string[]) =>
+  post<null>('/api/admin/dicts/items/batch-delete', { ids } as DictBatchIdsPayload)
+
+/**
+ * 批量调整字典项排序
+ * 功能描述：按增量批量调整字典项排序值
+ * 入参：字典项ID列表、排序增量
+ * 返回参数：空
+ * url地址：/api/admin/dicts/items/batch-sort-adjust
+ * 请求方式：POST
+ */
+export const batchAdjustAdminDictItemSortApi = (ids: string[], delta: number) =>
+  post<null>('/api/admin/dicts/items/batch-sort-adjust', { ids, delta } as DictItemBatchSortAdjustPayload)
 
 /**
  * 删除字典项
