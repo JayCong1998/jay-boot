@@ -61,6 +61,10 @@ public class AdminUserService {
         return PageResult.of(records, page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    public AdminUserItemView getById(Long id) {
+        return toItemView(requireUser(id));
+    }
+
     @Transactional
     @OperationLog(module = "用户管理", action = "创建", detail = "创建用户：#{#request.email}")
     public void create(AdminUserCreateRequest request) {

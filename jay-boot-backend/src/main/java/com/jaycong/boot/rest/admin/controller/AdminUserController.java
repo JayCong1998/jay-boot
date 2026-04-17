@@ -2,14 +2,14 @@ package com.jaycong.boot.rest.admin.controller;
 
 import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.annotation.SaMode;
+import com.jaycong.boot.common.constant.enums.AdminUserRole;
+import com.jaycong.boot.common.constant.enums.AdminUserStatus;
 import com.jaycong.boot.common.web.ApiResponse;
 import com.jaycong.boot.common.web.PageResult;
 import com.jaycong.boot.modules.user.dto.AdminUserCreateRequest;
 import com.jaycong.boot.modules.user.dto.AdminUserItemView;
 import com.jaycong.boot.modules.user.dto.AdminUserPageRequest;
 import com.jaycong.boot.modules.user.dto.AdminUserPasswordResetRequest;
-import com.jaycong.boot.common.constant.enums.AdminUserRole;
-import com.jaycong.boot.common.constant.enums.AdminUserStatus;
 import com.jaycong.boot.modules.user.dto.AdminUserStatusUpdateRequest;
 import com.jaycong.boot.modules.user.dto.AdminUserUpdateRequest;
 import com.jaycong.boot.modules.user.service.AdminUserService;
@@ -49,6 +49,12 @@ public class AdminUserController {
         return ApiResponse.success(adminUserService.page(new AdminUserPageRequest(page, pageSize, keyword, role, status)));
     }
 
+    @Operation(summary = "获取用户详情")
+    @GetMapping("/{id}")
+    public ApiResponse<AdminUserItemView> getById(@PathVariable Long id) {
+        return ApiResponse.success(adminUserService.getById(id));
+    }
+
     @Operation(summary = "创建用户")
     @PostMapping
     public ApiResponse<Void> create(@Valid @RequestBody AdminUserCreateRequest request) {
@@ -78,4 +84,3 @@ public class AdminUserController {
         return ApiResponse.success(null);
     }
 }
-

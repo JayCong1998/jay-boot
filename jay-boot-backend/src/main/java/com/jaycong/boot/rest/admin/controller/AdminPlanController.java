@@ -48,6 +48,12 @@ public class AdminPlanController {
         return ApiResponse.success(adminPlanService.page(new AdminPlanPageRequest(page, pageSize, keyword, status, billingCycle)));
     }
 
+    @Operation(summary = "获取套餐详情")
+    @GetMapping("/{id}")
+    public ApiResponse<AdminPlanItemView> getById(@PathVariable Long id) {
+        return ApiResponse.success(adminPlanService.getById(id));
+    }
+
     @Operation(summary = "创建套餐")
     @PostMapping
     public ApiResponse<Void> create(@Valid @RequestBody AdminPlanCreateRequest request) {
@@ -69,4 +75,3 @@ public class AdminPlanController {
         return ApiResponse.success(null);
     }
 }
-

@@ -62,6 +62,17 @@ export const getAdminPlanPageApi = (params: AdminPlanPageParams) =>
   get<AdminPlanPageResponse>('/api/admin/plans/page', params)
 
 /**
+ * 获取套餐详情
+ * 功能描述：根据套餐ID查询最新套餐信息
+ * 入参：套餐ID
+ * 返回参数：套餐详情
+ * url地址：/api/admin/plans/{id}
+ * 请求方式：GET
+ */
+export const getAdminPlanDetailApi = (id: string) =>
+  get<AdminPlanItem>(`/api/admin/plans/${id}`)
+
+/**
  * 创建套餐
  * 功能描述：创建新的套餐定义
  * 入参：套餐创建参数

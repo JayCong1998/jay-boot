@@ -57,6 +57,10 @@ public class AdminPlanService {
         return PageResult.of(records, page.getTotal(), page.getCurrent(), page.getSize());
     }
 
+    public AdminPlanItemView getById(Long id) {
+        return toItemView(requirePlan(id));
+    }
+
     @Transactional
     @OperationLog(module = "套餐管理", action = "创建", detail = "创建套餐：#{#request.name}")
     public void create(AdminPlanCreateRequest request) {

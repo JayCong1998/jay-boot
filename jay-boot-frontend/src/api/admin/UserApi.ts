@@ -62,6 +62,17 @@ export const getAdminUserPageApi = (params: AdminUserPageParams) =>
   get<AdminUserPageResponse>('/api/admin/users/page', params)
 
 /**
+ * 获取用户详情
+ * 功能描述：根据用户ID查询最新用户信息
+ * 入参：用户ID
+ * 返回参数：用户详情
+ * url地址：/api/admin/users/{id}
+ * 请求方式：GET
+ */
+export const getAdminUserDetailApi = (id: string) =>
+  get<AdminUserItem>(`/api/admin/users/${id}`)
+
+/**
  * 创建用户
  * 功能描述：创建一个新的管理端用户
  * 入参：用户信息

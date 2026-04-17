@@ -161,6 +161,7 @@ import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   createAdminUserApi,
+  getAdminUserDetailApi,
   getAdminUserPageApi,
   resetAdminUserPasswordApi,
   updateAdminUserApi,
@@ -367,15 +368,20 @@ const onOpenCreateModal = () => {
   userModal.open = true
 }
 
-const onOpenEditModal = (record: AdminUserItem) => {
-  userModal.mode = 'edit'
-  userModal.editingId = record.id
-  userModal.form.username = record.username
-  userModal.form.email = record.email
-  userModal.form.role = record.role
-  userModal.form.status = record.status
-  userModal.form.password = ''
-  userModal.open = true
+const onOpenEditModal = async (record: AdminUserItem) => {
+  try {
+    const detail = await getAdminUserDetailApi(record.id)
+    userModal.mode = 'edit'
+    userModal.editingId = detail.id
+    userModal.form.username = detail.username
+    userModal.form.email = detail.email
+    userModal.form.role = detail.role
+    userModal.form.status = detail.status
+    userModal.form.password = ''
+    userModal.open = true
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '用户详情加载失败，请稍后重试')
+  }
 }
 
 const onSubmitUser = async () => {

@@ -179,6 +179,7 @@ import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import {
   createAdminPlanApi,
+  getAdminPlanDetailApi,
   getAdminPlanPageApi,
   updateAdminPlanApi,
   updateAdminPlanStatusApi,
@@ -415,16 +416,21 @@ const onOpenCreateModal = () => {
   planModal.open = true
 }
 
-const onOpenEditModal = (record: AdminPlanItem) => {
-  planModal.mode = 'edit'
-  planModal.editingId = record.id
-  planModal.form.code = record.code
-  planModal.form.name = record.name
-  planModal.form.billingCycle = record.billingCycle
-  planModal.form.price = record.price
-  planModal.form.status = record.status
-  planModal.form.quotaJson = record.quotaJson
-  planModal.open = true
+const onOpenEditModal = async (record: AdminPlanItem) => {
+  try {
+    const detail = await getAdminPlanDetailApi(record.id)
+    planModal.mode = 'edit'
+    planModal.editingId = detail.id
+    planModal.form.code = detail.code
+    planModal.form.name = detail.name
+    planModal.form.billingCycle = detail.billingCycle
+    planModal.form.price = detail.price
+    planModal.form.status = detail.status
+    planModal.form.quotaJson = detail.quotaJson
+    planModal.open = true
+  } catch (error) {
+    message.error(error instanceof Error ? error.message : '套餐详情加载失败，请稍后重试')
+  }
 }
 
 const onSubmitPlan = async () => {

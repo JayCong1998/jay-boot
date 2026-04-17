@@ -3,6 +3,7 @@
 ## 1. 接口概览
 
 - 分页查询套餐：`GET /api/admin/plans/page`
+- 查询套餐详情：`GET /api/admin/plans/{id}`
 - 创建套餐：`POST /api/admin/plans`
 - 更新套餐：`POST /api/admin/plans/{id}`
 - 更新套餐状态：`POST /api/admin/plans/{id}/status`
@@ -70,7 +71,35 @@ Query 参数：
 }
 ```
 
-### 3.2 创建套餐
+### 3.2 查询套餐详情
+
+- 地址：`/api/admin/plans/{id}`
+- 方法：`GET`
+
+响应示例：
+
+```json
+{
+  "code": 200,
+  "body": {
+    "id": "1949000000000000001",
+    "code": "PRO_MONTHLY",
+    "name": "专业版（月付）",
+    "billingCycle": "MONTHLY",
+    "quotaJson": "{\"seats\":10,\"tokensMonthly\":500000}",
+    "price": 29900,
+    "status": "ACTIVE",
+    "updatedTime": "2026-04-17T11:20:30"
+  },
+  "message": "OK",
+  "success": true
+}
+```
+
+说明：
+- 前端查看或编辑套餐时，必须先调用该接口获取最新数据，不可直接使用列表行缓存数据。
+
+### 3.3 创建套餐
 
 - 地址：`/api/admin/plans`
 - 方法：`POST`
@@ -88,7 +117,7 @@ Query 参数：
 }
 ```
 
-### 3.3 更新套餐
+### 3.4 更新套餐
 
 - 地址：`/api/admin/plans/{id}`
 - 方法：`POST`
@@ -105,7 +134,7 @@ Query 参数：
 }
 ```
 
-### 3.4 更新套餐状态
+### 3.5 更新套餐状态
 
 - 地址：`/api/admin/plans/{id}/status`
 - 方法：`POST`
