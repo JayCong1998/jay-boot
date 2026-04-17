@@ -1,0 +1,14 @@
+package com.jaycong.boot.modules.dict.dto;
+
+import com.jaycong.boot.common.constant.enums.DictStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+
+@Schema(description = "管理端更新字典项状态请求")
+public record AdminDictItemStatusUpdateRequest(
+        @Schema(description = "状态", requiredMode = Schema.RequiredMode.REQUIRED)
+        @NotNull(message = "状态不能为空")
+        DictStatus status
+) {
+}
+
