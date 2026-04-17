@@ -81,6 +81,13 @@ public class AdminDictController {
         return ApiResponse.success(null);
     }
 
+    @Operation(summary = "删除字典类型")
+    @PostMapping("/types/{id}/delete")
+    public ApiResponse<Void> deleteType(@PathVariable Long id) {
+        adminDictService.deleteType(id);
+        return ApiResponse.success(null);
+    }
+
     @Operation(summary = "分页查询字典项")
     @GetMapping("/items/page")
     public ApiResponse<PageResult<AdminDictItemView>> pageItems(
@@ -128,5 +135,11 @@ public class AdminDictController {
         adminDictService.updateItemSort(id, request);
         return ApiResponse.success(null);
     }
-}
 
+    @Operation(summary = "删除字典项")
+    @PostMapping("/items/{id}/delete")
+    public ApiResponse<Void> deleteItem(@PathVariable Long id) {
+        adminDictService.deleteItem(id);
+        return ApiResponse.success(null);
+    }
+}

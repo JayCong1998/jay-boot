@@ -133,8 +133,8 @@ import {
   type FeatureSupportLevel,
   type FeaturesOverviewResponse,
   type FeaturesRoleFitResponse,
-} from '../../api/user/FeaturesApi'
-import { apiConfig } from '../../config/api'
+} from '../../../api/user/FeaturesApi'
+import { apiConfig } from '../../../config/api'
 
 const router = useRouter()
 

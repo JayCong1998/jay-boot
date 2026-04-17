@@ -143,6 +143,17 @@ export const updateAdminDictTypeStatusApi = (id: string, status: DictStatus) =>
   post<null>(`/api/admin/dicts/types/${id}/status`, { status } as DictStatusPayload)
 
 /**
+ * 删除字典类型
+ * 功能描述：删除指定字典类型
+ * 入参：字典类型ID
+ * 返回参数：空
+ * url地址：/api/admin/dicts/types/{id}/delete
+ * 请求方式：POST
+ */
+export const deleteAdminDictTypeApi = (id: string) =>
+  post<null>(`/api/admin/dicts/types/${id}/delete`)
+
+/**
  * 获取字典项分页列表
  * 功能描述：按分页和筛选条件查询字典项
  * 入参：分页参数、筛选参数
@@ -208,3 +219,13 @@ export const updateAdminDictItemStatusApi = (id: string, status: DictStatus) =>
 export const updateAdminDictItemSortApi = (id: string, sort: number) =>
   post<null>(`/api/admin/dicts/items/${id}/sort`, { sort } as DictSortPayload)
 
+/**
+ * 删除字典项
+ * 功能描述：删除指定字典项
+ * 入参：字典项ID
+ * 返回参数：空
+ * url地址：/api/admin/dicts/items/{id}/delete
+ * 请求方式：POST
+ */
+export const deleteAdminDictItemApi = (id: string) =>
+  post<null>(`/api/admin/dicts/items/${id}/delete`)

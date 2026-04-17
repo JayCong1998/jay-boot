@@ -93,6 +93,17 @@ public class AdminDictService {
         updateTypeEntity(entity);
     }
 
+    @Transactional
+    @OperationLog(module = "字典管理", action = "删除字典类型", detail = "删除字典类型ID：#{#id}")
+    public void deleteType(Long id) {
+        DictTypeEntity entity = requireType(id);
+        long itemCount = countItemsByTypeCode(entity.getTypeCode());
+        if (itemCount > 0) {
+            throw new BusinessException(ErrorCode.CONFLICT, "请先删除该类型下的字典项");
+        }
+        dictTypeMapper.deleteById(id);
+    }
+
     public PageResult<AdminDictItemView> pageItems(AdminDictItemPageRequest request) {
         long pageNo = request.page() == null || request.page() < 1 ? 1 : request.page();
         long pageSize = request.pageSize() == null || request.pageSize() < 1 ? 10 : request.pageSize();
@@ -170,6 +181,13 @@ public class AdminDictService {
         updateItemEntity(entity);
     }
 
+    @Transactional
+    @OperationLog(module = "字典管理", action = "删除字典项", detail = "删除字典项ID：#{#id}")
+    public void deleteItem(Long id) {
+        requireItem(id);
+        dictItemMapper.deleteById(id);
+    }
+
     private void ensureTypeExists(String typeCode) {
         LambdaQueryWrapper<DictTypeEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(DictTypeEntity::getTypeCode, typeCode).last("limit 1");
@@ -193,6 +211,12 @@ public class AdminDictService {
             throw new BusinessException(ErrorCode.NOT_FOUND, "字典项不存在");
         }
         return entity;
+    }
+
+    private long countItemsByTypeCode(String typeCode) {
+        LambdaQueryWrapper<DictItemEntity> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DictItemEntity::getTypeCode, typeCode);
+        return dictItemMapper.selectCount(wrapper);
     }
 
     private void insertType(DictTypeEntity entity) {
@@ -310,4 +334,3 @@ public class AdminDictService {
         return DictStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
     }
 }
-

@@ -138,7 +138,7 @@ import {
   getOperationLogPageApi,
   type OperationLogItem,
   type OperationLogPageParams,
-} from '../../api/admin/LogApi'
+} from '../../../api/admin/LogApi'
 import type { Dayjs } from 'dayjs'
 
 const pageState = reactive({

@@ -14,12 +14,14 @@
 - 创建字典类型：`POST /api/admin/dicts/types`
 - 更新字典类型：`POST /api/admin/dicts/types/{id}`
 - 更新字典类型状态：`POST /api/admin/dicts/types/{id}/status`
+- 删除字典类型：`POST /api/admin/dicts/types/{id}/delete`
 - 分页查询字典项：`GET /api/admin/dicts/items/page`
 - 查询字典项详情：`GET /api/admin/dicts/items/{id}`
 - 创建字典项：`POST /api/admin/dicts/items`
 - 更新字典项：`POST /api/admin/dicts/items/{id}`
 - 更新字典项状态：`POST /api/admin/dicts/items/{id}/status`
 - 更新字典项排序：`POST /api/admin/dicts/items/{id}/sort`
+- 删除字典项：`POST /api/admin/dicts/items/{id}/delete`
 
 统一响应结构：
 
@@ -264,6 +266,19 @@ Query 参数：
 }
 ```
 
+### 3.14 删除字典类型
+
+- 地址：`/api/admin/dicts/types/{id}/delete`
+- 方法：`POST`
+
+说明：
+- 若该类型下仍存在字典项，将返回 `409`，提示先删除字典项。
+
+### 3.15 删除字典项
+
+- 地址：`/api/admin/dicts/items/{id}/delete`
+- 方法：`POST`
+
 ## 4. 错误码说明
 
 | code | 含义 | 示例场景 |
@@ -272,6 +287,5 @@ Query 参数：
 | 401 | 未登录 | 请求头缺失或 token 失效 |
 | 403 | 无权限 | 非管理员访问 `/api/admin/dicts/*` |
 | 404 | 资源不存在 | 字典类型/字典项 ID 不存在 |
-| 409 | 资源冲突 | 类型编码或字典项编码重复 |
+| 409 | 资源冲突 | 类型编码或字典项编码重复；删除类型时仍存在字典项 |
 | 500 | 服务内部错误 | 未预期异常 |
-

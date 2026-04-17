@@ -8,5 +8,5 @@
 </template>
 
 <script setup lang="ts">
-import UserPageSkeleton from '../../components/user/UserPageSkeleton.vue'
+import UserPageSkeleton from '../../../components/user/UserPageSkeleton.vue'
 </script>

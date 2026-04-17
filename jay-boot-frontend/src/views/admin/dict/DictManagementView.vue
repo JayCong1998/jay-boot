@@ -80,6 +80,7 @@
                     <a-button type="link" size="small" @click="onToggleTypeStatus(record)">
                       {{ record.status === 'ENABLED' ? '禁用' : '启用' }}
                     </a-button>
+                    <a-button danger type="link" size="small" @click="onDeleteType(record)">删除</a-button>
                   </a-space>
                 </template>
               </template>
@@ -161,6 +162,7 @@
                     </a-button>
                     <a-button type="link" size="small" @click="onMoveItemSort(record, -10)">上移</a-button>
                     <a-button type="link" size="small" @click="onMoveItemSort(record, 10)">下移</a-button>
+                    <a-button danger type="link" size="small" @click="onDeleteItem(record)">删除</a-button>
                   </a-space>
                 </template>
               </template>
@@ -283,6 +285,8 @@ import { message, Modal } from 'ant-design-vue'
 import {
   createAdminDictItemApi,
   createAdminDictTypeApi,
+  deleteAdminDictItemApi,
+  deleteAdminDictTypeApi,
   getAdminDictItemDetailApi,
   getAdminDictItemPageApi,
   getAdminDictTypeDetailApi,
@@ -398,7 +402,7 @@ const typeColumns = [
   { title: '状态', dataIndex: 'status', key: 'status', width: 120 },
   { title: '描述', dataIndex: 'description', key: 'description', width: 240 },
   { title: '更新时间', dataIndex: 'updatedTime', key: 'updatedTime', width: 190 },
-  { title: '操作', key: 'actions', width: 180 },
+  { title: '操作', key: 'actions', width: 240 },
 ]
 
 const itemColumns = [
@@ -410,7 +414,7 @@ const itemColumns = [
   { title: '颜色', dataIndex: 'color', key: 'color', width: 120 },
   { title: '状态', dataIndex: 'status', key: 'status', width: 120 },
   { title: '更新时间', dataIndex: 'updatedTime', key: 'updatedTime', width: 190 },
-  { title: '操作', key: 'actions', width: 260 },
+  { title: '操作', key: 'actions', width: 320 },
 ]
 
 const resolveStatusMeta = (status: DictStatus) => STATUS_META[status] ?? STATUS_META.DISABLED
@@ -700,6 +704,29 @@ const onToggleTypeStatus = (record: AdminDictTypeItem) => {
   })
 }
 
+const onDeleteType = (record: AdminDictTypeItem) => {
+  Modal.confirm({
+    title: '确认删除该字典类型？',
+    content: `类型：${record.typeName} (${record.typeCode})`,
+    okText: '确认删除',
+    okButtonProps: { danger: true },
+    cancelText: '取消',
+    async onOk() {
+      try {
+        await deleteAdminDictTypeApi(record.id)
+        if (itemFilters.typeCode === record.typeCode) {
+          itemFilters.typeCode = ''
+        }
+        await fetchTypeList('refresh')
+        await fetchItemList('refresh')
+        message.success('字典类型已删除')
+      } catch (error) {
+        message.error(error instanceof Error ? error.message : '删除失败，请稍后重试')
+      }
+    },
+  })
+}
+
 const onOpenCreateItemModal = () => {
   if (dictTypeFormOptions.value.length === 0) {
     message.warning('请先创建字典类型')
@@ -778,6 +805,25 @@ const onToggleItemStatus = (record: AdminDictItem) => {
         message.success(`字典项已${actionText}`)
       } catch (error) {
         message.error(error instanceof Error ? error.message : '状态更新失败，请稍后重试')
+      }
+    },
+  })
+}
+
+const onDeleteItem = (record: AdminDictItem) => {
+  Modal.confirm({
+    title: '确认删除该字典项？',
+    content: `字典项：${record.itemLabel} (${record.itemCode})`,
+    okText: '确认删除',
+    okButtonProps: { danger: true },
+    cancelText: '取消',
+    async onOk() {
+      try {
+        await deleteAdminDictItemApi(record.id)
+        await fetchItemList('refresh')
+        message.success('字典项已删除')
+      } catch (error) {
+        message.error(error instanceof Error ? error.message : '删除失败，请稍后重试')
       }
     },
   })
@@ -880,4 +926,3 @@ onMounted(() => {
   }
 }
 </style>
-

@@ -137,8 +137,8 @@ import {
   type PricingCycleOption,
   type PricingOverviewResponse,
   type PricingPlanCard,
-} from '../../api/user/PricingApi'
-import { apiConfig } from '../../config/api'
+} from '../../../api/user/PricingApi'
+import { apiConfig } from '../../../config/api'
 
 const PRICING_CYCLE_CACHE_KEY = 'jay_boot_user_pricing_cycle'
 

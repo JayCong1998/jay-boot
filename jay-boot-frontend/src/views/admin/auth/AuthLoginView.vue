@@ -38,7 +38,7 @@
 import { computed, reactive, ref } from 'vue'
 import { message } from 'ant-design-vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '../../stores/admin/auth'
+import { useAuthStore } from '../../../stores/admin/auth'
 
 const router = useRouter()
 const route = useRoute()
