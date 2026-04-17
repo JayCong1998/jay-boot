@@ -88,7 +88,7 @@ public class PublicDictService {
         LambdaQueryWrapper<DictTypeEntity> wrapper = new LambdaQueryWrapper<>();
         wrapper.select(DictTypeEntity::getId)
                 .eq(DictTypeEntity::getTypeCode, typeCode)
-                .eq(DictTypeEntity::getStatus, DictStatus.ENABLED.name())
+                .eq(DictTypeEntity::getStatus, DictStatus.ENABLED.value())
                 .last("limit 1");
         return dictTypeMapper.selectOne(wrapper) != null;
     }
@@ -101,7 +101,7 @@ public class PublicDictService {
         LambdaQueryWrapper<DictTypeEntity> typeWrapper = new LambdaQueryWrapper<>();
         typeWrapper.select(DictTypeEntity::getTypeCode)
                 .in(DictTypeEntity::getTypeCode, requestedTypeCodes)
-                .eq(DictTypeEntity::getStatus, DictStatus.ENABLED.name());
+                .eq(DictTypeEntity::getStatus, DictStatus.ENABLED.value());
         List<DictTypeEntity> enabledTypes = dictTypeMapper.selectList(typeWrapper);
         if (enabledTypes.isEmpty()) {
             return Map.of();
@@ -113,7 +113,7 @@ public class PublicDictService {
 
         LambdaQueryWrapper<DictItemEntity> itemWrapper = new LambdaQueryWrapper<>();
         itemWrapper.in(DictItemEntity::getTypeCode, enabledTypeCodes)
-                .eq(DictItemEntity::getStatus, DictStatus.ENABLED.name())
+                .eq(DictItemEntity::getStatus, DictStatus.ENABLED.value())
                 .orderByAsc(DictItemEntity::getTypeCode)
                 .orderByAsc(DictItemEntity::getSort)
                 .orderByAsc(DictItemEntity::getId);
@@ -129,7 +129,6 @@ public class PublicDictService {
 
     private DictOptionView toOption(DictItemEntity item) {
         return new DictOptionView(
-                item.getItemCode(),
                 item.getItemValue(),
                 item.getItemLabel(),
                 item.getSort(),
@@ -138,4 +137,3 @@ public class PublicDictService {
         );
     }
 }
-

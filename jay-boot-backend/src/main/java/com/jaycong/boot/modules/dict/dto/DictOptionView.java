@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "字典选项")
 public record DictOptionView(
-        @Schema(description = "字典项编码", example = "ACTIVE")
-        String itemCode,
         @Schema(description = "字典项值", example = "ACTIVE")
         String value,
         @Schema(description = "字典项显示名称", example = "启用")
@@ -18,4 +16,3 @@ public record DictOptionView(
         String extJson
 ) {
 }
-

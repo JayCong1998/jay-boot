@@ -221,7 +221,6 @@ CREATE TABLE IF NOT EXISTS sys_dict_type (
 CREATE TABLE IF NOT EXISTS sys_dict_item (
     id BIGINT PRIMARY KEY,
     type_code VARCHAR(64) NOT NULL COMMENT '字典类型编码',
-    item_code VARCHAR(64) NOT NULL COMMENT '字典项编码',
     item_label VARCHAR(128) NOT NULL COMMENT '字典项显示名',
     item_value VARCHAR(128) NOT NULL COMMENT '字典项值',
     sort INT NOT NULL DEFAULT 0 COMMENT '排序值（升序）',
@@ -235,7 +234,7 @@ CREATE TABLE IF NOT EXISTS sys_dict_item (
     updater_name VARCHAR(64) NOT NULL,
     updated_time DATETIME(3) NOT NULL,
     is_deleted TINYINT(1) NOT NULL DEFAULT 0,
-    UNIQUE KEY uk_sys_dict_item_type_code_deleted (type_code, item_code, is_deleted),
+    UNIQUE KEY uk_sys_dict_item_type_value_deleted (type_code, item_value, is_deleted),
     KEY idx_sys_dict_item_type_sort (type_code, sort),
     KEY idx_sys_dict_item_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='字典项表';
@@ -251,21 +250,21 @@ INSERT IGNORE INTO sys_dict_type (
     (1951000000000000005, 'http_method', 'HTTP 请求方法', 'ENABLED', '请求日志筛选方法字典', 0, 'system', NOW(3), 0, 'system', NOW(3), 0);
 
 INSERT IGNORE INTO sys_dict_item (
-    id, type_code, item_code, item_label, item_value, sort, color, ext_json, status,
+    id, type_code, item_label, item_value, sort, color, ext_json, status,
     creator_id, creator_name, created_time, updater_id, updater_name, updated_time, is_deleted
 ) VALUES
-    (1951000000001000001, 'admin_user_role', 'super_admin', '超管', 'super_admin', 10, 'red', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
-    (1951000000001000002, 'admin_user_role', 'admin', '管理员', 'admin', 20, 'processing', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
-    (1951000000001000003, 'admin_user_role', 'user', '用户', 'user', 30, 'default', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000001, 'admin_user_role', '超管', 'super_admin', 10, 'red', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000002, 'admin_user_role', '管理员', 'admin', 20, 'processing', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000003, 'admin_user_role', '用户', 'user', 30, 'default', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
 
-    (1951000000001000011, 'admin_user_status', 'ACTIVE', '启用', 'ACTIVE', 10, 'success', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
-    (1951000000001000012, 'admin_user_status', 'INACTIVE', '禁用', 'INACTIVE', 20, 'default', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000011, 'admin_user_status', '启用', 'ACTIVE', 10, 'success', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000012, 'admin_user_status', '禁用', 'INACTIVE', 20, 'default', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
 
-    (1951000000001000021, 'plan_billing_cycle', 'MONTHLY', '月付', 'MONTHLY', 10, 'processing', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
-    (1951000000001000022, 'plan_billing_cycle', 'YEARLY', '年付', 'YEARLY', 20, 'success', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000021, 'plan_billing_cycle', '月付', 'MONTHLY', 10, 'processing', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000022, 'plan_billing_cycle', '年付', 'YEARLY', 20, 'success', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
 
-    (1951000000001000031, 'plan_status', 'ACTIVE', '启用', 'ACTIVE', 10, 'success', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
-    (1951000000001000032, 'plan_status', 'INACTIVE', '停用', 'INACTIVE', 20, 'default', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000031, 'plan_status', '启用', 'ACTIVE', 10, 'success', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000032, 'plan_status', '停用', 'INACTIVE', 20, 'default', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
 
-    (1951000000001000041, 'http_method', 'GET', 'GET', 'GET', 10, 'green', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
-    (1951000000001000042, 'http_method', 'POST', 'POST', 'POST', 20, 'blue', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0);
+    (1951000000001000041, 'http_method', 'GET', 'GET', 10, 'green', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1951000000001000042, 'http_method', 'POST', 'POST', 20, 'blue', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0);

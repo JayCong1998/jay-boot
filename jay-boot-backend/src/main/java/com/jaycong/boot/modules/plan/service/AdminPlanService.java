@@ -45,10 +45,10 @@ public class AdminPlanService {
             wrapper.and(w -> w.like(PlanEntity::getCode, keyword).or().like(PlanEntity::getName, keyword));
         }
         if (request.status() != null) {
-            wrapper.eq(PlanEntity::getStatus, request.status().name());
+            wrapper.eq(PlanEntity::getStatus, request.status().value());
         }
         if (request.billingCycle() != null) {
-            wrapper.eq(PlanEntity::getBillingCycle, request.billingCycle().name());
+            wrapper.eq(PlanEntity::getBillingCycle, request.billingCycle().value());
         }
         wrapper.orderByDesc(PlanEntity::getUpdatedTime);
 
@@ -69,10 +69,10 @@ public class AdminPlanService {
         PlanEntity entity = new PlanEntity();
         entity.setCode(normalizeCode(request.code()));
         entity.setName(normalizeName(request.name()));
-        entity.setBillingCycle(request.billingCycle().name());
+        entity.setBillingCycle(request.billingCycle().value());
         entity.setQuotaJson(request.quotaJson().trim());
         entity.setPrice(request.price());
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
 
         insertPlan(entity);
     }
@@ -84,19 +84,19 @@ public class AdminPlanService {
 
         PlanEntity entity = requirePlan(id);
         entity.setName(normalizeName(request.name()));
-        entity.setBillingCycle(request.billingCycle().name());
+        entity.setBillingCycle(request.billingCycle().value());
         entity.setQuotaJson(request.quotaJson().trim());
         entity.setPrice(request.price());
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
 
         updatePlan(entity);
     }
 
     @Transactional
-    @OperationLog(module = "套餐管理", action = "修改状态", detail = "套餐#{#id}状态改为#{#request.status.name()}")
+    @OperationLog(module = "套餐管理", action = "修改状态", detail = "套餐#{#id}状态改为#{#request.status.value()}")
     public void updateStatus(Long id, AdminPlanStatusUpdateRequest request) {
         PlanEntity entity = requirePlan(id);
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
         updatePlan(entity);
     }
 
@@ -163,13 +163,13 @@ public class AdminPlanService {
         if (!StringUtils.hasText(billingCycle)) {
             return null;
         }
-        return PlanBillingCycle.valueOf(billingCycle.trim().toUpperCase(Locale.ROOT));
+        return PlanBillingCycle.fromValue(billingCycle);
     }
 
     private PlanStatus parseStatus(String status) {
         if (!StringUtils.hasText(status)) {
             return null;
         }
-        return PlanStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
+        return PlanStatus.fromValue(status);
     }
 }

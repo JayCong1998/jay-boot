@@ -27,9 +27,9 @@ import org.springframework.util.StringUtils;
 @Service
 public class AdminUserService {
 
-    private static final String ROLE_SUPER_ADMIN = "super_admin";
-    private static final String ROLE_ADMIN = "admin";
-    private static final String STATUS_ACTIVE = "ACTIVE";
+    private static final String ROLE_SUPER_ADMIN = AdminUserRole.SUPER_ADMIN.value();
+    private static final String ROLE_ADMIN = AdminUserRole.ADMIN.value();
+    private static final String STATUS_ACTIVE = AdminUserStatus.ACTIVE.value();
 
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
@@ -52,7 +52,7 @@ public class AdminUserService {
             wrapper.eq(UserEntity::getRole, request.role().value());
         }
         if (request.status() != null) {
-            wrapper.eq(UserEntity::getStatus, request.status().name());
+            wrapper.eq(UserEntity::getStatus, request.status().value());
         }
         wrapper.orderByDesc(UserEntity::getCreatedTime);
 
@@ -77,7 +77,7 @@ public class AdminUserService {
         entity.setUsername(username);
         entity.setEmail(email);
         entity.setRole(request.role().value());
-        entity.setStatus(request.status() == null ? AdminUserStatus.ACTIVE.name() : request.status().name());
+        entity.setStatus(request.status() == null ? AdminUserStatus.ACTIVE.value() : request.status().value());
         entity.setPasswordHash(passwordEncoder.encode(request.password()));
         userMapper.insert(entity);
     }
@@ -92,7 +92,7 @@ public class AdminUserService {
         ensureEmailUnique(email, id);
 
         String nextRole = request.role().value();
-        String nextStatus = request.status().name();
+        String nextStatus = request.status().value();
         ensureActiveManagementNotExhausted(entity, nextRole, nextStatus);
 
         entity.setUsername(username);
@@ -103,13 +103,13 @@ public class AdminUserService {
     }
 
     @Transactional
-    @OperationLog(module = "用户管理", action = "修改状态", detail = "用户#{#id}状态改为#{#request.status.name()}")
+    @OperationLog(module = "用户管理", action = "修改状态", detail = "用户#{#id}状态改为#{#request.status.value()}")
     public void updateStatus(Long id, AdminUserStatusUpdateRequest request) {
         Long operatorId = LoginContext.requireUserId();
         UserEntity entity = requireUser(id);
-        String nextStatus = request.status().name();
+        String nextStatus = request.status().value();
 
-        if (operatorId.equals(id) && AdminUserStatus.INACTIVE.name().equals(nextStatus)) {
+        if (operatorId.equals(id) && AdminUserStatus.INACTIVE.value().equals(nextStatus)) {
             throw new BusinessException(ErrorCode.FORBIDDEN, "Current account cannot be disabled");
         }
 
@@ -201,7 +201,7 @@ public class AdminUserService {
         if (!StringUtils.hasText(status)) {
             return AdminUserStatus.INACTIVE;
         }
-        return AdminUserStatus.valueOf(status.toUpperCase(Locale.ROOT));
+        return AdminUserStatus.fromValue(status);
     }
 
     private AdminUserItemView toItemView(UserEntity entity) {

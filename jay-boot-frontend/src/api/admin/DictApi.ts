@@ -1,7 +1,6 @@
 import { get } from '../index'
 
 export interface DictOptionItem {
-  itemCode: string
   value: string
   label: string
   sort: number
@@ -35,4 +34,3 @@ export const getDictOptionsApi = (typeCode: string) =>
  */
 export const getDictBatchOptionsApi = (typeCodes: string[]) =>
   get<DictTypeOptions[]>('/api/public/dict/options/batch', { typeCodes: typeCodes.join(',') })
-

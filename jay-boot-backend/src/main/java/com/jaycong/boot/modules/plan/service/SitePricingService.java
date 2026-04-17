@@ -69,18 +69,20 @@ public class SitePricingService {
         if (!StringUtils.hasText(billingCycleText)) {
             return PlanBillingCycle.MONTHLY;
         }
-        String normalized = billingCycleText.trim().toUpperCase(Locale.ROOT);
         try {
-            return PlanBillingCycle.valueOf(normalized);
+            return PlanBillingCycle.fromValue(billingCycleText);
         } catch (IllegalArgumentException ex) {
-            throw new BusinessException(ErrorCode.BAD_REQUEST, "billingCycle 仅支持 MONTHLY 或 YEARLY");
+            throw new BusinessException(
+                    ErrorCode.BAD_REQUEST,
+                    "billingCycle 仅支持 " + PlanBillingCycle.MONTHLY.value() + " 或 " + PlanBillingCycle.YEARLY.value()
+            );
         }
     }
 
     private List<PlanProfile> listPlanProfiles(PlanBillingCycle billingCycle) {
         LambdaQueryWrapper<PlanEntity> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(PlanEntity::getStatus, PlanStatus.ACTIVE.name())
-                .eq(PlanEntity::getBillingCycle, billingCycle.name())
+        wrapper.eq(PlanEntity::getStatus, PlanStatus.ACTIVE.value())
+                .eq(PlanEntity::getBillingCycle, billingCycle.value())
                 .orderByAsc(PlanEntity::getPrice)
                 .orderByDesc(PlanEntity::getUpdatedTime);
 

@@ -240,23 +240,13 @@
     >
       <a-form layout="vertical">
         <a-row :gutter="12">
-          <a-col :xs="24" :md="12">
+          <a-col :xs="24" :md="24">
             <a-form-item label="字典类型" required>
               <a-select
                 v-model:value="itemModal.form.typeCode"
                 :disabled="itemModal.mode === 'edit'"
                 :options="dictTypeFormOptions"
                 placeholder="请选择字典类型"
-              />
-            </a-form-item>
-          </a-col>
-          <a-col :xs="24" :md="12">
-            <a-form-item label="字典项编码" required>
-              <a-input
-                v-model:value="itemModal.form.itemCode"
-                :disabled="itemModal.mode === 'edit'"
-                :maxlength="64"
-                placeholder="例如：ACTIVE"
               />
             </a-form-item>
           </a-col>
@@ -418,7 +408,6 @@ const itemModal = reactive({
   editingId: '',
   form: {
     typeCode: '',
-    itemCode: '',
     itemLabel: '',
     itemValue: '',
     sort: 10,
@@ -439,7 +428,6 @@ const typeColumns = [
 
 const itemColumns = [
   { title: '类型编码', dataIndex: 'typeCode', key: 'typeCode', width: 160 },
-  { title: '字典项编码', dataIndex: 'itemCode', key: 'itemCode', width: 180 },
   { title: '名称', dataIndex: 'itemLabel', key: 'itemLabel', width: 140 },
   { title: '值', dataIndex: 'itemValue', key: 'itemValue', width: 140 },
   { title: '排序', dataIndex: 'sort', key: 'sort', width: 100 },
@@ -478,7 +466,6 @@ const resetTypeModalForm = () => {
 
 const resetItemModalForm = () => {
   itemModal.form.typeCode = ''
-  itemModal.form.itemCode = ''
   itemModal.form.itemLabel = ''
   itemModal.form.itemValue = ''
   itemModal.form.sort = 10
@@ -507,20 +494,11 @@ const validateTypeForm = () => {
 
 const validateItemForm = () => {
   const typeCode = normalizeTypeCode(itemModal.form.typeCode)
-  const itemCode = normalizeText(itemModal.form.itemCode)
   const itemLabel = normalizeText(itemModal.form.itemLabel)
   const itemValue = normalizeText(itemModal.form.itemValue)
 
   if (!typeCode) {
     message.warning('请选择字典类型')
-    return false
-  }
-  if (!itemCode) {
-    message.warning('请输入字典项编码')
-    return false
-  }
-  if (!/^[A-Za-z0-9_]+$/.test(itemCode)) {
-    message.warning('字典项编码仅支持字母、数字和下划线')
     return false
   }
   if (!itemLabel) {
@@ -785,7 +763,6 @@ const onOpenEditItemModal = async (record: AdminDictItem) => {
     itemModal.mode = 'edit'
     itemModal.editingId = detail.id
     itemModal.form.typeCode = detail.typeCode
-    itemModal.form.itemCode = detail.itemCode
     itemModal.form.itemLabel = detail.itemLabel
     itemModal.form.itemValue = detail.itemValue
     itemModal.form.sort = detail.sort
@@ -813,7 +790,6 @@ const onSubmitItem = async () => {
     if (itemModal.mode === 'create') {
       await createAdminDictItemApi({
         typeCode: normalizeTypeCode(itemModal.form.typeCode),
-        itemCode: normalizeText(itemModal.form.itemCode),
         ...payload,
       })
       message.success('字典项创建成功')
@@ -835,7 +811,7 @@ const onToggleItemStatus = (record: AdminDictItem) => {
   const actionText = nextStatus === 'ENABLED' ? '启用' : '禁用'
   Modal.confirm({
     title: `确认${actionText}该字典项？`,
-    content: `字典项：${record.itemLabel} (${record.itemCode})`,
+    content: `字典项：${record.itemLabel} (${record.itemValue})`,
     okText: '确认',
     cancelText: '取消',
     async onOk() {
@@ -927,7 +903,7 @@ const onBatchAdjustItemSort = () => {
 const onDeleteItem = (record: AdminDictItem) => {
   Modal.confirm({
     title: '确认删除该字典项？',
-    content: `字典项：${record.itemLabel} (${record.itemCode})`,
+    content: `字典项：${record.itemLabel} (${record.itemValue})`,
     okText: '确认删除',
     okButtonProps: { danger: true },
     cancelText: '取消',
@@ -1066,3 +1042,4 @@ onMounted(() => {
   }
 }
 </style>
+

@@ -12,8 +12,6 @@ public class DictItemEntity extends BaseEntity {
 
     private String typeCode;
 
-    private String itemCode;
-
     private String itemLabel;
 
     private String itemValue;
@@ -26,4 +24,3 @@ public class DictItemEntity extends BaseEntity {
 
     private String status;
 }
-

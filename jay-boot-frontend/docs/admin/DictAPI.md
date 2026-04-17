@@ -68,7 +68,6 @@ Query 参数：
   "code": 200,
   "body": [
     {
-      "itemCode": "ACTIVE",
       "value": "ACTIVE",
       "label": "启用",
       "sort": 10,
@@ -101,15 +100,15 @@ Query 参数：
     {
       "typeCode": "admin_user_role",
       "options": [
-        { "itemCode": "super_admin", "value": "super_admin", "label": "超管", "sort": 10, "color": "red", "extJson": null },
-        { "itemCode": "admin", "value": "admin", "label": "管理员", "sort": 20, "color": "processing", "extJson": null }
+        { "value": "super_admin", "label": "超管", "sort": 10, "color": "red", "extJson": null },
+        { "value": "admin", "label": "管理员", "sort": 20, "color": "processing", "extJson": null }
       ]
     },
     {
       "typeCode": "admin_user_status",
       "options": [
-        { "itemCode": "ACTIVE", "value": "ACTIVE", "label": "启用", "sort": 10, "color": "success", "extJson": null },
-        { "itemCode": "INACTIVE", "value": "INACTIVE", "label": "禁用", "sort": 20, "color": "default", "extJson": null }
+        { "value": "ACTIVE", "label": "启用", "sort": 10, "color": "success", "extJson": null },
+        { "value": "INACTIVE", "label": "禁用", "sort": 20, "color": "default", "extJson": null }
       ]
     }
   ],
@@ -197,7 +196,7 @@ Query 参数：
 | page | number | 否 | 页码，默认 1 |
 | pageSize | number | 否 | 每页条数，默认 10 |
 | typeCode | string | 否 | 按字典类型过滤 |
-| keyword | string | 否 | 关键字，匹配 `itemCode/itemLabel/itemValue` |
+| keyword | string | 否 | 关键字，匹配 `itemLabel/itemValue` |
 | status | string | 否 | `ENABLED` / `DISABLED` |
 
 ### 3.9 查询字典项详情
@@ -215,7 +214,6 @@ Query 参数：
 ```json
 {
   "typeCode": "order_status",
-  "itemCode": "PAID",
   "itemLabel": "已支付",
   "itemValue": "PAID",
   "sort": 20,

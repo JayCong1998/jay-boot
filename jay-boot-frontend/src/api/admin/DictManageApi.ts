@@ -14,7 +14,6 @@ export interface AdminDictTypeItem {
 export interface AdminDictItem {
   id: string
   typeCode: string
-  itemCode: string
   itemLabel: string
   itemValue: string
   sort: number
@@ -61,7 +60,6 @@ export interface DictItemPageParams extends Record<string, unknown> {
 
 export interface DictItemCreatePayload extends Record<string, unknown> {
   typeCode: string
-  itemCode: string
   itemLabel: string
   itemValue: string
   sort: number

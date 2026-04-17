@@ -9,8 +9,6 @@ public record AdminDictItemView(
         Long id,
         @Schema(description = "字典类型编码", example = "plan_status")
         String typeCode,
-        @Schema(description = "字典项编码", example = "ACTIVE")
-        String itemCode,
         @Schema(description = "字典项名称", example = "启用")
         String itemLabel,
         @Schema(description = "字典项值", example = "ACTIVE")
@@ -27,4 +25,3 @@ public record AdminDictItemView(
         String updatedTime
 ) {
 }
-

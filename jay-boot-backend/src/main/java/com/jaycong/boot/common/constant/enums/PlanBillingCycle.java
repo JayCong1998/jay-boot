@@ -1,7 +1,44 @@
 package com.jaycong.boot.common.constant.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import java.util.Arrays;
+
 public enum PlanBillingCycle {
-    MONTHLY,
-    YEARLY
+    MONTHLY("MONTHLY", "月付"),
+    YEARLY("YEARLY", "年付");
+
+    private final String value;
+    private final String label;
+
+    PlanBillingCycle(String value, String label) {
+        this.value = value;
+        this.label = label;
+    }
+
+    @JsonValue
+    public String value() {
+        return value;
+    }
+
+    public String label() {
+        return label;
+    }
+
+    public static PlanBillingCycle fromValue(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        String normalized = raw.trim();
+        return Arrays.stream(values())
+                .filter(item -> item.value.equalsIgnoreCase(normalized))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Unsupported billing cycle: " + raw));
+    }
+
+    @JsonCreator
+    public static PlanBillingCycle fromRaw(String raw) {
+        return fromValue(raw);
+    }
 }
 

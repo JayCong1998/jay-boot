@@ -11,10 +11,9 @@ public record AdminDictItemPageRequest(
         Integer pageSize,
         @Schema(description = "类型编码", example = "plan_status")
         String typeCode,
-        @Schema(description = "关键字，匹配字典项编码/名称/值", example = "ACTIVE")
+        @Schema(description = "关键字，匹配字典项名称/值", example = "ACTIVE")
         String keyword,
         @Schema(description = "状态")
         DictStatus status
 ) {
 }
-

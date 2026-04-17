@@ -55,7 +55,7 @@ public class AdminDictService {
             wrapper.and(w -> w.like(DictTypeEntity::getTypeCode, keyword).or().like(DictTypeEntity::getTypeName, keyword));
         }
         if (request.status() != null) {
-            wrapper.eq(DictTypeEntity::getStatus, request.status().name());
+            wrapper.eq(DictTypeEntity::getStatus, request.status().value());
         }
         wrapper.orderByAsc(DictTypeEntity::getTypeCode).orderByDesc(DictTypeEntity::getUpdatedTime);
 
@@ -74,7 +74,7 @@ public class AdminDictService {
         DictTypeEntity entity = new DictTypeEntity();
         entity.setTypeCode(normalizeTypeCode(request.typeCode()));
         entity.setTypeName(normalizeTypeName(request.typeName()));
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
         entity.setDescription(normalizeOptionalText(request.description(), 255));
         insertType(entity);
     }
@@ -84,16 +84,16 @@ public class AdminDictService {
     public void updateType(Long id, AdminDictTypeUpdateRequest request) {
         DictTypeEntity entity = requireType(id);
         entity.setTypeName(normalizeTypeName(request.typeName()));
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
         entity.setDescription(normalizeOptionalText(request.description(), 255));
         updateTypeEntity(entity);
     }
 
     @Transactional
-    @OperationLog(module = "字典管理", action = "修改字典类型状态", detail = "字典类型ID：#{#id}, 状态：#{#request.status.name()}")
+    @OperationLog(module = "字典管理", action = "修改字典类型状态", detail = "字典类型ID：#{#id}, 状态：#{#request.status.value()}")
     public void updateTypeStatus(Long id, AdminDictTypeStatusUpdateRequest request) {
         DictTypeEntity entity = requireType(id);
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
         updateTypeEntity(entity);
     }
 
@@ -118,12 +118,11 @@ public class AdminDictService {
         }
         if (StringUtils.hasText(request.keyword())) {
             String keyword = request.keyword().trim();
-            wrapper.and(w -> w.like(DictItemEntity::getItemCode, keyword)
-                    .or().like(DictItemEntity::getItemLabel, keyword)
+            wrapper.and(w -> w.like(DictItemEntity::getItemLabel, keyword)
                     .or().like(DictItemEntity::getItemValue, keyword));
         }
         if (request.status() != null) {
-            wrapper.eq(DictItemEntity::getStatus, request.status().name());
+            wrapper.eq(DictItemEntity::getStatus, request.status().value());
         }
         wrapper.orderByAsc(DictItemEntity::getTypeCode)
                 .orderByAsc(DictItemEntity::getSort)
@@ -139,20 +138,19 @@ public class AdminDictService {
     }
 
     @Transactional
-    @OperationLog(module = "字典管理", action = "创建字典项", detail = "创建字典项：#{#request.typeCode}/#{#request.itemCode}")
+    @OperationLog(module = "字典管理", action = "创建字典项", detail = "创建字典项：#{#request.typeCode}/#{#request.itemValue}")
     public void createItem(AdminDictItemCreateRequest request) {
         String typeCode = normalizeTypeCode(request.typeCode());
         ensureTypeExists(typeCode);
 
         DictItemEntity entity = new DictItemEntity();
         entity.setTypeCode(typeCode);
-        entity.setItemCode(normalizeItemCode(request.itemCode()));
         entity.setItemLabel(normalizeItemLabel(request.itemLabel()));
         entity.setItemValue(normalizeItemValue(request.itemValue()));
         entity.setSort(request.sort());
         entity.setColor(normalizeOptionalText(request.color(), 32));
         entity.setExtJson(normalizeOptionalText(request.extJson(), null));
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
         insertItem(entity);
     }
 
@@ -165,15 +163,15 @@ public class AdminDictService {
         entity.setSort(request.sort());
         entity.setColor(normalizeOptionalText(request.color(), 32));
         entity.setExtJson(normalizeOptionalText(request.extJson(), null));
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
         updateItemEntity(entity);
     }
 
     @Transactional
-    @OperationLog(module = "字典管理", action = "修改字典项状态", detail = "字典项ID：#{#id}, 状态：#{#request.status.name()}")
+    @OperationLog(module = "字典管理", action = "修改字典项状态", detail = "字典项ID：#{#id}, 状态：#{#request.status.value()}")
     public void updateItemStatus(Long id, AdminDictItemStatusUpdateRequest request) {
         DictItemEntity entity = requireItem(id);
-        entity.setStatus(request.status().name());
+        entity.setStatus(request.status().value());
         updateItemEntity(entity);
     }
 
@@ -186,12 +184,12 @@ public class AdminDictService {
     }
 
     @Transactional
-    @OperationLog(module = "字典管理", action = "批量修改字典项状态", detail = "批量修改字典项状态：#{#request.status.name()}")
+    @OperationLog(module = "字典管理", action = "批量修改字典项状态", detail = "批量修改字典项状态：#{#request.status.value()}")
     public void batchUpdateItemStatus(AdminDictItemBatchStatusUpdateRequest request) {
         List<Long> ids = normalizeBatchIds(request.ids());
         List<DictItemEntity> entities = requireItems(ids);
         for (DictItemEntity entity : entities) {
-            entity.setStatus(request.status().name());
+            entity.setStatus(request.status().value());
             updateItemEntity(entity);
         }
     }
@@ -296,7 +294,7 @@ public class AdminDictService {
         try {
             dictItemMapper.insert(entity);
         } catch (DuplicateKeyException ex) {
-            throw new BusinessException(ErrorCode.CONFLICT, "字典项编码已存在");
+            throw new BusinessException(ErrorCode.CONFLICT, "字典项值已存在");
         }
     }
 
@@ -304,7 +302,7 @@ public class AdminDictService {
         try {
             dictItemMapper.updateById(entity);
         } catch (DuplicateKeyException ex) {
-            throw new BusinessException(ErrorCode.CONFLICT, "字典项编码已存在");
+            throw new BusinessException(ErrorCode.CONFLICT, "字典项值已存在");
         }
     }
 
@@ -320,14 +318,6 @@ public class AdminDictService {
         String normalized = typeName == null ? null : typeName.trim();
         ValidateUtil.notBlank(normalized, "类型名称不能为空");
         ValidateUtil.maxLength(normalized, 64, "类型名称长度不能超过64");
-        return normalized;
-    }
-
-    private String normalizeItemCode(String itemCode) {
-        String normalized = itemCode == null ? null : itemCode.trim();
-        ValidateUtil.notBlank(normalized, "字典项编码不能为空");
-        ValidateUtil.maxLength(normalized, 64, "字典项编码长度不能超过64");
-        ValidateUtil.matches(normalized, "^[A-Za-z0-9_]+$", "字典项编码仅支持字母、数字和下划线");
         return normalized;
     }
 
@@ -373,7 +363,6 @@ public class AdminDictService {
         return new AdminDictItemView(
                 entity.getId(),
                 entity.getTypeCode(),
-                entity.getItemCode(),
                 entity.getItemLabel(),
                 entity.getItemValue(),
                 entity.getSort(),
@@ -388,6 +377,6 @@ public class AdminDictService {
         if (!StringUtils.hasText(status)) {
             return null;
         }
-        return DictStatus.valueOf(status.trim().toUpperCase(Locale.ROOT));
+        return DictStatus.fromValue(status);
     }
 }
