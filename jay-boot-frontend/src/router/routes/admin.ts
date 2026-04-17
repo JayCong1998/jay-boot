@@ -11,31 +11,37 @@ const adminChildren: RouteRecordRaw[] = [
   {
     path: 'users',
     name: 'admin-users',
-    component: () => import('../../views/admin/UserManagementView.vue'),
+    component: () => import('../../views/admin/user/UserManagementView.vue'),
     meta: { title: '用户管理' },
   },
   {
     path: 'plans',
     name: 'admin-plans',
-    component: () => import('../../views/admin/PlansManagementView.vue'),
+    component: () => import('../../views/admin/plan/PlansManagementView.vue'),
     meta: { title: '套餐管理' },
+  },
+  {
+    path: 'dicts',
+    name: 'admin-dicts',
+    component: () => import('../../views/admin/dict/DictManagementView.vue'),
+    meta: { title: '字典管理' },
   },
   {
     path: 'logs/requests',
     name: 'admin-logs-requests',
-    component: () => import('../../views/admin/RequestLogView.vue'),
+    component: () => import('../../views/admin/log/RequestLogView.vue'),
     meta: { title: '请求日志' },
   },
   {
     path: 'logs/errors',
     name: 'admin-logs-errors',
-    component: () => import('../../views/admin/ErrorLogView.vue'),
+    component: () => import('../../views/admin/log/ErrorLogView.vue'),
     meta: { title: '异常日志' },
   },
   {
     path: 'logs/operations',
     name: 'admin-logs-operations',
-    component: () => import('../../views/admin/OperationLogView.vue'),
+    component: () => import('../../views/admin/log/OperationLogView.vue'),
     meta: { title: '操作日志' },
   },
 ]
@@ -44,13 +50,13 @@ export const adminRoutes: RouteRecordRaw[] = [
   {
     path: '/admin/auth/login',
     name: 'admin-auth-login',
-    component: () => import('../../views/admin/AuthLoginView.vue'),
+    component: () => import('../../views/admin/auth/AuthLoginView.vue'),
     meta: { title: '登录', guestOnly: true, defaultRedirect: '/admin/dashboard' },
   },
   {
     path: '/admin/auth/register',
     name: 'admin-auth-register',
-    component: () => import('../../views/admin/AuthRegisterView.vue'),
+    component: () => import('../../views/admin/auth/AuthRegisterView.vue'),
     meta: { title: '注册', guestOnly: true, defaultRedirect: '/admin/dashboard' },
   },
   {

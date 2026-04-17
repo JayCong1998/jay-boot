@@ -69,6 +69,7 @@ const menuItems: MenuProps['items'] = [
   { key: '/admin/dashboard', label: '控制台总览' },
   { key: '/admin/users', label: '用户管理' },
   { key: '/admin/plans', label: '套餐管理' },
+  { key: '/admin/dicts', label: '字典管理' },
   { key: '/admin/logs/requests', label: '请求日志' },
   { key: '/admin/logs/errors', label: '异常日志' },
 ]
