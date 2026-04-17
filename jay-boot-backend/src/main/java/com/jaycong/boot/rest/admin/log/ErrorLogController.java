@@ -35,7 +35,7 @@ public class ErrorLogController {
     }
 
     @Operation(summary = "分页查询异常日志")
-    @GetMapping
+    @GetMapping("/page")
     public ApiResponse<PageResult<ErrorLogItemView>> page(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize,
@@ -65,7 +65,7 @@ public class ErrorLogController {
     @Operation(summary = "批量删除异常日志")
     @PostMapping("/batch-delete")
     public ApiResponse<Void> batchDelete(@Valid @RequestBody BatchDeleteRequest request) {
-        errorLogService.batchDelete(request.getIds());
+        errorLogService.batchDelete(request.ids());
         return ApiResponse.success(null);
     }
 }

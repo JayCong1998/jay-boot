@@ -113,7 +113,8 @@
     </a-card>
 
     <a-modal v-model:open="detailModal.open" title="操作日志详情" :footer="null" width="700px">
-      <a-descriptions :column="2" bordered size="small">
+      <a-spin :spinning="detailModal.loading">
+        <a-descriptions :column="2" bordered size="small">
         <a-descriptions-item label="模块">{{ detailModal.data?.module }}</a-descriptions-item>
         <a-descriptions-item label="操作">{{ detailModal.data?.action }}</a-descriptions-item>
         <a-descriptions-item label="详情" :span="2">{{ detailModal.data?.detail || '-' }}</a-descriptions-item>
@@ -122,7 +123,8 @@
         <a-descriptions-item label="客户端IP">{{ detailModal.data?.clientIp || '-' }}</a-descriptions-item>
         <a-descriptions-item label="请求ID">{{ detailModal.data?.requestId || '-' }}</a-descriptions-item>
         <a-descriptions-item label="操作时间" :span="2">{{ formatDateTime(detailModal.data?.createdTime) }}</a-descriptions-item>
-      </a-descriptions>
+        </a-descriptions>
+      </a-spin>
     </a-modal>
   </section>
 </template>
@@ -132,6 +134,7 @@ import { computed, onMounted, reactive } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import {
+  getOperationLogDetailApi,
   getOperationLogPageApi,
   type OperationLogItem,
   type OperationLogPageParams,
@@ -158,6 +161,7 @@ const filters = reactive({
 
 const detailModal = reactive({
   open: false,
+  loading: false,
   data: null as OperationLogItem | null,
 })
 
@@ -245,9 +249,18 @@ const onPageChange = async (page: number, pageSize: number) => {
   await fetchList('refresh')
 }
 
-const onViewDetail = (record: OperationLogItem) => {
-  detailModal.data = record
+const onViewDetail = async (record: OperationLogItem) => {
   detailModal.open = true
+  detailModal.loading = true
+  detailModal.data = null
+  try {
+    detailModal.data = await getOperationLogDetailApi(record.id)
+  } catch (error) {
+    detailModal.open = false
+    message.error(error instanceof Error ? error.message : '操作日志详情加载失败，请稍后重试')
+  } finally {
+    detailModal.loading = false
+  }
 }
 
 onMounted(() => {

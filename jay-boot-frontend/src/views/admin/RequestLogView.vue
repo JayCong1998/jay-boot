@@ -113,7 +113,8 @@
     </a-card>
 
     <a-modal v-model:open="detailModal.open" title="请求日志详情" :footer="null" width="800px">
-      <a-descriptions :column="2" bordered size="small">
+      <a-spin :spinning="detailModal.loading">
+        <a-descriptions :column="2" bordered size="small">
         <a-descriptions-item label="请求ID">{{ detailModal.data?.requestId }}</a-descriptions-item>
         <a-descriptions-item label="请求方法">{{ detailModal.data?.method }}</a-descriptions-item>
         <a-descriptions-item label="请求路径" :span="2">{{ detailModal.data?.path }}</a-descriptions-item>
@@ -128,7 +129,8 @@
         <a-descriptions-item label="客户端IP">{{ detailModal.data?.clientIp || '-' }}</a-descriptions-item>
         <a-descriptions-item label="请求时间">{{ formatDateTime(detailModal.data?.createdTime) }}</a-descriptions-item>
         <a-descriptions-item label="User-Agent" :span="2">{{ detailModal.data?.userAgent || '-' }}</a-descriptions-item>
-      </a-descriptions>
+        </a-descriptions>
+      </a-spin>
     </a-modal>
   </section>
 </template>
@@ -138,6 +140,7 @@ import { computed, onMounted, reactive } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import {
+  getRequestLogDetailApi,
   getRequestLogPageApi,
   deleteRequestLogApi,
   type RequestLogItem,
@@ -166,6 +169,7 @@ const filters = reactive({
 // 详情弹窗
 const detailModal = reactive({
   open: false,
+  loading: false,
   data: null as RequestLogItem | null,
 })
 
@@ -287,9 +291,18 @@ const onPageChange = async (page: number, pageSize: number) => {
   await fetchList('refresh')
 }
 
-const onViewDetail = (record: RequestLogItem) => {
-  detailModal.data = record
+const onViewDetail = async (record: RequestLogItem) => {
   detailModal.open = true
+  detailModal.loading = true
+  detailModal.data = null
+  try {
+    detailModal.data = await getRequestLogDetailApi(record.id)
+  } catch (error) {
+    detailModal.open = false
+    message.error(error instanceof Error ? error.message : '请求日志详情加载失败，请稍后重试')
+  } finally {
+    detailModal.loading = false
+  }
 }
 
 const onDeleteOne = (record: RequestLogItem) => {

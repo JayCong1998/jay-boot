@@ -55,11 +55,11 @@ interface AdminUserPasswordResetPayload extends Record<string, unknown> {
  * 功能描述：按分页与筛选条件查询管理端用户列表
  * 入参：分页参数、筛选参数
  * 返回参数：分页结果
- * url地址：/api/admin/users
+ * url地址：/api/admin/users/page
  * 请求方式：GET
  */
 export const getAdminUserPageApi = (params: AdminUserPageParams) =>
-  get<AdminUserPageResponse>('/api/admin/users', params)
+  get<AdminUserPageResponse>('/api/admin/users/page', params)
 
 /**
  * 创建用户

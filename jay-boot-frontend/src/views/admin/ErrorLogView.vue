@@ -114,7 +114,8 @@
     </a-card>
 
     <a-modal v-model:open="detailModal.open" title="异常日志详情" :footer="null" width="900px">
-      <a-descriptions :column="2" bordered size="small">
+      <a-spin :spinning="detailModal.loading">
+        <a-descriptions :column="2" bordered size="small">
         <a-descriptions-item label="请求ID">{{ detailModal.data?.requestId || '-' }}</a-descriptions-item>
         <a-descriptions-item label="用户">{{ detailModal.data?.username || '-' }}</a-descriptions-item>
         <a-descriptions-item label="请求路径" :span="2">{{ detailModal.data?.requestPath || '-' }}</a-descriptions-item>
@@ -125,12 +126,13 @@
         <a-descriptions-item label="请求参数" :span="2">
           <pre style="margin: 0; white-space: pre-wrap; word-break: break-all; max-height: 150px; overflow: auto;">{{ formatJson(detailModal.data?.requestParams) }}</pre>
         </a-descriptions-item>
-      </a-descriptions>
-      
-      <div style="margin-top: 16px;">
-        <div style="font-weight: 500; margin-bottom: 8px;">堆栈信息</div>
-        <pre style="margin: 0; padding: 12px; background: #f5f5f5; border-radius: 6px; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow: auto; font-size: 12px;">{{ detailModal.data?.stackTrace || '-' }}</pre>
-      </div>
+        </a-descriptions>
+
+        <div style="margin-top: 16px;">
+          <div style="font-weight: 500; margin-bottom: 8px;">堆栈信息</div>
+          <pre style="margin: 0; padding: 12px; background: #f5f5f5; border-radius: 6px; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow: auto; font-size: 12px;">{{ detailModal.data?.stackTrace || '-' }}</pre>
+        </div>
+      </a-spin>
     </a-modal>
   </section>
 </template>
@@ -140,6 +142,7 @@ import { computed, onMounted, reactive } from 'vue'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message, Modal } from 'ant-design-vue'
 import {
+  getErrorLogDetailApi,
   getErrorLogPageApi,
   deleteErrorLogApi,
   type ErrorLogItem,
@@ -167,6 +170,7 @@ const filters = reactive({
 // 详情弹窗
 const detailModal = reactive({
   open: false,
+  loading: false,
   data: null as ErrorLogItem | null,
 })
 
@@ -266,9 +270,18 @@ const onPageChange = async (page: number, pageSize: number) => {
   await fetchList('refresh')
 }
 
-const onViewDetail = (record: ErrorLogItem) => {
-  detailModal.data = record
+const onViewDetail = async (record: ErrorLogItem) => {
   detailModal.open = true
+  detailModal.loading = true
+  detailModal.data = null
+  try {
+    detailModal.data = await getErrorLogDetailApi(record.id)
+  } catch (error) {
+    detailModal.open = false
+    message.error(error instanceof Error ? error.message : '异常日志详情加载失败，请稍后重试')
+  } finally {
+    detailModal.loading = false
+  }
 }
 
 const onDeleteOne = (record: ErrorLogItem) => {

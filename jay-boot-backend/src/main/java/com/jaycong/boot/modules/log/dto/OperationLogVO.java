@@ -1,16 +1,17 @@
 package com.jaycong.boot.modules.log.dto;
 
-import lombok.Data;
-
-@Data
-public class OperationLogVO {
-    private String id;
-    private String module;
-    private String action;
-    private String detail;
-    private Long userId;
-    private String username;
-    private String clientIp;
-    private String requestId;
-    private String createdTime;
-}
+/**
+ * 操作日志视图对象。
+ * 用于返回操作日志记录的详细信息。
+ */
+public record OperationLogVO(
+        String id,
+        String module,
+        String action,
+        String detail,
+        Long userId,
+        String username,
+        String clientIp,
+        String requestId,
+        String createdTime
+) {}

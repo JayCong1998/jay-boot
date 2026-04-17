@@ -1,13 +1,13 @@
-# Plans API
+# 套餐管理接口文档
 
 ## 1. 接口概览
 
-- 分页查询套餐：`GET /api/admin/plans`
+- 分页查询套餐：`GET /api/admin/plans/page`
 - 创建套餐：`POST /api/admin/plans`
 - 更新套餐：`POST /api/admin/plans/{id}`
 - 更新套餐状态：`POST /api/admin/plans/{id}/status`
 
-统一返回结构：
+统一响应结构：
 
 ```json
 {
@@ -20,17 +20,17 @@
 
 ## 2. 鉴权
 
-所有接口需要请求头：
+所有接口都需要请求头：
 
 ```text
 satoken: <token>
 ```
 
-## 3. 接口明细
+## 3. 接口详情
 
 ### 3.1 分页查询套餐
 
-- 地址：`/api/admin/plans`
+- 地址：`/api/admin/plans/page`
 - 方法：`GET`
 
 Query 参数：

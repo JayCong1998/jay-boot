@@ -22,6 +22,10 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.Optional;
 
+/**
+ * 操作日志切面类。
+ * 通过AOP自动拦截带有@OperationLog注解的方法，记录操作日志。
+ */
 @Slf4j
 @Aspect
 @Component
@@ -31,9 +35,19 @@ public class OperationLogAspect {
     private final OperationLogService operationLogService;
     private final SpelExpressionParser spelParser = new SpelExpressionParser();
 
+    /**
+     * 定义切点：所有带有@OperationLog注解的方法。
+     */
     @Pointcut("@annotation(com.jaycong.boot.modules.log.annotation.OperationLog)")
     public void operationLogPointcut() {}
 
+    /**
+     * 环绕通知：拦截方法执行并记录操作日志。
+     *
+     * @param point 连接点
+     * @return 方法执行结果
+     * @throws Throwable 方法执行异常
+     */
     @Around("operationLogPointcut()")
     public Object around(ProceedingJoinPoint point) throws Throwable {
         // 先执行业务方法
@@ -61,6 +75,13 @@ public class OperationLogAspect {
         return result;
     }
 
+    /**
+     * 解析SpEL表达式。
+     *
+     * @param template 表达式模板
+     * @param point    连接点
+     * @return 解析后的字符串
+     */
     private String parseSpel(String template, ProceedingJoinPoint point) {
         if (template == null || template.isEmpty()) {
             return "";
@@ -82,6 +103,14 @@ public class OperationLogAspect {
         }
     }
 
+    /**
+     * 解析混合模板中的SpEL表达式。
+     *
+     * @param template   模板字符串
+     * @param paramNames 参数名数组
+     * @param args       参数值数组
+     * @return 解析后的字符串
+     */
     private String parseMixedTemplate(String template, String[] paramNames, Object[] args) {
         String result = template;
         EvaluationContext context = new StandardEvaluationContext();
@@ -95,7 +124,7 @@ public class OperationLogAspect {
         while ((start = result.indexOf("#{")) != -1) {
             int end = result.indexOf("}", start);
             if (end == -1) break;
-            
+
             String expr = result.substring(start + 2, end);
             try {
                 Expression expression = spelParser.parseExpression(expr);
@@ -109,6 +138,13 @@ public class OperationLogAspect {
         return result;
     }
 
+    /**
+     * 构建操作日志实体。
+     *
+     * @param annotation 操作日志注解
+     * @param detail     操作详情
+     * @return 操作日志实体
+     */
     private OperationLogEntity buildLogEntity(OperationLog annotation, String detail) {
         OperationLogEntity entity = new OperationLogEntity();
         entity.setModule(annotation.module());

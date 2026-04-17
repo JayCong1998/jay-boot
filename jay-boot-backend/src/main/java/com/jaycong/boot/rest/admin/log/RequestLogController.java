@@ -35,7 +35,7 @@ public class RequestLogController {
     }
 
     @Operation(summary = "分页查询请求日志")
-    @GetMapping
+    @GetMapping("/page")
     public ApiResponse<PageResult<RequestLogItemView>> page(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize,
@@ -66,7 +66,7 @@ public class RequestLogController {
     @Operation(summary = "批量删除请求日志")
     @PostMapping("/batch-delete")
     public ApiResponse<Void> batchDelete(@Valid @RequestBody BatchDeleteRequest request) {
-        requestLogService.batchDelete(request.getIds());
+        requestLogService.batchDelete(request.ids());
         return ApiResponse.success(null);
     }
 }

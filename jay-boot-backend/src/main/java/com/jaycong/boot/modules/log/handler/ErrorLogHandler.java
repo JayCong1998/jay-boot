@@ -18,6 +18,10 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 错误日志处理器。
+ * 用于捕获和记录系统异常信息。
+ */
 @Component
 public class ErrorLogHandler {
 
@@ -31,6 +35,12 @@ public class ErrorLogHandler {
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * 记录异常日志。
+     * 仅记录已登录用户的异常日志。
+     *
+     * @param ex 异常对象
+     */
     public void recordError(Throwable ex) {
         if (!logProperties.getError().isEnabled()) {
             return;
@@ -62,6 +72,12 @@ public class ErrorLogHandler {
         errorLogService.save(entity);
     }
 
+    /**
+     * 提取请求参数。
+     *
+     * @param request HTTP请求
+     * @return JSON格式的请求参数
+     */
     private String extractRequestParams(HttpServletRequest request) {
         try {
             var paramMap = request.getParameterMap();
@@ -83,6 +99,13 @@ public class ErrorLogHandler {
         }
     }
 
+    /**
+     * 获取客户端真实IP地址。
+     * 支持反向代理场景（X-Forwarded-For、X-Real-IP）。
+     *
+     * @param request HTTP请求
+     * @return 客户端IP地址
+     */
     private String getClientIp(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
@@ -97,12 +120,23 @@ public class ErrorLogHandler {
         return ip;
     }
 
+    /**
+     * 获取异常堆栈信息。
+     *
+     * @param ex 异常对象
+     * @return 堆栈跟踪字符串
+     */
     private String getStackTrace(Throwable ex) {
         StringWriter sw = new StringWriter();
         ex.printStackTrace(new PrintWriter(sw));
         return sw.toString();
     }
 
+    /**
+     * 获取当前HTTP请求。
+     *
+     * @return 当前HTTP请求，如果不存在则返回null
+     */
     private HttpServletRequest getCurrentRequest() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         return attributes != null ? attributes.getRequest() : null;

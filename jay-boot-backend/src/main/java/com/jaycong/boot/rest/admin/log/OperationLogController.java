@@ -27,7 +27,7 @@ public class OperationLogController {
     }
 
     @Operation(summary = "分页查询操作日志")
-    @GetMapping
+    @GetMapping("/page")
     public ApiResponse<PageResult<OperationLogVO>> page(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize,

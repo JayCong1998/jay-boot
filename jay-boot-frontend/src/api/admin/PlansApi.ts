@@ -55,11 +55,11 @@ interface AdminPlanStatusPayload extends Record<string, unknown> {
  * 功能描述：按分页和筛选条件查询管理端套餐列表
  * 入参：分页参数、筛选参数
  * 返回参数：分页结果
- * url地址：/api/admin/plans
+ * url地址：/api/admin/plans/page
  * 请求方式：GET
  */
 export const getAdminPlanPageApi = (params: AdminPlanPageParams) =>
-  get<AdminPlanPageResponse>('/api/admin/plans', params)
+  get<AdminPlanPageResponse>('/api/admin/plans/page', params)
 
 /**
  * 创建套餐

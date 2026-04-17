@@ -39,7 +39,7 @@ public class AdminUserController {
     }
 
     @Operation(summary = "分页查询用户")
-    @GetMapping
+    @GetMapping("/page")
     public ApiResponse<PageResult<AdminUserItemView>> page(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize,

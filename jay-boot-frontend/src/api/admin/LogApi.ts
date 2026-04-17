@@ -73,7 +73,7 @@ interface BatchDeletePayload extends Record<string, unknown> {
  * 获取请求日志分页列表
  */
 export const getRequestLogPageApi = (params: RequestLogPageParams) =>
-  get<RequestLogPageResponse>('/api/admin/logs/requests', params)
+  get<RequestLogPageResponse>('/api/admin/logs/requests/page', params)
 
 /**
  * 获取请求日志详情
@@ -97,7 +97,7 @@ export const batchDeleteRequestLogApi = (ids: string[]) =>
  * 获取异常日志分页列表
  */
 export const getErrorLogPageApi = (params: ErrorLogPageParams) =>
-  get<ErrorLogPageResponse>('/api/admin/logs/errors', params)
+  get<ErrorLogPageResponse>('/api/admin/logs/errors/page', params)
 
 /**
  * 获取异常日志详情
@@ -149,7 +149,7 @@ export interface OperationLogPageParams extends Record<string, unknown> {
  * 获取操作日志分页列表
  */
 export const getOperationLogPageApi = (params: OperationLogPageParams) =>
-  get<OperationLogPageResponse>('/api/admin/logs/operations', params)
+  get<OperationLogPageResponse>('/api/admin/logs/operations/page', params)
 
 /**
  * 获取操作日志详情

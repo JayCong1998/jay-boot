@@ -1,35 +1,31 @@
 package com.jaycong.boot.modules.log.dto;
 
-import lombok.Data;
-
-@Data
-public class ErrorLogQueryRequest {
-
-    private Integer page = 1;
-
-    private Integer pageSize = 20;
-
-    private String keyword;
-
-    private String requestPath;
-
-    private Long userId;
-
-    private String startTime;
-
-    private String endTime;
-
-    public ErrorLogQueryRequest() {
-    }
-
-    public ErrorLogQueryRequest(Integer page, Integer pageSize, String keyword, String requestPath,
-                                Long userId, String startTime, String endTime) {
-        this.page = page != null ? page : 1;
-        this.pageSize = pageSize != null ? pageSize : 20;
-        this.keyword = keyword;
-        this.requestPath = requestPath;
-        this.userId = userId;
-        this.startTime = startTime;
-        this.endTime = endTime;
+/**
+ * 错误日志查询请求。
+ * 用于分页查询错误日志列表。
+ *
+ * @param page       页码（默认1）
+ * @param pageSize   每页大小（默认20）
+ * @param keyword    关键词（搜索异常类名或消息）
+ * @param requestPath 请求路径
+ * @param userId     用户ID
+ * @param startTime  开始时间
+ * @param endTime    结束时间
+ */
+public record ErrorLogQueryRequest(
+        Integer page,
+        Integer pageSize,
+        String keyword,
+        String requestPath,
+        Long userId,
+        String startTime,
+        String endTime
+) {
+    /**
+     * 默认构造函数，提供默认分页参数。
+     */
+    public ErrorLogQueryRequest {
+        page = page != null ? page : 1;
+        pageSize = pageSize != null ? pageSize : 20;
     }
 }

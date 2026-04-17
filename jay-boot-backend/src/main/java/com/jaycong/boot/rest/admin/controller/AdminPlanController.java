@@ -38,7 +38,7 @@ public class AdminPlanController {
     }
 
     @Operation(summary = "分页查询套餐")
-    @GetMapping
+    @GetMapping("/page")
     public ApiResponse<PageResult<AdminPlanItemView>> page(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer pageSize,
