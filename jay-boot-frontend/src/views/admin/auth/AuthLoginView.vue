@@ -96,8 +96,7 @@ const onFinish = async () => {
 <style scoped>
 .auth-page {
   min-height: 100vh;
-  width: min(100%, 1680px);
-  margin: 0 auto;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: clamp(20px, 1.8vw, 28px);

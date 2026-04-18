@@ -12,7 +12,6 @@
       <section class="hero-card">
         <div class="hero-meta">
           <span class="eyebrow">{{ overview.hero.eyebrow }}</span>
-          <span class="source-tag">数据源：{{ apiSourceText }}</span>
         </div>
         <h1>{{ overview.hero.title }}</h1>
         <p class="hero-desc">{{ overview.hero.description }}</p>
@@ -138,7 +137,6 @@ import {
   type PricingOverviewResponse,
   type PricingPlanCard,
 } from '../../../api/user/PricingApi'
-import { apiConfig } from '../../../config/api'
 
 const PRICING_CYCLE_CACHE_KEY = 'jay_boot_user_pricing_cycle'
 
@@ -148,8 +146,6 @@ const pageLoading = ref(false)
 const cycleSwitching = ref(false)
 const loadError = ref('')
 const activeCycle = ref<PricingBillingCycle>('MONTHLY')
-
-const apiSourceText = computed(() => (apiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
 
 const cycleOptions = computed<PricingCycleOption[]>(() => overview.value?.cycleOptions ?? [])
 const planCards = computed<PricingPlanCard[]>(() => overview.value?.planCards ?? [])
@@ -255,21 +251,15 @@ onMounted(() => {
   display: grid;
   gap: 14px;
   font-family: 'Plus Jakarta Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background:
-    radial-gradient(circle at 4% 2%, var(--user-gradient-a), transparent 36%),
-    radial-gradient(circle at 100% 0%, var(--user-gradient-b), transparent 30%),
-    var(--user-bg-base);
+  background: var(--user-bg-base);
 }
 
 .hero-card {
   border: 1px solid var(--pricing-border);
-  border-radius: 22px;
+  border-radius: 16px;
   padding: 28px 24px;
-  background:
-    radial-gradient(circle at 96% 10%, var(--user-gradient-hero-a), transparent 34%),
-    radial-gradient(circle at 8% 100%, var(--user-gradient-hero-b), transparent 32%),
-    var(--pricing-surface);
-  box-shadow: var(--user-shadow-md);
+  background: var(--pricing-surface);
+  box-shadow: var(--user-shadow-sm);
   animation: rise-in 320ms ease-out both;
 }
 
@@ -280,22 +270,14 @@ onMounted(() => {
   gap: 8px;
 }
 
-.eyebrow,
-.source-tag {
+.eyebrow {
   display: inline-flex;
   border: 1px solid var(--pricing-border);
   border-radius: 999px;
   padding: 5px 10px;
   font-size: 12px;
   background: var(--pricing-soft);
-}
-
-.eyebrow {
   color: var(--user-accent-deep);
-}
-
-.source-tag {
-  color: var(--pricing-minor);
 }
 
 .hero-card h1 {
@@ -340,7 +322,7 @@ onMounted(() => {
 }
 
 .section-block--soft {
-  background: linear-gradient(160deg, var(--user-bg-base), var(--user-surface-soft));
+  background: var(--pricing-surface);
 }
 
 .section-head {
@@ -390,7 +372,7 @@ onMounted(() => {
 
 .cycle-item.active {
   border-color: var(--user-accent);
-  box-shadow: 0 10px 18px rgba(var(--user-shadow-rgb), 0.14);
+  box-shadow: 0 8px 16px rgba(var(--user-shadow-rgb), 0.1);
   transform: translateY(-1px);
 }
 
@@ -418,7 +400,7 @@ onMounted(() => {
 
 .plan-card.recommended {
   border-color: var(--user-accent);
-  box-shadow: 0 12px 20px rgba(var(--user-shadow-rgb), 0.16);
+  box-shadow: 0 10px 18px rgba(var(--user-shadow-rgb), 0.12);
 }
 
 .plan-top {
@@ -536,10 +518,10 @@ td small {
 
 .final-cta {
   border: 1px solid var(--pricing-border);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 24px;
-  background: linear-gradient(130deg, var(--user-bg-soft), var(--user-bg-muted));
-  box-shadow: var(--user-shadow-lg);
+  background: var(--pricing-surface);
+  box-shadow: var(--user-shadow-sm);
   animation: rise-in 430ms ease-out both;
 }
 

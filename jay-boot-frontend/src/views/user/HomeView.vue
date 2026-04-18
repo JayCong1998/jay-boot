@@ -16,12 +16,7 @@
         </div>
 
         <div class="hero-side">
-          <article
-            v-for="card in conciseFeatureCards"
-            :key="`hero_${card.id}`"
-            class="hero-side-card"
-            :class="{ soft: card.soft }"
-          >
+          <article v-for="card in conciseFeatureCards" :key="`hero_${card.id}`" class="hero-side-card">
             <h3>{{ card.title }}</h3>
             <p>{{ card.points[0] }}</p>
           </article>
@@ -34,7 +29,7 @@
         <h2>{{ homeData.sectionTitles.features }}</h2>
       </div>
       <div class="feature-grid">
-        <article v-for="card in conciseFeatureCards" :key="card.id" class="feature-card" :class="{ soft: card.soft }">
+        <article v-for="card in conciseFeatureCards" :key="card.id" class="feature-card">
           <h3>{{ card.title }}</h3>
           <p>{{ card.points[0] || '快速上手，流畅创作。' }}</p>
         </article>
@@ -44,7 +39,7 @@
     <section class="section-block">
       <h2 class="kpi-title">{{ homeData.sectionTitles.socialProof }}</h2>
       <div class="kpi-grid">
-        <article v-for="kpi in conciseKpiCards" :key="kpi.id" class="kpi-card" :class="{ soft: kpi.soft }">
+        <article v-for="kpi in conciseKpiCards" :key="kpi.id" class="kpi-card">
           <p class="kpi-label">{{ kpi.label }}</p>
           <strong class="kpi-value">{{ kpi.value }}</strong>
           <p class="kpi-desc">{{ kpi.desc }}</p>
@@ -179,21 +174,15 @@ const goExperience = () => {
   gap: 18px;
   min-height: calc(100vh - 168px);
   font-family: 'Plus Jakarta Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background:
-    radial-gradient(circle at 0% 0%, var(--user-gradient-a), transparent 35%),
-    radial-gradient(circle at 100% 0%, var(--user-gradient-b), transparent 30%),
-    var(--user-bg-base);
+  background: var(--user-bg-base);
 }
 
 .hero-card {
   border: 1px solid var(--home-border);
-  border-radius: 22px;
-  padding: 32px 28px;
-  background:
-    radial-gradient(circle at 95% 8%, var(--user-gradient-hero-a), transparent 35%),
-    radial-gradient(circle at 12% 100%, var(--user-gradient-hero-b), transparent 34%),
-    var(--home-surface);
-  box-shadow: var(--user-shadow-md);
+  border-radius: 18px;
+  padding: 28px 24px;
+  background: var(--home-surface);
+  box-shadow: var(--user-shadow-sm);
   animation: rise-in 360ms ease-out both;
 }
 
@@ -215,22 +204,14 @@ const goExperience = () => {
   gap: 8px;
 }
 
-.eyebrow,
-.source-tag {
+.eyebrow {
   display: inline-flex;
   border: 1px solid var(--home-border);
   border-radius: 999px;
   padding: 5px 10px;
   font-size: 12px;
   background: var(--home-surface-soft);
-}
-
-.eyebrow {
   color: var(--user-accent-deep);
-}
-
-.source-tag {
-  color: var(--home-text-minor);
 }
 
 .hero-card h1 {
@@ -262,10 +243,6 @@ const goExperience = () => {
   min-height: 92px;
   background: var(--home-surface);
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
-}
-
-.hero-side-card.soft {
-  background: var(--home-surface-soft);
 }
 
 .hero-side-card:hover {
@@ -324,7 +301,7 @@ const goExperience = () => {
 }
 
 .section-block--soft {
-  background: linear-gradient(160deg, var(--user-bg-base), var(--user-surface-soft));
+  background: var(--home-surface);
 }
 
 .section-title {
@@ -369,11 +346,6 @@ const goExperience = () => {
   box-shadow: var(--user-shadow-sm);
 }
 
-.feature-card.soft,
-.kpi-card.soft {
-  background: var(--home-surface-soft);
-}
-
 .feature-card h3 {
   margin: 0;
   font-size: 17px;
@@ -409,10 +381,10 @@ const goExperience = () => {
 
 .final-cta {
   border: 1px solid var(--home-border);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 22px;
-  background: linear-gradient(130deg, var(--user-bg-soft), var(--user-bg-muted));
-  box-shadow: var(--user-shadow-lg);
+  background: var(--home-surface);
+  box-shadow: var(--user-shadow-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -446,6 +418,11 @@ const goExperience = () => {
   .section-block,
   .final-cta {
     padding: 16px;
+  }
+
+  .hero-actions :deep(.ant-btn) {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 120px;
   }
 
   .final-cta {

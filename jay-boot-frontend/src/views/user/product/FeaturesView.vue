@@ -12,7 +12,6 @@
       <section class="hero-card">
         <div class="hero-meta">
           <span class="eyebrow">{{ overview.hero.eyebrow }}</span>
-          <span class="source-tag">数据源：{{ apiSourceText }}</span>
         </div>
         <h1>{{ overview.hero.title }}</h1>
         <p>{{ overview.hero.description }}</p>
@@ -134,7 +133,6 @@ import {
   type FeaturesOverviewResponse,
   type FeaturesRoleFitResponse,
 } from '../../../api/user/FeaturesApi'
-import { apiConfig } from '../../../config/api'
 
 const router = useRouter()
 
@@ -143,8 +141,6 @@ const roleFit = ref<FeaturesRoleFitResponse | null>(null)
 const activeRoleKey = ref('')
 const pageLoading = ref(false)
 const loadError = ref('')
-
-const apiSourceText = computed(() => (apiConfig.mode === 'mock' ? 'Mock API' : '真实 API'))
 
 const updatedAtText = computed(() => {
   if (!overview.value?.updatedAt) {
@@ -230,13 +226,10 @@ onMounted(() => {
 
 .hero-card {
   border: 1px solid var(--feature-border);
-  border-radius: 20px;
-  padding: 28px;
-  background:
-    radial-gradient(circle at 96% 4%, var(--user-gradient-hero-a), transparent 34%),
-    radial-gradient(circle at 0 100%, var(--user-gradient-hero-b), transparent 32%),
-    var(--feature-surface);
-  box-shadow: var(--user-shadow-md);
+  border-radius: 16px;
+  padding: 24px;
+  background: var(--feature-surface);
+  box-shadow: var(--user-shadow-sm);
 }
 
 .hero-meta {
@@ -246,22 +239,14 @@ onMounted(() => {
   gap: 8px;
 }
 
-.eyebrow,
-.source-tag {
+.eyebrow {
   display: inline-flex;
   border: 1px solid var(--feature-border);
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 12px;
   background: var(--feature-soft);
-}
-
-.eyebrow {
   color: var(--user-accent-deep);
-}
-
-.source-tag {
-  color: var(--user-accent);
 }
 
 .hero-card h1 {
@@ -326,7 +311,7 @@ onMounted(() => {
 
 .plan-card.recommended {
   border-color: var(--user-accent);
-  box-shadow: 0 10px 20px rgba(var(--user-shadow-rgb), 0.14);
+  box-shadow: 0 8px 16px rgba(var(--user-shadow-rgb), 0.1);
 }
 
 .plan-code {
@@ -496,10 +481,10 @@ onMounted(() => {
 
 .final-cta {
   border: 1px solid var(--feature-border);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 24px;
-  background: linear-gradient(130deg, var(--user-bg-soft), var(--user-bg-muted));
-  box-shadow: var(--user-shadow-lg);
+  background: var(--feature-surface);
+  box-shadow: var(--user-shadow-sm);
 }
 
 .final-cta h2 {

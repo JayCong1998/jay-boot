@@ -114,15 +114,16 @@ onMounted(async () => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f6f8fa;
+  background: var(--user-bg-base);
 }
 
 .site-header {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: #0d1117;
-  border-bottom: 1px solid #30363d;
+  background: rgba(243, 251, 250, 0.92);
+  border-bottom: 1px solid var(--user-border);
+  backdrop-filter: blur(8px);
 }
 
 .shell {
@@ -156,7 +157,7 @@ onMounted(async () => {
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: #f0f6fc;
+  color: var(--user-text-main);
 }
 
 .brand-logo {
@@ -166,8 +167,8 @@ onMounted(async () => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #f0f6fc;
-  color: #0d1117;
+  background: var(--user-accent-soft);
+  color: var(--user-accent-deep);
   font-size: 11px;
   font-weight: 700;
 }
@@ -175,7 +176,7 @@ onMounted(async () => {
 .brand-text {
   font-size: 15px;
   font-weight: 600;
-  color: #f0f6fc;
+  color: var(--user-text-main);
 }
 
 .top-nav {
@@ -191,15 +192,15 @@ onMounted(async () => {
   padding: 8px 10px;
   font-size: 13px;
   text-decoration: none;
-  color: #c9d1d9;
+  color: var(--user-text-sub);
   white-space: nowrap;
 }
 
 .top-nav__link:hover,
 .top-nav__link[aria-current='page'] {
-  color: #f0f6fc;
-  border-color: #30363d;
-  background: rgba(177, 186, 196, 0.12);
+  color: var(--user-accent-deep);
+  border-color: var(--user-border-strong);
+  background: var(--user-surface-soft);
 }
 
 .topbar__right {
@@ -219,22 +220,22 @@ onMounted(async () => {
 .header-search input {
   width: min(300px, 30vw);
   height: 32px;
-  border: 1px solid #3d444d;
+  border: 1px solid var(--user-border);
   border-radius: 8px;
-  background: #0d1117;
-  color: #c9d1d9;
+  background: var(--user-surface);
+  color: var(--user-text-main);
   padding: 0 12px;
   font-size: 12px;
 }
 
 .header-search input::placeholder {
-  color: #8b949e;
+  color: var(--user-text-minor);
 }
 
 .header-search input:focus {
   outline: none;
-  border-color: #58a6ff;
-  box-shadow: 0 0 0 2px rgba(56, 139, 253, 0.22);
+  border-color: var(--user-accent);
+  box-shadow: 0 0 0 2px rgba(27, 167, 132, 0.14);
 }
 
 .action-link {
@@ -245,28 +246,31 @@ onMounted(async () => {
 }
 
 .action-link--ghost {
-  border: 1px solid transparent;
-  color: #c9d1d9;
+  border: 1px solid var(--user-border);
+  color: var(--user-text-sub);
+  background: var(--user-surface);
 }
 
 .action-link--ghost:hover {
-  border-color: #30363d;
-  color: #f0f6fc;
+  border-color: var(--user-border-strong);
+  color: var(--user-accent-deep);
 }
 
 .action-link--solid {
-  border: 1px solid #8b949e;
-  color: #f0f6fc;
+  border: 1px solid var(--user-accent);
+  background: var(--user-accent);
+  color: #ffffff;
 }
 
 .action-link--solid:hover {
-  border-color: #c9d1d9;
+  border-color: var(--user-accent-hover);
+  background: var(--user-accent-hover);
 }
 
 .user-avatar {
   width: 32px;
   height: 32px;
-  border: 1px solid #8b949e;
+  border: 1px solid var(--user-border-strong);
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -275,16 +279,16 @@ onMounted(async () => {
   font-weight: 700;
   letter-spacing: 0.03em;
   cursor: pointer;
-  color: #f0f6fc;
-  background: #1f6feb;
+  color: #ffffff;
+  background: var(--user-accent);
 }
 
 .user-avatar:hover {
-  filter: brightness(1.08);
+  background: var(--user-accent-hover);
 }
 
 .user-avatar:focus-visible {
-  outline: 2px solid #58a6ff;
+  outline: 2px solid var(--user-accent);
   outline-offset: 2px;
 }
 
@@ -323,7 +327,7 @@ onMounted(async () => {
 
 .user-main {
   flex: 1;
-  padding: 24px 0 36px;
+  padding: 20px 0 30px;
 }
 
 .content-wrap {
@@ -333,8 +337,8 @@ onMounted(async () => {
 }
 
 .site-footer {
-  border-top: 1px solid #d0d7de;
-  background: #ffffff;
+  border-top: 1px solid var(--user-border);
+  background: var(--user-surface-soft);
 }
 
 .site-footer__inner {
@@ -348,7 +352,7 @@ onMounted(async () => {
 .site-footer__meta,
 .site-footer__locale {
   font-size: 12px;
-  color: #57606a;
+  color: var(--user-text-minor);
   white-space: nowrap;
 }
 
@@ -360,13 +364,13 @@ onMounted(async () => {
 }
 
 .site-footer__links a {
-  color: #57606a;
+  color: var(--user-text-sub);
   text-decoration: none;
   font-size: 12px;
 }
 
 .site-footer__links a:hover {
-  color: #0969da;
+  color: var(--user-accent-deep);
 }
 
 @media (max-width: 1024px) {
