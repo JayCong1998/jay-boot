@@ -173,28 +173,28 @@ onMounted(async () => {
   --auth-border: var(--user-border);
   --auth-text-main: var(--user-text-main);
   --auth-text-sub: var(--user-text-sub);
-  min-height: calc(100vh - 180px);
-  display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(320px, 500px);
-  gap: 18px;
-  padding: 8px;
+  width: min(100%, 1480px);
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: clamp(20px, 2vw, 36px);
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 1.8vw, 24px);
   background:
     radial-gradient(circle at 6% 12%, var(--user-gradient-a), transparent 36%),
-    radial-gradient(circle at 94% 88%, var(--user-gradient-b), transparent 35%),
-  var(--auth-bg);
-  border: 1px solid var(--auth-border);
-  border-radius: 20px;
+    radial-gradient(circle at 94% 88%, var(--user-gradient-b), transparent 35%);
 }
 
-.auth-intro,
-.auth-card-wrap {
+.auth-intro {
   background: var(--auth-panel);
   border: 1px solid var(--auth-border);
   border-radius: 16px;
 }
 
 .auth-intro {
-  padding: 28px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: clamp(22px, 2vw, 32px);
 }
 
 .auth-intro__tag {
@@ -209,7 +209,7 @@ onMounted(async () => {
 
 .auth-intro h1 {
   margin: 12px 0 0;
-  font-size: clamp(30px, 4.2vw, 44px);
+  font-size: clamp(30px, 2.4vw, 44px);
   line-height: 1.15;
   letter-spacing: -0.02em;
   color: var(--auth-text-main);
@@ -217,6 +217,7 @@ onMounted(async () => {
 
 .auth-intro__desc {
   margin: 14px 0 0;
+  max-width: 72ch;
   color: var(--auth-text-sub);
   line-height: 1.75;
 }
@@ -230,13 +231,14 @@ onMounted(async () => {
 }
 
 .auth-card-wrap {
-  padding: 14px;
-  display: flex;
-  align-items: center;
+  flex: 0 0 clamp(360px, 30vw, 520px);
+  width: clamp(360px, 30vw, 520px);
 }
 
 .auth-card {
   width: 100%;
+  border: 1px solid var(--auth-border);
+  background: var(--auth-panel);
   border-radius: 14px;
 }
 
@@ -254,19 +256,31 @@ onMounted(async () => {
   margin-bottom: 8px;
 }
 
+@media (max-width: 1200px) {
+  .auth-card-wrap {
+    flex-basis: clamp(320px, 38vw, 460px);
+    width: clamp(320px, 38vw, 460px);
+  }
+}
+
 @media (max-width: 980px) {
   .auth-view {
-    grid-template-columns: 1fr;
-    padding: 10px;
+    min-height: 0;
+    display: block;
+    padding: 20px;
   }
 
-  .auth-intro,
-  .auth-card-wrap {
+  .auth-intro {
+    margin-bottom: 12px;
     padding: 16px;
   }
 
   .auth-intro h1 {
     font-size: clamp(26px, 8vw, 36px);
+  }
+
+  .auth-card-wrap {
+    width: 100%;
   }
 }
 

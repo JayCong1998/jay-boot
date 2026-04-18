@@ -34,64 +34,6 @@ CREATE TABLE IF NOT EXISTS login_logs (
     KEY idx_login_logs_user_time (user_id, created_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS roles (
-    id BIGINT PRIMARY KEY,
-    name VARCHAR(64) NOT NULL,
-    creator_id BIGINT NOT NULL,
-    creator_name VARCHAR(64) NOT NULL,
-    created_time DATETIME(3) NOT NULL,
-    updater_id BIGINT NOT NULL,
-    updater_name VARCHAR(64) NOT NULL,
-    updated_time DATETIME(3) NOT NULL,
-    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
-    UNIQUE KEY uk_roles_name_deleted (name, is_deleted),
-    KEY idx_roles_name (name)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS permissions (
-    id BIGINT PRIMARY KEY,
-    code VARCHAR(128) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    creator_id BIGINT NOT NULL,
-    creator_name VARCHAR(64) NOT NULL,
-    created_time DATETIME(3) NOT NULL,
-    updater_id BIGINT NOT NULL,
-    updater_name VARCHAR(64) NOT NULL,
-    updated_time DATETIME(3) NOT NULL,
-    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
-    UNIQUE KEY uk_permissions_code_deleted (code, is_deleted)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS role_permissions (
-    id BIGINT PRIMARY KEY,
-    role_id BIGINT NOT NULL,
-    permission_id BIGINT NOT NULL,
-    creator_id BIGINT NOT NULL,
-    creator_name VARCHAR(64) NOT NULL,
-    created_time DATETIME(3) NOT NULL,
-    updater_id BIGINT NOT NULL,
-    updater_name VARCHAR(64) NOT NULL,
-    updated_time DATETIME(3) NOT NULL,
-    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
-    UNIQUE KEY uk_role_permissions_role_permission_deleted (role_id, permission_id, is_deleted),
-    KEY idx_role_permissions_role (role_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS user_roles (
-    id BIGINT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    role_id BIGINT NOT NULL,
-    creator_id BIGINT NOT NULL,
-    creator_name VARCHAR(64) NOT NULL,
-    created_time DATETIME(3) NOT NULL,
-    updater_id BIGINT NOT NULL,
-    updater_name VARCHAR(64) NOT NULL,
-    updated_time DATETIME(3) NOT NULL,
-    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
-    UNIQUE KEY uk_user_roles_user_role_deleted (user_id, role_id, is_deleted),
-    KEY idx_user_roles_user (user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE IF NOT EXISTS plans (
     id BIGINT PRIMARY KEY,
     code VARCHAR(64) NOT NULL,
@@ -268,3 +210,103 @@ INSERT IGNORE INTO sys_dict_item (
 
     (1951000000001000041, 'http_method', 'GET', 'GET', 10, 'green', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
     (1951000000001000042, 'http_method', 'POST', 'POST', 20, 'blue', NULL, 'ENABLED', 0, 'system', NOW(3), 0, 'system', NOW(3), 0);
+
+CREATE TABLE IF NOT EXISTS mail_channel (
+    id BIGINT PRIMARY KEY,
+    channel_code VARCHAR(64) NOT NULL COMMENT '通道编码',
+    channel_name VARCHAR(64) NOT NULL COMMENT '通道名称',
+    provider_type VARCHAR(16) NOT NULL DEFAULT 'SMTP' COMMENT 'SMTP/SES/SENDGRID',
+    smtp_host VARCHAR(128) NOT NULL,
+    smtp_port INT NOT NULL,
+    smtp_username VARCHAR(128) NOT NULL,
+    smtp_password_cipher VARCHAR(512) NOT NULL COMMENT '加密后的SMTP密码',
+    tls_mode VARCHAR(16) NOT NULL DEFAULT 'STARTTLS' COMMENT 'NONE/STARTTLS/SSL',
+    from_name VARCHAR(128) NOT NULL,
+    from_email VARCHAR(128) NOT NULL,
+    priority INT NOT NULL DEFAULT 0 COMMENT '越小优先级越高',
+    status VARCHAR(16) NOT NULL DEFAULT 'ENABLED' COMMENT 'ENABLED/DISABLED',
+    remark VARCHAR(255) NULL,
+    creator_id BIGINT NOT NULL,
+    creator_name VARCHAR(64) NOT NULL,
+    created_time DATETIME(3) NOT NULL,
+    updater_id BIGINT NOT NULL,
+    updater_name VARCHAR(64) NOT NULL,
+    updated_time DATETIME(3) NOT NULL,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    UNIQUE KEY uk_mail_channel_code_deleted (channel_code, is_deleted),
+    KEY idx_mail_channel_status_priority (status, priority)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='邮件通道配置';
+
+CREATE TABLE IF NOT EXISTS mail_template (
+    id BIGINT PRIMARY KEY,
+    template_code VARCHAR(64) NOT NULL COMMENT '模板编码',
+    template_name VARCHAR(64) NOT NULL COMMENT '模板名称',
+    biz_type VARCHAR(32) NOT NULL COMMENT 'VERIFY_CODE/SYSTEM_NOTICE',
+    scene_code VARCHAR(64) NOT NULL COMMENT '业务场景',
+    subject_template VARCHAR(255) NOT NULL COMMENT '主题模板',
+    body_template MEDIUMTEXT NOT NULL COMMENT '正文模板',
+    body_type VARCHAR(16) NOT NULL DEFAULT 'HTML' COMMENT 'HTML/TEXT',
+    vars_schema_json TEXT NULL COMMENT '变量说明JSON',
+    status VARCHAR(16) NOT NULL DEFAULT 'ENABLED' COMMENT 'ENABLED/DISABLED',
+    remark VARCHAR(255) NULL,
+    creator_id BIGINT NOT NULL,
+    creator_name VARCHAR(64) NOT NULL,
+    created_time DATETIME(3) NOT NULL,
+    updater_id BIGINT NOT NULL,
+    updater_name VARCHAR(64) NOT NULL,
+    updated_time DATETIME(3) NOT NULL,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    UNIQUE KEY uk_mail_template_code_deleted (template_code, is_deleted),
+    KEY idx_mail_template_scene_status (biz_type, scene_code, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='邮件模板';
+
+CREATE TABLE IF NOT EXISTS mail_send_log (
+    id BIGINT PRIMARY KEY,
+    biz_type VARCHAR(32) NOT NULL COMMENT '业务类型',
+    scene_code VARCHAR(64) NULL COMMENT '场景编码',
+    template_code VARCHAR(64) NOT NULL COMMENT '模板编码',
+    channel_code VARCHAR(64) NOT NULL COMMENT '通道编码',
+    recipient_email VARCHAR(128) NOT NULL COMMENT '收件邮箱',
+    subject_rendered VARCHAR(255) NOT NULL COMMENT '渲染主题',
+    body_rendered MEDIUMTEXT NOT NULL COMMENT '渲染正文',
+    biz_key VARCHAR(128) NULL COMMENT '业务幂等键',
+    trace_id VARCHAR(64) NULL COMMENT '链路追踪ID',
+    status VARCHAR(16) NOT NULL COMMENT 'PENDING/SUCCESS/FAILED',
+    error_code VARCHAR(64) NULL COMMENT '错误码',
+    error_message VARCHAR(512) NULL COMMENT '错误消息',
+    retry_count INT NOT NULL DEFAULT 0 COMMENT '已重试次数',
+    max_retry_count INT NOT NULL DEFAULT 3 COMMENT '最大重试次数',
+    next_retry_time DATETIME(3) NULL COMMENT '下次重试时间',
+    sent_time DATETIME(3) NULL COMMENT '发送时间',
+    creator_id BIGINT NOT NULL,
+    creator_name VARCHAR(64) NOT NULL,
+    created_time DATETIME(3) NOT NULL,
+    updater_id BIGINT NOT NULL,
+    updater_name VARCHAR(64) NOT NULL,
+    updated_time DATETIME(3) NOT NULL,
+    is_deleted TINYINT(1) NOT NULL DEFAULT 0,
+    UNIQUE KEY uk_mail_send_log_biz_key_deleted (biz_key, is_deleted),
+    KEY idx_mail_send_log_status_retry (status, next_retry_time),
+    KEY idx_mail_send_log_template_time (template_code, created_time),
+    KEY idx_mail_send_log_recipient_time (recipient_email, created_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='邮件发送日志';
+
+INSERT IGNORE INTO mail_template (
+    id, template_code, template_name, biz_type, scene_code, subject_template, body_template, body_type,
+    vars_schema_json, status, remark, creator_id, creator_name, created_time, updater_id, updater_name, updated_time, is_deleted
+) VALUES
+    (1952000000000000101, 'vc_register', '注册验证码模板', 'VERIFY_CODE', 'REGISTER',
+     '【Jay Boot】注册验证码', '<p>您好，您的注册验证码是 <b>{{code}}</b>，{{expireSeconds}} 秒内有效。</p>', 'HTML',
+     '{"code":"string","expireSeconds":"number"}', 'ENABLED', '默认注册验证码模板', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1952000000000000102, 'vc_login_verify', '登录验证验证码模板', 'VERIFY_CODE', 'LOGIN_VERIFY',
+     '【Jay Boot】登录验证码', '<p>您好，您的登录验证码是 <b>{{code}}</b>，{{expireSeconds}} 秒内有效。</p>', 'HTML',
+     '{"code":"string","expireSeconds":"number"}', 'ENABLED', '默认登录验证码模板', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1952000000000000103, 'vc_reset_password', '找回密码验证码模板', 'VERIFY_CODE', 'RESET_PASSWORD',
+     '【Jay Boot】找回密码验证码', '<p>您好，您的找回密码验证码是 <b>{{code}}</b>，{{expireSeconds}} 秒内有效。</p>', 'HTML',
+     '{"code":"string","expireSeconds":"number"}', 'ENABLED', '默认找回密码验证码模板', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1952000000000000104, 'vc_change_email', '修改邮箱验证码模板', 'VERIFY_CODE', 'CHANGE_EMAIL',
+     '【Jay Boot】修改邮箱验证码', '<p>您好，您的修改邮箱验证码是 <b>{{code}}</b>，{{expireSeconds}} 秒内有效。</p>', 'HTML',
+     '{"code":"string","expireSeconds":"number"}', 'ENABLED', '默认修改邮箱验证码模板', 0, 'system', NOW(3), 0, 'system', NOW(3), 0),
+    (1952000000000000199, 'system_notice_default', '系统通知模板', 'SYSTEM_NOTICE', 'SYSTEM_NOTICE',
+     '【Jay Boot】系统通知', '<p>{{content}}</p>', 'HTML',
+     '{"content":"string"}', 'ENABLED', '默认系统通知模板', 0, 'system', NOW(3), 0, 'system', NOW(3), 0);

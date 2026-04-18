@@ -96,16 +96,20 @@ const onFinish = async () => {
 <style scoped>
 .auth-page {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(320px, 460px);
-  gap: 24px;
+  width: min(100%, 1680px);
+  margin: 0 auto;
+  display: flex;
   align-items: center;
-  padding: 32px;
+  gap: clamp(20px, 1.8vw, 28px);
+  justify-content: center;
+  padding: clamp(20px, 2vw, 36px);
   background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 45%, #f8fafc 100%);
 }
 
 .auth-page__intro {
-  max-width: 620px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 760px;
 }
 
 .auth-page__intro h1 {
@@ -123,6 +127,8 @@ const onFinish = async () => {
 }
 
 .auth-card {
+  flex: 0 0 clamp(360px, 30vw, 520px);
+  width: clamp(360px, 30vw, 520px);
   border-radius: 16px;
   border: 1px solid #d9def0;
 }
@@ -133,14 +139,31 @@ const onFinish = async () => {
   color: #475569;
 }
 
+@media (max-width: 1200px) {
+  .auth-page {
+    gap: 16px;
+  }
+
+  .auth-card {
+    flex-basis: clamp(320px, 40vw, 460px);
+    width: clamp(320px, 40vw, 460px);
+  }
+}
+
 @media (max-width: 1024px) {
   .auth-page {
-    grid-template-columns: 1fr;
+    min-height: 0;
+    display: block;
     padding: 20px;
   }
 
   .auth-page__intro {
     max-width: none;
+    margin-bottom: 16px;
+  }
+
+  .auth-card {
+    width: 100%;
   }
 }
 </style>

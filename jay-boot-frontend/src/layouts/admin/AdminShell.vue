@@ -70,6 +70,9 @@ const menuItems: MenuProps['items'] = [
   { key: '/admin/users', label: '用户管理' },
   { key: '/admin/plans', label: '套餐管理' },
   { key: '/admin/dicts', label: '字典管理' },
+  { key: '/admin/mails/channels', label: '邮件通道管理' },
+  { key: '/admin/mails/templates', label: '邮件模板管理' },
+  { key: '/admin/mails/logs', label: '邮件发送日志' },
   { key: '/admin/logs/requests', label: '请求日志' },
   { key: '/admin/logs/errors', label: '异常日志' },
 ]

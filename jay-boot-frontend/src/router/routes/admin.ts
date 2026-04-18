@@ -27,6 +27,24 @@ const adminChildren: RouteRecordRaw[] = [
     meta: { title: '字典管理' },
   },
   {
+    path: 'mails/channels',
+    name: 'admin-mails-channels',
+    component: () => import('../../views/admin/mail/MailChannelManagementView.vue'),
+    meta: { title: '邮件通道管理' },
+  },
+  {
+    path: 'mails/templates',
+    name: 'admin-mails-templates',
+    component: () => import('../../views/admin/mail/MailTemplateManagementView.vue'),
+    meta: { title: '邮件模板管理' },
+  },
+  {
+    path: 'mails/logs',
+    name: 'admin-mails-logs',
+    component: () => import('../../views/admin/mail/MailLogView.vue'),
+    meta: { title: '邮件发送日志' },
+  },
+  {
     path: 'logs/requests',
     name: 'admin-logs-requests',
     component: () => import('../../views/admin/log/RequestLogView.vue'),

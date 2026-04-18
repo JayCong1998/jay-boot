@@ -1,15 +1,31 @@
 <template>
   <section class="home-view">
     <section class="hero-card">
-      <div class="hero-meta" v-once>
-        <span class="eyebrow">{{ homeData.hero.eyebrow }}</span>
-      </div>
-      <h1>{{ homeData.hero.title }}</h1>
-      <p class="hero-desc">{{ homeData.hero.description }}</p>
+      <div class="hero-layout">
+        <div class="hero-main">
+          <div class="hero-meta" v-once>
+            <span class="eyebrow">{{ homeData.hero.eyebrow }}</span>
+          </div>
+          <h1>{{ homeData.hero.title }}</h1>
+          <p class="hero-desc">{{ homeData.hero.description }}</p>
 
-      <div class="hero-actions">
-        <a-button type="primary" size="large" class="btn-main" @click="goExperience">立即体验</a-button>
-        <a-button size="large" class="btn-sub" @click="goRegister">免费注册</a-button>
+          <div class="hero-actions">
+            <a-button type="primary" size="large" class="btn-main" @click="goExperience">立即体验</a-button>
+            <a-button size="large" class="btn-sub" @click="goRegister">免费注册</a-button>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <article
+            v-for="card in conciseFeatureCards"
+            :key="`hero_${card.id}`"
+            class="hero-side-card"
+            :class="{ soft: card.soft }"
+          >
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.points[0] }}</p>
+          </article>
+        </div>
       </div>
     </section>
 
@@ -83,31 +99,31 @@ const homeData: HomeData = {
   hero: {
     eyebrow: '面向内容创业者的增长引擎',
     title: '10 秒生成可发布文案',
-    description: '从选题、生成、迭代到交付，帮助你把 AI 创作能力直接转化为稳定收益。首页目标是"看完即理解，点击就试用"。'
+    description: '从选题、生成、迭代到交付，帮助你把 AI 创作能力直接转化为稳定收益。首页目标是“看完即理解，点击就试用”。',
   },
   sectionTitles: {
     features: '核心价值',
-    socialProof: '社证数据'
+    socialProof: '社证数据',
   },
   featureCards: [
     {
       id: 'feature_1',
       title: '高转化模板',
       points: ['按平台和场景生成文案结构', '支持热门选题拆解与复刻', '减少从 0 到 1 的思考成本'],
-      soft: false
+      soft: false,
     },
     {
       id: 'feature_2',
       title: '多版本并行',
       points: ['一次生成多个风格版本', '便于 A/B 测试提升转化', '保留历史用于持续复盘'],
-      soft: false
+      soft: false,
     },
     {
       id: 'feature_3',
       title: '结果可交付',
-      points: ['支持链接交付给客户或团队', '支持导出 Markdown 与图片文档', '形成"创作-交付-复购"闭环'],
-      soft: true
-    }
+      points: ['支持链接交付给客户或团队', '支持导出 Markdown 与图片文档', '形成“创作-交付-复购”闭环'],
+      soft: true,
+    },
   ],
   kpiCards: [
     {
@@ -115,26 +131,26 @@ const homeData: HomeData = {
       label: '累计生成内容',
       value: '2,900 万+',
       desc: '覆盖营销、私域、直播、电商等场景',
-      soft: false
+      soft: false,
     },
     {
       id: 'kpi_2',
       label: '7 日留存',
       value: '74%',
       desc: '核心用户持续使用工作台',
-      soft: false
+      soft: false,
     },
     {
       id: 'kpi_3',
       label: '付费转化',
       value: '12.8%',
       desc: '通过案例页进入的用户转化更高',
-      soft: true
-    }
+      soft: true,
+    },
   ],
   finalCta: {
-    title: '准备好把创作效率变成盈利能力了吗？'
-  }
+    title: '准备好把创作效率变成盈利能力了吗？',
+  },
 }
 
 const router = useRouter()
@@ -160,7 +176,8 @@ const goExperience = () => {
   --home-surface: var(--user-surface);
   --home-surface-soft: var(--user-surface-soft);
   display: grid;
-  gap: 14px;
+  gap: 18px;
+  min-height: calc(100vh - 168px);
   font-family: 'Plus Jakarta Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   background:
     radial-gradient(circle at 0% 0%, var(--user-gradient-a), transparent 35%),
@@ -171,13 +188,24 @@ const goExperience = () => {
 .hero-card {
   border: 1px solid var(--home-border);
   border-radius: 22px;
-  padding: 30px 26px;
+  padding: 32px 28px;
   background:
     radial-gradient(circle at 95% 8%, var(--user-gradient-hero-a), transparent 35%),
     radial-gradient(circle at 12% 100%, var(--user-gradient-hero-b), transparent 34%),
     var(--home-surface);
   box-shadow: var(--user-shadow-md);
   animation: rise-in 360ms ease-out both;
+}
+
+.hero-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.hero-main {
+  min-width: 0;
 }
 
 .hero-meta {
@@ -218,10 +246,43 @@ const goExperience = () => {
   color: var(--home-text-sub);
   line-height: 1.65;
   max-width: 640px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+}
+
+.hero-side {
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.hero-side-card {
+  border: 1px solid var(--home-border);
+  border-radius: 14px;
+  padding: 14px;
+  min-height: 92px;
+  background: var(--home-surface);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+
+.hero-side-card.soft {
+  background: var(--home-surface-soft);
+}
+
+.hero-side-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--user-shadow-sm);
+}
+
+.hero-side-card h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--home-text-main);
+}
+
+.hero-side-card p {
+  margin: 8px 0 0;
+  color: var(--home-text-sub);
+  line-height: 1.55;
 }
 
 .hero-actions {
@@ -257,7 +318,7 @@ const goExperience = () => {
 .section-block {
   border: 1px solid var(--home-border);
   border-radius: 16px;
-  padding: 16px;
+  padding: 18px;
   background: var(--home-surface);
   animation: rise-in 420ms ease-out both;
 }
@@ -288,15 +349,16 @@ const goExperience = () => {
 .kpi-grid {
   margin-top: 10px;
   display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .feature-card,
 .kpi-card {
   border: 1px solid var(--home-border);
   border-radius: 14px;
-  padding: 13px;
+  padding: 14px;
+  min-height: 116px;
   background: var(--home-surface);
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
 }
@@ -322,10 +384,6 @@ const goExperience = () => {
   margin: 8px 0 0;
   color: var(--home-text-sub);
   line-height: 1.55;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .kpi-label {
@@ -345,17 +403,14 @@ const goExperience = () => {
 .kpi-desc {
   margin: 4px 0 0;
   font-size: 12px;
+  line-height: 1.55;
   color: var(--home-text-minor);
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 .final-cta {
   border: 1px solid var(--home-border);
   border-radius: 20px;
-  padding: 20px;
+  padding: 22px;
   background: linear-gradient(130deg, var(--user-bg-soft), var(--user-bg-muted));
   box-shadow: var(--user-shadow-lg);
   display: flex;
@@ -376,6 +431,10 @@ const goExperience = () => {
 }
 
 @media (max-width: 1100px) {
+  .hero-layout {
+    grid-template-columns: 1fr;
+  }
+
   .feature-grid,
   .kpi-grid {
     grid-template-columns: 1fr;
@@ -418,12 +477,14 @@ const goExperience = () => {
   }
 
   .feature-card,
-  .kpi-card {
+  .kpi-card,
+  .hero-side-card {
     transition: none;
   }
 
   .feature-card:hover,
-  .kpi-card:hover {
+  .kpi-card:hover,
+  .hero-side-card:hover {
     transform: none;
     box-shadow: none;
   }

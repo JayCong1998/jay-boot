@@ -1,42 +1,53 @@
 <template>
   <div class="user-shell">
     <header class="site-header">
-      <div class="shell topbar">
-        <RouterLink class="brand" to="/user/home">
-          <span class="brand-logo">JC</span>
-          <span class="brand-text">
-            <strong>JayBoot</strong>
-          </span>
-        </RouterLink>
-
-        <nav class="top-nav" aria-label="用户端导航">
-          <RouterLink
-            v-for="item in navItems"
-            :key="item.path"
-            :to="item.path"
-            class="top-nav__link"
-            :aria-current="isActive(item.path) ? 'page' : undefined"
-          >
-            {{ item.label }}
+      <div class="shell shell--wide topbar">
+        <div class="topbar__left">
+          <RouterLink class="brand" to="/user/home" aria-label="JayBoot 首页">
+            <span class="brand-logo">JB</span>
+            <span class="brand-text">JayBoot</span>
           </RouterLink>
-        </nav>
 
-        <div class="top-actions">
-          <RouterLink v-if="!userAuthStore.isLoggedIn" class="action-link" to="/user/auth/login">
+          <nav class="top-nav" aria-label="用户端导航">
+            <RouterLink
+              v-for="item in navItems"
+              :key="item.path"
+              :to="item.path"
+              class="top-nav__link"
+              :aria-current="isActive(item.path) ? 'page' : undefined"
+            >
+              {{ item.label }}
+            </RouterLink>
+          </nav>
+        </div>
+
+        <div class="topbar__right">
+          <label class="header-search" aria-label="站内搜索">
+            <input type="search" placeholder="搜索功能、页面或关键字..." />
+          </label>
+
+          <RouterLink v-if="!userAuthStore.isLoggedIn" class="action-link action-link--ghost" to="/user/auth/login">
             登录
           </RouterLink>
-          <a-popover v-else placement="bottomRight" trigger="hover">
-            <template #content>
-              <div class="user-popover">
-                <strong class="user-popover__name">{{ userName }}</strong>
-                <p class="user-popover__email">{{ userEmail }}</p>
-                <button type="button" class="user-popover__logout" @click="onLogout">退出登录</button>
-              </div>
-            </template>
-            <button type="button" class="user-avatar" :aria-label="`当前用户 ${userName}`">
-              {{ avatarInitial }}
-            </button>
-          </a-popover>
+          <RouterLink v-if="!userAuthStore.isLoggedIn" class="action-link action-link--solid" to="/user/auth/register">
+            注册
+          </RouterLink>
+
+          <template v-else>
+            <RouterLink class="action-link action-link--ghost" to="/user/workspace">工作台</RouterLink>
+            <a-popover placement="bottomRight" trigger="hover">
+              <template #content>
+                <div class="user-popover">
+                  <strong class="user-popover__name">{{ userName }}</strong>
+                  <p class="user-popover__email">{{ userEmail }}</p>
+                  <button type="button" class="user-popover__logout" @click="onLogout">退出登录</button>
+                </div>
+              </template>
+              <button type="button" class="user-avatar" :aria-label="`当前用户 ${userName}`">
+                {{ avatarInitial }}
+              </button>
+            </a-popover>
+          </template>
         </div>
       </div>
     </header>
@@ -49,7 +60,14 @@
 
     <footer class="site-footer">
       <div class="shell site-footer__inner">
-        <span>© 2026 JayBoot</span>
+        <div class="site-footer__meta">© 2026 JayBoot, Inc.</div>
+        <nav class="site-footer__links" aria-label="页脚导航">
+          <RouterLink to="/user/home">首页</RouterLink>
+          <RouterLink to="/user/features">解决方案</RouterLink>
+          <RouterLink to="/user/pricing">定价</RouterLink>
+          <RouterLink to="/user/help">帮助中心</RouterLink>
+        </nav>
+        <div class="site-footer__locale">简体中文</div>
       </div>
     </footer>
   </div>
@@ -65,13 +83,11 @@ const router = useRouter()
 const userAuthStore = useUserAuthStore()
 
 const navItems = [
-  { path: '/user/home', label: '首页' },
-  // { path: '/user/features', label: '功能' },
+  { path: '/user/home', label: '平台' },
+  { path: '/user/features', label: '解决方案' },
+  { path: '/user/help', label: '资源' },
+  { path: '/user/onboarding', label: '开放能力' },
   { path: '/user/pricing', label: '定价' },
-  { path: '/user/workspace', label: '工作台' },
-  { path: '/user/history', label: '历史' },
-  // { path: '/user/subscription', label: '订阅' },
-  // { path: '/user/help', label: '帮助' },
 ]
 
 const isActive = (path: string) => route.path === path || route.path.startsWith(`${path}/`)
@@ -98,147 +114,177 @@ onMounted(async () => {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(circle at 0 0, var(--user-gradient-a), transparent 34%),
-    radial-gradient(circle at 100% 0, var(--user-gradient-b), transparent 28%),
-    var(--user-bg-base);
+  background: #f6f8fa;
 }
 
 .site-header {
   position: sticky;
   top: 0;
   z-index: 20;
-  backdrop-filter: blur(8px);
-  background: rgba(255, 250, 252, 0.92);
-  border-bottom: 1px solid var(--user-border);
+  background: #0d1117;
+  border-bottom: 1px solid #30363d;
 }
 
 .shell {
-  width: min(1180px, calc(100% - 32px));
+  width: min(1680px, calc(100% - clamp(20px, 3vw, 48px)));
   margin: 0 auto;
 }
 
+.shell--wide {
+  width: calc(100% - 48px);
+  max-width: none;
+}
+
 .topbar {
-  min-height: 72px;
+  min-height: 64px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+.topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: inherit;
+  color: #f0f6fc;
 }
 
 .brand-logo {
-  width: 38px;
-  height: 38px;
-  border-radius: 11px;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #f8fafc;
-  font-size: 14px;
+  background: #f0f6fc;
+  color: #0d1117;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  background: linear-gradient(140deg, var(--user-accent-deep), var(--user-text-minor));
-  box-shadow: 0 10px 20px rgba(var(--user-shadow-rgb), 0.28);
 }
 
 .brand-text {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.brand-text strong {
   font-size: 15px;
-  line-height: 1.2;
-  color: var(--user-text-main);
-}
-
-.brand-text small {
-  font-size: 12px;
-  color: var(--user-text-minor);
+  font-weight: 600;
+  color: #f0f6fc;
 }
 
 .top-nav {
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-width: 0;
+  gap: 2px;
 }
 
 .top-nav__link {
   border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 8px 11px;
+  border-radius: 8px;
+  padding: 8px 10px;
   font-size: 13px;
   text-decoration: none;
-  color: var(--user-text-sub);
-  transition: 0.2s ease;
+  color: #c9d1d9;
   white-space: nowrap;
 }
 
 .top-nav__link:hover,
 .top-nav__link[aria-current='page'] {
-  color: var(--user-text-main);
-  border-color: var(--user-border-strong);
-  background: var(--user-surface-soft);
+  color: #f0f6fc;
+  border-color: #30363d;
+  background: rgba(177, 186, 196, 0.12);
 }
 
-.top-actions {
+.topbar__right {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.header-search {
+  display: inline-flex;
+  align-items: center;
+}
+
+.header-search input {
+  width: min(300px, 30vw);
+  height: 32px;
+  border: 1px solid #3d444d;
+  border-radius: 8px;
+  background: #0d1117;
+  color: #c9d1d9;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.header-search input::placeholder {
+  color: #8b949e;
+}
+
+.header-search input:focus {
+  outline: none;
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 2px rgba(56, 139, 253, 0.22);
 }
 
 .action-link {
-  border: 1px solid var(--user-border-strong);
-  border-radius: 10px;
-  padding: 8px 12px;
-  text-decoration: none;
+  border-radius: 8px;
+  padding: 7px 12px;
   font-size: 13px;
-  color: var(--user-text-main);
-  background: var(--user-surface);
-  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  text-decoration: none;
 }
 
-.action-link:hover {
-  border-color: var(--user-accent);
-  color: var(--user-accent-deep);
-  background: var(--user-surface-soft);
+.action-link--ghost {
+  border: 1px solid transparent;
+  color: #c9d1d9;
+}
+
+.action-link--ghost:hover {
+  border-color: #30363d;
+  color: #f0f6fc;
+}
+
+.action-link--solid {
+  border: 1px solid #8b949e;
+  color: #f0f6fc;
+}
+
+.action-link--solid:hover {
+  border-color: #c9d1d9;
 }
 
 .user-avatar {
-  width: 38px;
-  height: 38px;
-  border: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #8b949e;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.03em;
   cursor: pointer;
-  color: #f8fafc;
-  background: linear-gradient(135deg, var(--user-accent), var(--user-accent-hover));
-  box-shadow: 0 10px 22px rgba(var(--user-shadow-rgb), 0.26);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: #f0f6fc;
+  background: #1f6feb;
 }
 
 .user-avatar:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 24px rgba(var(--user-shadow-rgb), 0.32);
+  filter: brightness(1.08);
 }
 
 .user-avatar:focus-visible {
-  outline: 2px solid var(--user-accent);
+  outline: 2px solid #58a6ff;
   outline-offset: 2px;
 }
 
@@ -251,61 +297,91 @@ onMounted(async () => {
 .user-popover__name {
   font-size: 14px;
   line-height: 1.2;
-  color: var(--user-text-main);
+  color: #1f2328;
 }
 
 .user-popover__email {
   margin: 0;
   font-size: 12px;
-  color: var(--user-text-sub);
+  color: #57606a;
   word-break: break-all;
 }
 
 .user-popover__logout {
-  border: 1px solid var(--user-border-strong);
+  border: 1px solid #d0d7de;
   border-radius: 8px;
   padding: 6px 10px;
   font-size: 12px;
-  color: var(--user-text-main);
-  background: var(--user-surface);
+  color: #1f2328;
+  background: #ffffff;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
 }
 
 .user-popover__logout:hover {
-  border-color: var(--user-accent);
-  color: var(--user-accent-deep);
-  background: var(--user-surface-soft);
+  border-color: #afb8c1;
 }
 
 .user-main {
   flex: 1;
-  padding: 26px 0 40px;
+  padding: 24px 0 36px;
 }
 
 .content-wrap {
-  display: grid;
-  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
 }
 
 .site-footer {
-  border-top: 1px solid var(--user-border);
-  background: var(--user-surface);
+  border-top: 1px solid #d0d7de;
+  background: #ffffff;
 }
 
 .site-footer__inner {
-  min-height: 62px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
+}
+
+.site-footer__meta,
+.site-footer__locale {
   font-size: 12px;
-  color: var(--user-text-minor);
+  color: #57606a;
+  white-space: nowrap;
+}
+
+.site-footer__links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.site-footer__links a {
+  color: #57606a;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.site-footer__links a:hover {
+  color: #0969da;
+}
+
+@media (max-width: 1024px) {
+  .header-search {
+    display: none;
+  }
 }
 
 @media (max-width: 980px) {
+  .shell--wide {
+    width: calc(100% - 24px);
+  }
+
   .shell {
-    width: min(1180px, calc(100% - 24px));
+    width: min(1680px, calc(100% - 24px));
   }
 
   .topbar {
@@ -321,34 +397,30 @@ onMounted(async () => {
     padding-bottom: 4px;
   }
 
-  .top-actions {
+  .topbar__right {
     margin-left: auto;
   }
 }
 
 @media (max-width: 768px) {
+  .shell--wide {
+    width: calc(100% - 20px);
+  }
+
   .shell {
-    width: min(1180px, calc(100% - 20px));
+    width: min(1680px, calc(100% - 20px));
   }
 
-  .topbar {
-    gap: 10px;
-  }
-
-  .brand-text small {
+  .brand-text {
     display: none;
   }
 
-  .top-nav {
-    scrollbar-width: thin;
+  .topbar__right {
+    gap: 6px;
   }
 
-  .top-nav__link {
-    padding: 7px 10px;
-  }
-
-  .user-main {
-    padding: 18px 0 28px;
+  .action-link {
+    padding: 6px 10px;
   }
 
   .site-footer__inner {
@@ -357,27 +429,11 @@ onMounted(async () => {
     flex-direction: column;
     align-items: flex-start;
   }
-}
 
-@media (max-width: 575px) {
-  .brand {
-    max-width: calc(100vw - 160px);
-  }
-
-  .brand-text strong {
-    font-size: 14px;
-  }
-
-  .top-actions {
-    gap: 6px;
-  }
-
-  .action-link {
-    padding: 7px 10px;
-  }
-
-  .user-main {
-    padding: 14px 0 22px;
+  .site-footer__links {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px;
   }
 }
 </style>
