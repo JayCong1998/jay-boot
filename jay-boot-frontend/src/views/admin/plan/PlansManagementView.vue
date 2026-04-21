@@ -194,14 +194,6 @@ type TagMeta = { label: string; color: string }
 
 const BILLING_CYCLE_DICT_CODE = 'plan_billing_cycle'
 const STATUS_DICT_CODE = 'plan_status'
-const FALLBACK_BILLING_CYCLE_META: Record<PlanBillingCycle, TagMeta> = {
-  MONTHLY: { label: '月付', color: 'processing' },
-  YEARLY: { label: '年付', color: 'success' },
-}
-const FALLBACK_STATUS_META: Record<PlanStatus, TagMeta> = {
-  ACTIVE: { label: '启用', color: 'success' },
-  INACTIVE: { label: '停用', color: 'default' },
-}
 const dictStore = useDictStore()
 
 // 页面状态
@@ -263,36 +255,36 @@ const toPlanStatusValue = (value: string): PlanStatus | null => {
   return null
 }
 
-const billingCycleMetaMap = computed<Record<PlanBillingCycle, TagMeta>>(() => {
-  const next: Record<PlanBillingCycle, TagMeta> = { ...FALLBACK_BILLING_CYCLE_META }
+const billingCycleMetaMap = computed<Partial<Record<PlanBillingCycle, TagMeta>>>(() => {
+  const next: Partial<Record<PlanBillingCycle, TagMeta>> = {}
   dictStore.optionsByType(BILLING_CYCLE_DICT_CODE).forEach((item) => {
     const cycle = toBillingCycleValue(item.value)
     if (!cycle) return
     next[cycle] = {
-      label: item.label || FALLBACK_BILLING_CYCLE_META[cycle].label,
-      color: item.color || FALLBACK_BILLING_CYCLE_META[cycle].color,
+      label: item.label || cycle,
+      color: item.color || 'default',
     }
   })
   return next
 })
 
-const statusMetaMap = computed<Record<PlanStatus, TagMeta>>(() => {
-  const next: Record<PlanStatus, TagMeta> = { ...FALLBACK_STATUS_META }
+const statusMetaMap = computed<Partial<Record<PlanStatus, TagMeta>>>(() => {
+  const next: Partial<Record<PlanStatus, TagMeta>> = {}
   dictStore.optionsByType(STATUS_DICT_CODE).forEach((item) => {
     const status = toPlanStatusValue(item.value)
     if (!status) return
     next[status] = {
-      label: item.label || FALLBACK_STATUS_META[status].label,
-      color: item.color || FALLBACK_STATUS_META[status].color,
+      label: item.label || status,
+      color: item.color || 'default',
     }
   })
   return next
 })
 
 const resolveBillingCycleMeta = (cycle: PlanBillingCycle) => (
-  billingCycleMetaMap.value[cycle] ?? FALLBACK_BILLING_CYCLE_META[cycle]
+  billingCycleMetaMap.value[cycle] ?? { label: cycle, color: 'default' }
 )
-const resolveStatusMeta = (status: PlanStatus) => statusMetaMap.value[status] ?? FALLBACK_STATUS_META[status]
+const resolveStatusMeta = (status: PlanStatus) => statusMetaMap.value[status] ?? { label: status, color: 'default' }
 
 const resolveBillingCycleLabel = (value: unknown) => {
   if (value === 'MONTHLY' || value === 'YEARLY') {
@@ -434,11 +426,7 @@ const fetchList = async (mode: 'initial' | 'refresh' = 'refresh') => {
 }
 
 const loadDictionaries = async () => {
-  try {
-    await dictStore.fetchBatch([BILLING_CYCLE_DICT_CODE, STATUS_DICT_CODE])
-  } catch {
-    message.warning('字典加载失败，已使用页面默认选项')
-  }
+  await dictStore.fetchBatch([BILLING_CYCLE_DICT_CODE, STATUS_DICT_CODE])
 }
 
 const onRefreshClick = async () => {

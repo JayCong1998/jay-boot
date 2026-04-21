@@ -3,7 +3,7 @@
     <header class="log-toolbar">
       <div>
         <h2 class="log-title">操作日志</h2>
-        <p class="log-subtitle">查看系统关键业务操作记录，支持筛选检索与详情查看。</p>
+        <p class="log-subtitle">查看用户关键业务操作记录，支持按模块、用户和时间范围筛选。</p>
       </div>
       <div class="log-toolbar__actions">
         <a-button :loading="pageState.refreshing" @click="onRefreshClick">
@@ -24,36 +24,38 @@
     <a-card class="log-card" :bordered="false">
       <a-form layout="vertical">
         <a-row :gutter="12">
-          <a-col :xs="24" :md="12" :lg="6">
+          <a-col :xs="24" :md="8" :lg="6">
             <a-form-item label="模块">
               <a-input
                 v-model:value="filters.module"
                 allow-clear
-                placeholder="输入模块名称"
+                placeholder="请输入模块名"
                 @pressEnter="onSearchClick"
               />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="12" :lg="6">
+          <a-col :xs="24" :md="8" :lg="6">
             <a-form-item label="操作用户ID">
-              <a-input
+              <a-input-number
                 v-model:value="filters.userId"
-                allow-clear
-                placeholder="输入用户ID"
-                @pressEnter="onSearchClick"
+                style="width: 100%"
+                :min="1"
+                :precision="0"
+                placeholder="请输入用户ID"
               />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="12" :lg="6">
+          <a-col :xs="24" :md="8" :lg="6">
             <a-form-item label="时间范围">
               <a-range-picker
                 v-model:value="filters.dateRange"
                 style="width: 100%"
+                :allow-clear="true"
                 :placeholder="['开始日期', '结束日期']"
               />
             </a-form-item>
           </a-col>
-          <a-col :xs="24" :md="12" :lg="6">
+          <a-col :xs="24" :md="24" :lg="6">
             <a-form-item label=" ">
               <a-space>
                 <a-button type="primary" :loading="pageState.refreshing" @click="onSearchClick">查询</a-button>
@@ -103,7 +105,7 @@
             :current="pageState.page"
             :page-size="pageState.pageSize"
             :total="pageState.total"
-            :show-total="(total: number) => `共 ${total} 条`"
+            :show-total="showTotal"
             show-size-changer
             :page-size-options="['20', '50', '100']"
             @change="onPageChange"
@@ -112,17 +114,21 @@
       </template>
     </a-card>
 
-    <a-modal v-model:open="detailModal.open" title="操作日志详情" :footer="null" width="700px">
+    <a-modal v-model:open="detailModal.open" title="操作日志详情" :footer="null" width="720px" @cancel="onCloseDetail">
       <a-spin :spinning="detailModal.loading">
         <a-descriptions :column="2" bordered size="small">
-        <a-descriptions-item label="模块">{{ detailModal.data?.module }}</a-descriptions-item>
-        <a-descriptions-item label="操作">{{ detailModal.data?.action }}</a-descriptions-item>
-        <a-descriptions-item label="详情" :span="2">{{ detailModal.data?.detail || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="操作用户">{{ detailModal.data?.username || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="用户ID">{{ detailModal.data?.userId || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="客户端IP">{{ detailModal.data?.clientIp || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="请求ID">{{ detailModal.data?.requestId || '-' }}</a-descriptions-item>
-        <a-descriptions-item label="操作时间" :span="2">{{ formatDateTime(detailModal.data?.createdTime) }}</a-descriptions-item>
+          <a-descriptions-item label="模块">{{ detailModal.data?.module || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="操作">{{ detailModal.data?.action || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="详情" :span="2">
+            <pre class="detail-pre">{{ detailModal.data?.detail || '-' }}</pre>
+          </a-descriptions-item>
+          <a-descriptions-item label="操作用户">{{ detailModal.data?.username || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="用户ID">{{ detailModal.data?.userId ?? '-' }}</a-descriptions-item>
+          <a-descriptions-item label="客户端IP">{{ detailModal.data?.clientIp || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="请求ID">{{ detailModal.data?.requestId || '-' }}</a-descriptions-item>
+          <a-descriptions-item label="操作时间" :span="2">
+            {{ formatDateTime(detailModal.data?.createdTime) }}
+          </a-descriptions-item>
         </a-descriptions>
       </a-spin>
     </a-modal>
@@ -131,6 +137,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive } from 'vue'
+import type { Dayjs } from 'dayjs'
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import {
@@ -139,7 +146,6 @@ import {
   type OperationLogItem,
   type OperationLogPageParams,
 } from '../../../api/admin/LogApi'
-import type { Dayjs } from 'dayjs'
 
 const pageState = reactive({
   records: [] as OperationLogItem[],
@@ -151,11 +157,9 @@ const pageState = reactive({
   errorMessage: '',
 })
 
-const hasData = computed(() => pageState.records.length > 0)
-
 const filters = reactive({
   module: '',
-  userId: '',
+  userId: null as number | null,
   dateRange: null as [Dayjs, Dayjs] | null,
 })
 
@@ -165,17 +169,19 @@ const detailModal = reactive({
   data: null as OperationLogItem | null,
 })
 
-const tableColumns = [
-  { title: '模块', dataIndex: 'module', key: 'module', width: 120 },
-  { title: '操作', dataIndex: 'action', key: 'action', width: 100 },
-  { title: '详情', dataIndex: 'detail', key: 'detail', width: 250 },
-  { title: '操作者', dataIndex: 'username', key: 'username', width: 100 },
-  { title: '客户端IP', dataIndex: 'clientIp', key: 'clientIp', width: 120 },
-  { title: '时间', dataIndex: 'createdTime', key: 'createdTime', width: 170 },
-  { title: '操作', key: 'actions', width: 80 },
-]
-
+const hasData = computed(() => pageState.records.length > 0)
 const tableLoading = computed(() => pageState.loadingInitial || pageState.refreshing)
+const showTotal = (total: number) => `共 ${total} 条`
+
+const tableColumns = [
+  { title: '模块', dataIndex: 'module', key: 'module', width: 130 },
+  { title: '操作', dataIndex: 'action', key: 'action', width: 140 },
+  { title: '详情', dataIndex: 'detail', key: 'detail', width: 280 },
+  { title: '操作用户', dataIndex: 'username', key: 'username', width: 130 },
+  { title: '客户端IP', dataIndex: 'clientIp', key: 'clientIp', width: 140 },
+  { title: '操作时间', dataIndex: 'createdTime', key: 'createdTime', width: 170 },
+  { title: '操作', key: 'actions', width: 90, fixed: 'right' },
+]
 
 const formatDateTime = (value: string | null | undefined) => {
   if (!value) return '-'
@@ -194,8 +200,8 @@ const fetchList = async (mode: 'initial' | 'refresh' = 'refresh') => {
       page: pageState.page,
       pageSize: pageState.pageSize,
     }
-    if (filters.module) params.module = filters.module
-    if (filters.userId) params.userId = filters.userId
+    if (filters.module.trim()) params.module = filters.module.trim()
+    if (filters.userId !== null) params.userId = filters.userId
     if (filters.dateRange) {
       params.startTime = filters.dateRange[0].format('YYYY-MM-DD 00:00:00')
       params.endTime = filters.dateRange[1].format('YYYY-MM-DD 23:59:59')
@@ -237,7 +243,7 @@ const onSearchClick = async () => {
 
 const onResetClick = async () => {
   filters.module = ''
-  filters.userId = ''
+  filters.userId = null
   filters.dateRange = null
   pageState.page = 1
   await fetchList('refresh')
@@ -249,12 +255,22 @@ const onPageChange = async (page: number, pageSize: number) => {
   await fetchList('refresh')
 }
 
+const onCloseDetail = () => {
+  detailModal.data = null
+}
+
 const onViewDetail = async (record: OperationLogItem) => {
   detailModal.open = true
   detailModal.loading = true
   detailModal.data = null
   try {
-    detailModal.data = await getOperationLogDetailApi(record.id)
+    const detail = await getOperationLogDetailApi(record.id)
+    if (!detail) {
+      message.warning('未找到该日志详情')
+      detailModal.open = false
+      return
+    }
+    detailModal.data = detail
   } catch (error) {
     detailModal.open = false
     message.error(error instanceof Error ? error.message : '操作日志详情加载失败，请稍后重试')
@@ -319,11 +335,19 @@ onMounted(() => {
 }
 
 .detail-text {
-  max-width: 230px;
+  max-width: 260px;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.detail-pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 220px;
+  overflow: auto;
 }
 
 @media (max-width: 1100px) {

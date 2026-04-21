@@ -75,6 +75,7 @@ const menuItems: MenuProps['items'] = [
   { key: '/admin/mails/logs', label: '邮件发送日志' },
   { key: '/admin/logs/requests', label: '请求日志' },
   { key: '/admin/logs/errors', label: '异常日志' },
+  { key: '/admin/logs/operations', label: '操作日志' },
 ]
 
 const selectedKeys = computed(() => {

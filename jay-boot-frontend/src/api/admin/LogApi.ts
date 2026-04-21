@@ -122,7 +122,7 @@ export interface OperationLogItem {
   module: string
   action: string
   detail: string | null
-  userId: string | null
+  userId: number | null
   username: string | null
   clientIp: string | null
   requestId: string | null
@@ -140,7 +140,7 @@ export interface OperationLogPageParams extends Record<string, unknown> {
   page?: number
   pageSize?: number
   module?: string
-  userId?: string
+  userId?: number
   startTime?: string
   endTime?: string
 }

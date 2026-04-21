@@ -151,10 +151,6 @@ import { useDictStore } from '../../../stores/dict'
 type HttpMethod = 'GET' | 'POST'
 type MethodMeta = { label: string; color: string }
 const METHOD_DICT_CODE = 'http_method'
-const FALLBACK_METHOD_META: Record<HttpMethod, MethodMeta> = {
-  GET: { label: 'GET', color: 'green' },
-  POST: { label: 'POST', color: 'blue' },
-}
 const dictStore = useDictStore()
 
 // 页面状态
@@ -201,14 +197,14 @@ const toMethodValue = (value: string): HttpMethod | null => {
   return null
 }
 
-const methodMetaMap = computed<Record<HttpMethod, MethodMeta>>(() => {
-  const next: Record<HttpMethod, MethodMeta> = { ...FALLBACK_METHOD_META }
+const methodMetaMap = computed<Partial<Record<HttpMethod, MethodMeta>>>(() => {
+  const next: Partial<Record<HttpMethod, MethodMeta>> = {}
   dictStore.optionsByType(METHOD_DICT_CODE).forEach((item) => {
     const method = toMethodValue(item.value)
     if (!method) return
     next[method] = {
-      label: item.label || FALLBACK_METHOD_META[method].label,
-      color: item.color || FALLBACK_METHOD_META[method].color,
+      label: item.label || method,
+      color: item.color || 'default',
     }
   })
   return next
@@ -217,7 +213,7 @@ const methodMetaMap = computed<Record<HttpMethod, MethodMeta>>(() => {
 const methodOptions = computed<Array<{ label: string; value: '' | HttpMethod }>>(() => [
   { label: '全部方法', value: '' },
   ...(Object.keys(methodMetaMap.value) as HttpMethod[]).map((method) => ({
-    label: methodMetaMap.value[method].label,
+    label: methodMetaMap.value[method]?.label ?? method,
     value: method,
   })),
 ])
@@ -225,11 +221,8 @@ const methodOptions = computed<Array<{ label: string; value: '' | HttpMethod }>>
 const tableLoading = computed(() => pageState.loadingInitial || pageState.refreshing)
 
 const getMethodColor = (method: string) => {
-  const colors: Record<string, string> = {
-    GET: methodMetaMap.value.GET.color,
-    POST: methodMetaMap.value.POST.color,
-  }
-  return colors[method] || 'default'
+  const meta = methodMetaMap.value[method as HttpMethod]
+  return meta?.color ?? 'default'
 }
 
 const getStatusColor = (status: number) => {
@@ -290,11 +283,7 @@ const fetchList = async (mode: 'initial' | 'refresh' = 'refresh') => {
 }
 
 const loadDictionaries = async () => {
-  try {
-    await dictStore.fetchBatch([METHOD_DICT_CODE])
-  } catch {
-    message.warning('字典加载失败，已使用页面默认选项')
-  }
+  await dictStore.fetchBatch([METHOD_DICT_CODE])
 }
 
 const onRefreshClick = async () => {

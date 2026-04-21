@@ -177,15 +177,6 @@ type TagMeta = { label: string; color: string }
 
 const ROLE_DICT_CODE = 'admin_user_role'
 const STATUS_DICT_CODE = 'admin_user_status'
-const FALLBACK_ROLE_META: Record<AdminUserRole, TagMeta> = {
-  super_admin: { label: '超管', color: 'red' },
-  admin: { label: '管理员', color: 'processing' },
-  user: { label: '用户', color: 'default' },
-}
-const FALLBACK_STATUS_META: Record<AdminUserStatus, TagMeta> = {
-  ACTIVE: { label: '启用', color: 'success' },
-  INACTIVE: { label: '禁用', color: 'default' },
-}
 const dictStore = useDictStore()
 
 // 页面状态
@@ -253,38 +244,38 @@ const toStatusValue = (value: string): AdminUserStatus | null => {
   return null
 }
 
-const roleMetaMap = computed<Record<AdminUserRole, TagMeta>>(() => {
-  const next: Record<AdminUserRole, TagMeta> = { ...FALLBACK_ROLE_META }
+const roleMetaMap = computed<Partial<Record<AdminUserRole, TagMeta>>>(() => {
+  const next: Partial<Record<AdminUserRole, TagMeta>> = {}
   dictStore.optionsByType(ROLE_DICT_CODE).forEach((item) => {
     const role = toRoleValue(item.value)
     if (!role) return
     next[role] = {
-      label: item.label || FALLBACK_ROLE_META[role].label,
-      color: item.color || FALLBACK_ROLE_META[role].color,
+      label: item.label || role,
+      color: item.color || 'default',
     }
   })
   return next
 })
 
-const statusMetaMap = computed<Record<AdminUserStatus, TagMeta>>(() => {
-  const next: Record<AdminUserStatus, TagMeta> = { ...FALLBACK_STATUS_META }
+const statusMetaMap = computed<Partial<Record<AdminUserStatus, TagMeta>>>(() => {
+  const next: Partial<Record<AdminUserStatus, TagMeta>> = {}
   dictStore.optionsByType(STATUS_DICT_CODE).forEach((item) => {
     const status = toStatusValue(item.value)
     if (!status) return
     next[status] = {
-      label: item.label || FALLBACK_STATUS_META[status].label,
-      color: item.color || FALLBACK_STATUS_META[status].color,
+      label: item.label || status,
+      color: item.color || 'default',
     }
   })
   return next
 })
 
-const resolveRoleMeta = (role: AdminUserRole) => roleMetaMap.value[role] ?? FALLBACK_ROLE_META[role]
-const resolveStatusMeta = (status: AdminUserStatus) => statusMetaMap.value[status] ?? FALLBACK_STATUS_META[status]
+const resolveRoleMeta = (role: AdminUserRole) => roleMetaMap.value[role] ?? { label: role, color: 'default' }
+const resolveStatusMeta = (status: AdminUserStatus) => statusMetaMap.value[status] ?? { label: status, color: 'default' }
 
 const roleFormOptions = computed<Array<{ label: string; value: AdminUserRole }>>(() => (
   (Object.keys(roleMetaMap.value) as AdminUserRole[]).map((role) => ({
-    label: roleMetaMap.value[role].label,
+    label: roleMetaMap.value[role]?.label ?? role,
     value: role,
   }))
 ))
@@ -296,7 +287,7 @@ const roleFilterOptions = computed<Array<{ label: string; value: '' | AdminUserR
 
 const statusFormOptions = computed<Array<{ label: string; value: AdminUserStatus }>>(() => (
   (Object.keys(statusMetaMap.value) as AdminUserStatus[]).map((status) => ({
-    label: statusMetaMap.value[status].label,
+    label: statusMetaMap.value[status]?.label ?? status,
     value: status,
   }))
 ))
@@ -380,11 +371,7 @@ const fetchList = async (mode: 'initial' | 'refresh' = 'refresh') => {
 }
 
 const loadDictionaries = async () => {
-  try {
-    await dictStore.fetchBatch([ROLE_DICT_CODE, STATUS_DICT_CODE])
-  } catch {
-    message.warning('字典加载失败，已使用页面默认选项')
-  }
+  await dictStore.fetchBatch([ROLE_DICT_CODE, STATUS_DICT_CODE])
 }
 
 const onRefreshClick = async () => {
