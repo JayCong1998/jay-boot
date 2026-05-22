@@ -8,7 +8,7 @@ import com.jaycong.boot.modules.auth.dto.SiteLoginRequest;
 import com.jaycong.boot.modules.auth.dto.SiteLogoutRequest;
 import com.jaycong.boot.modules.auth.dto.SiteRegisterRequest;
 import com.jaycong.boot.modules.auth.service.AuthService;
-import com.jaycong.boot.modules.ratelimit.annotation.RateLimit;
+import com.jaycong.boot.capability.ratelimit.annotation.RateLimit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

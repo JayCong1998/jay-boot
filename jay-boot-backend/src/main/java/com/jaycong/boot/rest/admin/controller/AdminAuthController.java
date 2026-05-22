@@ -3,7 +3,7 @@ package com.jaycong.boot.rest.admin.controller;
 import com.jaycong.boot.common.web.ApiResponse;
 import com.jaycong.boot.modules.auth.dto.*;
 import com.jaycong.boot.modules.auth.service.AuthService;
-import com.jaycong.boot.modules.ratelimit.annotation.RateLimit;
+import com.jaycong.boot.capability.ratelimit.annotation.RateLimit;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

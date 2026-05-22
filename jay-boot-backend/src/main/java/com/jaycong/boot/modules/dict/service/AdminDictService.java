@@ -25,7 +25,7 @@ import com.jaycong.boot.modules.dict.entity.DictItemEntity;
 import com.jaycong.boot.modules.dict.entity.DictTypeEntity;
 import com.jaycong.boot.modules.dict.mapper.DictItemMapper;
 import com.jaycong.boot.modules.dict.mapper.DictTypeMapper;
-import com.jaycong.boot.modules.log.annotation.OperationLog;
+import com.jaycong.boot.capability.log.annotation.OperationLog;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;

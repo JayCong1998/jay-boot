@@ -9,7 +9,7 @@ import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.common.util.ValidateUtil;
 import com.jaycong.boot.common.web.PageResult;
-import com.jaycong.boot.modules.log.annotation.OperationLog;
+import com.jaycong.boot.capability.log.annotation.OperationLog;
 import com.jaycong.boot.modules.plan.dto.AdminPlanCreateRequest;
 import com.jaycong.boot.modules.plan.dto.AdminPlanItemView;
 import com.jaycong.boot.modules.plan.dto.AdminPlanPageRequest;

@@ -6,7 +6,7 @@ import com.jaycong.boot.common.exception.BusinessException;
 import com.jaycong.boot.common.exception.ErrorCode;
 import com.jaycong.boot.common.web.PageResult;
 import com.jaycong.boot.modules.auth.context.LoginContext;
-import com.jaycong.boot.modules.log.annotation.OperationLog;
+import com.jaycong.boot.capability.log.annotation.OperationLog;
 import com.jaycong.boot.modules.user.dto.AdminUserCreateRequest;
 import com.jaycong.boot.modules.user.dto.AdminUserItemView;
 import com.jaycong.boot.modules.user.dto.AdminUserPageRequest;
